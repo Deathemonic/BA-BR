@@ -1,15 +1,18 @@
+using System.Text;
+using System.Text.Json;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Handlers.Bundles;
 using BABU.Models;
 using BABU.Utilities;
-using Newtonsoft.Json.Linq;
 
 namespace BABU.Handlers.Assets;
 
 public class GenericAssetHandler
 {
-    public async Task<int> ExportAssets(string moddedPath, List<AssetMatch> matches)
+    private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
+
+    public static async Task<int> ExportAssets(string moddedPath, List<AssetMatch> matches)
     {
         FileManager.DumpDirExists();
 
@@ -35,7 +38,7 @@ public class GenericAssetHandler
         return exportedCount;
     }
 
-    public async Task<int> ImportAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportAssets(BundleLoader loader, List<AssetMatch> matches)
     {
         if (!ValidateSetup())
             return 0;
@@ -108,31 +111,33 @@ public class GenericAssetHandler
     private static async Task ExportJsonData(AssetTypeValueField baseField, string filePath)
     {
         await using var fileStream = File.Create(filePath);
-        var streamWriter = new StreamWriter(fileStream);
-        var jBaseField = RecurseJsonDump(baseField, false);
-        await streamWriter.WriteAsync(jBaseField.ToString());
-        await streamWriter.FlushAsync();
+        await using var writer = new Utf8JsonWriter(fileStream, WriterOptions);
+        RecurseJsonDump(writer, baseField, false);
+        await writer.FlushAsync();
     }
 
-    private static JToken RecurseJsonDump(AssetTypeValueField field, bool uabeFlavor)
+    private static void RecurseJsonDump(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor)
     {
         var template = field.TemplateField;
         var isArray = template.IsArray;
 
         if (isArray)
         {
-            var jArray = new JArray();
+            writer.WriteStartArray();
             if (template.ValueType != AssetValueType.ByteArray)
             {
-                foreach (var t in field.Children) jArray.Add(RecurseJsonDump(t, uabeFlavor));
+                foreach (var child in field.Children)
+                    RecurseJsonDump(writer, child, flavor);
             }
             else
             {
                 var byteArrayData = field.AsByteArray;
-                foreach (var t in byteArrayData) jArray.Add(t);
+                foreach (var b in byteArrayData)
+                    writer.WriteNumberValue(b);
             }
 
-            return jArray;
+            writer.WriteEndArray();
+            return;
         }
 
         if (field.Value != null)
@@ -140,71 +145,100 @@ public class GenericAssetHandler
             var valueType = field.Value.ValueType;
 
             if (field.Value.ValueType == AssetValueType.ManagedReferencesRegistry)
-                return JsonDumpRefRegistry(field, uabeFlavor);
-            object value = valueType switch
             {
-                AssetValueType.Bool => field.AsBool,
-                AssetValueType.Int8 or
-                    AssetValueType.Int16 or
-                    AssetValueType.Int32 => field.AsInt,
-                AssetValueType.Int64 => field.AsLong,
-                AssetValueType.UInt8 or
-                    AssetValueType.UInt16 or
-                    AssetValueType.UInt32 => field.AsUInt,
-                AssetValueType.UInt64 => field.AsULong,
-                AssetValueType.String => field.AsString,
-                AssetValueType.Float => field.AsFloat,
-                AssetValueType.Double => field.AsDouble,
-                _ => "invalid value"
-            };
+                JsonDumpRefRegistry(writer, field, flavor);
+                return;
+            }
 
-            return (JValue)JToken.FromObject(value);
+            switch (valueType)
+            {
+                case AssetValueType.Bool:
+                    writer.WriteBooleanValue(field.AsBool);
+                    break;
+                case AssetValueType.Int8:
+                case AssetValueType.Int16:
+                case AssetValueType.Int32:
+                    writer.WriteNumberValue(field.AsInt);
+                    break;
+                case AssetValueType.Int64:
+                    writer.WriteNumberValue(field.AsLong);
+                    break;
+                case AssetValueType.UInt8:
+                case AssetValueType.UInt16:
+                case AssetValueType.UInt32:
+                    writer.WriteNumberValue(field.AsUInt);
+                    break;
+                case AssetValueType.UInt64:
+                    writer.WriteNumberValue(field.AsULong);
+                    break;
+                case AssetValueType.String:
+                    writer.WriteStringValue(field.AsString);
+                    break;
+                case AssetValueType.Float:
+                    writer.WriteNumberValue(field.AsFloat);
+                    break;
+                case AssetValueType.Double:
+                    writer.WriteNumberValue(field.AsDouble);
+                    break;
+                default:
+                    writer.WriteStringValue("invalid value");
+                    break;
+            }
+
+            return;
         }
 
-        var jObject = new JObject();
-        foreach (var child in field) jObject.Add(child.FieldName, RecurseJsonDump(child, uabeFlavor));
+        writer.WriteStartObject();
+        foreach (var child in field)
+        {
+            writer.WritePropertyName(child.FieldName);
+            RecurseJsonDump(writer, child, flavor);
+        }
 
-        return jObject;
+        writer.WriteEndObject();
     }
 
-    private static JObject JsonDumpRefRegistry(AssetTypeValueField field, bool uabeFlavor = false)
+    private static void JsonDumpRefRegistry(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor = false)
     {
         var registry = field.Value.AsManagedReferencesRegistry;
 
         if (registry.version is < 1 or > 2)
             throw new NotSupportedException($"Registry version {registry.version} not supported.");
 
-        var jArrayRefs = new JArray(
-            registry.references.Select(refObj =>
-            {
-                var jObjManagedType = new JObject
-                {
-                    { "class", refObj.type.ClassName },
-                    { "ns", refObj.type.Namespace },
-                    { "asm", refObj.type.AsmName }
-                };
+        writer.WriteStartObject();
+        writer.WriteNumber("version", registry.version);
+        writer.WritePropertyName("RefIds");
+        writer.WriteStartArray();
 
-                var jObjData = new JObject(
-                    refObj.data.Select(child => new JProperty(child.FieldName, RecurseJsonDump(child, uabeFlavor)))
-                );
-
-                var jObjRefObject = new JObject
-                {
-                    { "type", jObjManagedType },
-                    { "data", jObjData }
-                };
-
-                if (registry.version != 1) jObjRefObject.AddFirst(new JProperty("rid", refObj.rid));
-
-                return jObjRefObject;
-            })
-        );
-
-        return new JObject
+        foreach (var refObj in registry.references)
         {
-            { "version", registry.version },
-            { "RefIds", jArrayRefs }
-        };
+            writer.WriteStartObject();
+
+            if (registry.version != 1)
+                writer.WriteNumber("rid", refObj.rid);
+
+            writer.WritePropertyName("type");
+            writer.WriteStartObject();
+            writer.WriteString("class", refObj.type.ClassName);
+            writer.WriteString("ns", refObj.type.Namespace);
+            writer.WriteString("asm", refObj.type.AsmName);
+            writer.WriteEndObject();
+
+            writer.WritePropertyName("data");
+            writer.WriteStartObject();
+            foreach (var child in refObj.data)
+            {
+                writer.WritePropertyName(child.FieldName);
+                RecurseJsonDump(writer, child, flavor);
+            }
+
+            writer.WriteEndObject();
+
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     private static bool ValidateSetup()
@@ -318,11 +352,18 @@ public class GenericAssetHandler
 
         try
         {
-            using var streamReader = new StreamReader(readStream);
+            using var streamReader = new StreamReader(readStream, leaveOpen: true);
             var jsonText = await streamReader.ReadToEndAsync();
-            var token = JToken.Parse(jsonText);
+            var jsonBytes = Encoding.UTF8.GetBytes(jsonText);
+            var reader = new Utf8JsonReader(jsonBytes);
 
-            RecurseJsonImport(writer, tempField, token);
+            if (!reader.Read())
+            {
+                Logger.Error("Failed to read JSON: empty document");
+                return null;
+            }
+
+            RecurseJsonImport(ref reader, writer, tempField);
         }
         catch (Exception ex)
         {
@@ -333,13 +374,15 @@ public class GenericAssetHandler
         return ms.ToArray();
     }
 
-    private static void RecurseJsonImport(AssetsFileWriter writer, AssetTypeTemplateField tempField, JToken token)
+    private static void RecurseJsonImport(ref Utf8JsonReader reader, AssetsFileWriter writer,
+        AssetTypeTemplateField tempField)
     {
         var align = tempField.IsAligned;
 
-        if (tempField.Children.Count == 1 && tempField.Children[0].IsArray && token.Type == JTokenType.Array)
+        if (tempField.Children.Count == 1 && tempField.Children[0].IsArray &&
+            reader.TokenType == JsonTokenType.StartArray)
         {
-            RecurseJsonImport(writer, tempField.Children[0], token);
+            RecurseJsonImport(ref reader, writer, tempField.Children[0]);
             return;
         }
 
@@ -347,93 +390,140 @@ public class GenericAssetHandler
         {
             case { HasValue: false, IsArray: false }:
             {
-                foreach (var childTempField in tempField.Children)
-                {
-                    var childToken = token[childTempField.Name];
+                if (reader.TokenType != JsonTokenType.StartObject)
+                    throw new JsonException($"Expected StartObject, got {reader.TokenType}");
 
-                    if (childToken == null)
-                    {
-                        WriteDefaultValue(writer, childTempField);
-                        Logger.Warn($"Missing field {childTempField.Name} in JSON, using default value");
-                    }
+                var fieldDict = new Dictionary<string, AssetTypeTemplateField>();
+                foreach (var child in tempField.Children)
+                    fieldDict[child.Name] = child;
+
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+                {
+                    if (reader.TokenType != JsonTokenType.PropertyName)
+                        throw new JsonException($"Expected PropertyName, got {reader.TokenType}");
+
+                    var propertyName = reader.GetString() ?? "";
+
+                    if (!reader.Read())
+                        throw new JsonException("Unexpected end of JSON");
+
+                    if (fieldDict.TryGetValue(propertyName, out var childTempField))
+                        RecurseJsonImport(ref reader, writer, childTempField);
                     else
-                    {
-                        RecurseJsonImport(writer, childTempField, childToken);
-                    }
+                        SkipJsonValue(ref reader);
+                }
+
+                foreach (var child in tempField.Children.Where(child => !fieldDict.ContainsKey(child.Name)))
+                {
+                    WriteDefaultValue(writer, child);
+                    Logger.Warn($"Missing field {child.Name} in JSON, using default value");
                 }
 
                 if (align) writer.Align();
                 break;
             }
             case { HasValue: true, ValueType: AssetValueType.ManagedReferencesRegistry }:
-                Logger.Warn("ManagedReferencesRegistry import not fully supported in consolidated handler");
+                Logger.Warn("ManagedReferencesRegistry import not fully supported");
+                SkipJsonValue(ref reader);
                 break;
             default:
             {
-                switch (tempField.ValueType)
-                {
-                    case AssetValueType.Bool:
-                        writer.Write((bool)token);
-                        break;
-                    case AssetValueType.UInt8:
-                        writer.Write((byte)token);
-                        break;
-                    case AssetValueType.Int8:
-                        writer.Write((sbyte)token);
-                        break;
-                    case AssetValueType.UInt16:
-                        writer.Write((ushort)token);
-                        break;
-                    case AssetValueType.Int16:
-                        writer.Write((short)token);
-                        break;
-                    case AssetValueType.UInt32:
-                        writer.Write((uint)token);
-                        break;
-                    case AssetValueType.Int32:
-                        writer.Write((int)token);
-                        break;
-                    case AssetValueType.UInt64:
-                        writer.Write((ulong)token);
-                        break;
-                    case AssetValueType.Int64:
-                        writer.Write((long)token);
-                        break;
-                    case AssetValueType.Float:
-                        writer.Write((float)token);
-                        break;
-                    case AssetValueType.Double:
-                        writer.Write((double)token);
-                        break;
-                    case AssetValueType.String:
-                        align = true;
-                        writer.WriteCountStringInt32((string?)token ?? "");
-                        break;
-                    case AssetValueType.ByteArray:
-                        var byteArrayJArray = (JArray?)token ?? [];
-                        var byteArrayData = new byte[byteArrayJArray.Count];
-                        for (var i = 0; i < byteArrayJArray.Count; i++)
-                            byteArrayData[i] = (byte)byteArrayJArray[i];
-                        writer.Write(byteArrayData.Length);
-                        writer.Write(byteArrayData);
-                        break;
-                }
-
                 if (tempField.IsArray && tempField.ValueType != AssetValueType.ByteArray)
                 {
+                    if (reader.TokenType != JsonTokenType.StartArray)
+                        throw new JsonException($"Expected StartArray, got {reader.TokenType}");
+
+                    var arrayItems = new List<byte[]>();
                     var childTempField = tempField.Children[1];
-                    var tokenArray = (JArray?)token;
 
-                    if (tokenArray == null)
-                        throw new Exception($"Field {tempField.Name} was not an array in json.");
+                    while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+                    {
+                        using var itemMs = new MemoryStream();
+                        var itemWriter = new AssetsFileWriter(itemMs) { BigEndian = false };
+                        RecurseJsonImport(ref reader, itemWriter, childTempField);
+                        arrayItems.Add(itemMs.ToArray());
+                    }
 
-                    writer.Write(tokenArray.Count);
-                    foreach (var childToken in tokenArray.Children())
-                        RecurseJsonImport(writer, childTempField, childToken);
+                    writer.Write(arrayItems.Count);
+                    foreach (var item in arrayItems)
+                        writer.Write(item);
+                }
+                else if (tempField.ValueType == AssetValueType.ByteArray)
+                {
+                    if (reader.TokenType != JsonTokenType.StartArray)
+                        throw new JsonException($"Expected StartArray for ByteArray, got {reader.TokenType}");
+
+                    var byteList = new List<byte>();
+                    while (reader.Read() && reader.TokenType != JsonTokenType.EndArray) byteList.Add(reader.GetByte());
+
+                    writer.Write(byteList.Count);
+                    writer.Write(byteList.ToArray());
+                }
+                else
+                {
+                    WriteValueFromReader(ref reader, writer, tempField.ValueType);
+                    align = tempField.ValueType == AssetValueType.String;
                 }
 
                 if (align) writer.Align();
                 break;
+            }
+        }
+    }
+
+    private static void WriteValueFromReader(ref Utf8JsonReader reader, AssetsFileWriter writer,
+        AssetValueType valueType)
+    {
+        switch (valueType)
+        {
+            case AssetValueType.Bool:
+                writer.Write(reader.GetBoolean());
+                break;
+            case AssetValueType.UInt8:
+                writer.Write(reader.GetByte());
+                break;
+            case AssetValueType.Int8:
+                writer.Write(reader.GetSByte());
+                break;
+            case AssetValueType.UInt16:
+                writer.Write(reader.GetUInt16());
+                break;
+            case AssetValueType.Int16:
+                writer.Write(reader.GetInt16());
+                break;
+            case AssetValueType.UInt32:
+                writer.Write(reader.GetUInt32());
+                break;
+            case AssetValueType.Int32:
+                writer.Write(reader.GetInt32());
+                break;
+            case AssetValueType.UInt64:
+                writer.Write(reader.GetUInt64());
+                break;
+            case AssetValueType.Int64:
+                writer.Write(reader.GetInt64());
+                break;
+            case AssetValueType.Float:
+                writer.Write(reader.GetSingle());
+                break;
+            case AssetValueType.Double:
+                writer.Write(reader.GetDouble());
+                break;
+            case AssetValueType.String:
+                writer.WriteCountStringInt32(reader.GetString() ?? "");
+                break;
+            default:
+                throw new NotSupportedException($"Unsupported value type: {valueType}");
+        }
+    }
+
+    private static void SkipJsonValue(ref Utf8JsonReader reader)
+    {
+        if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.StartArray)
+        {
+            var depth = reader.CurrentDepth;
+            while (reader.Read() && reader.CurrentDepth > depth)
+            {
             }
         }
     }

@@ -68,7 +68,7 @@ public class BundleProcessor(
         var textureExportCount = 0;
         var textAssetExportCount = 0;
 
-        if (otherMatches.Count > 0) exportedCount = await genericAssetHandler.ExportAssets(moddedPath, otherMatches);
+        if (otherMatches.Count > 0) exportedCount = await GenericAssetHandler.ExportAssets(moddedPath, otherMatches);
 
         if (textureMatches.Count > 0)
             textureExportCount = await texture2DHandler.ExportTextures(moddedPath, textureMatches, exportType);
@@ -117,7 +117,7 @@ public class BundleProcessor(
         var textureImportCount = 0;
         var textAssetImportCount = 0;
 
-        if (otherMatches.Count > 0) importedCount = await genericAssetHandler.ImportAssets(loader, otherMatches);
+        if (otherMatches.Count > 0) importedCount = await GenericAssetHandler.ImportAssets(loader, otherMatches);
 
         if (textureMatches.Count > 0)
             textureImportCount = await texture2DHandler.ImportTextures(loader, textureMatches);
