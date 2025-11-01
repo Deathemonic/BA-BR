@@ -6,7 +6,8 @@ namespace BABU.Handlers.Bundles;
 
 public static class BundleSaver
 {
-    public static void SaveModdedBundle(BundleLoader patchLoader, string originalPatchPath)
+    public static void SaveModdedBundle(BundleLoader patchLoader, string originalPatchPath,
+        AssetBundleCompressionType compressionType = AssetBundleCompressionType.LZ4)
     {
         try
         {
@@ -51,11 +52,46 @@ public static class BundleSaver
 
             dirInfo.SetNewData(tempStream.ToArray());
 
-            using var finalWriter = new AssetsFileWriter(outputPath);
-            bundleFileInstance.file.Write(finalWriter);
+            if (compressionType == AssetBundleCompressionType.None)
+            {
+                using var finalWriter = new AssetsFileWriter(outputPath);
+                bundleFileInstance.file.Write(finalWriter);
 
-            Logger.Success($"Successfully saved modded bundle to: {outputPath}");
-            Logger.Info($"Applied {replacerCount} asset modifications");
+                Logger.Success($"Successfully saved modded bundle to: {outputPath}");
+                Logger.Info($"Applied {replacerCount} asset modifications (uncompressed)");
+            }
+            else
+            {
+                var tempUncompressedPath = outputPath + ".temp.uncompressed";
+                using (var tempUncompressedWriter = new AssetsFileWriter(tempUncompressedPath))
+                {
+                    bundleFileInstance.file.Write(tempUncompressedWriter);
+                }
+
+                Logger.Info($"Compressing bundle with {compressionType}...");
+
+                var uncompressedBundle = new AssetBundleFile();
+                uncompressedBundle.Read(new AssetsFileReader(File.OpenRead(tempUncompressedPath)));
+
+                using (var compressedWriter = new AssetsFileWriter(outputPath))
+                {
+                    uncompressedBundle.Pack(compressedWriter, compressionType);
+                }
+
+                uncompressedBundle.Close();
+
+                try
+                {
+                    File.Delete(tempUncompressedPath);
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
+
+                Logger.Success($"Successfully saved modded bundle to: {outputPath}");
+                Logger.Info($"Applied {replacerCount} asset modifications (compressed with {compressionType})");
+            }
         }
         catch (Exception ex)
         {

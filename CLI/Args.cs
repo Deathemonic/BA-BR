@@ -14,6 +14,7 @@ public static class Args
     /// <param name="onlyTypes">--only, Only allow these asset types to match (e.g., "mesh,texture2d").</param>
     /// <param name="imageFormat">--image, Image format for texture export (tga or png). Default is tga.</param>
     /// <param name="textFormat">--text, Content format for text asset export (txt or bytes). Default is txt.</param>
+    /// <param name="compress">-c, Compression type for output bundle (off, LZMA, LZ4, LZ4Fast). Default is LZ4.</param>
     /// <param name="verbose">-v, Enable verbose debug output.</param>
     /// <param name="types">-t, List all available asset types.</param>
     public static void Run(
@@ -25,6 +26,7 @@ public static class Args
         bool verbose = false,
         string imageFormat = "tga",
         string textFormat = "txt",
+        string compress = "LZ4",
         bool types = false)
     {
         if (types)
@@ -35,6 +37,6 @@ public static class Args
         }
 
         Logger.SetVerbose(verbose);
-        _ = Parse.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat);
+        _ = Parse.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat, compress);
     }
 }

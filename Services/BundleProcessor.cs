@@ -1,3 +1,4 @@
+using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using BABU.Handlers.Assets;
 using BABU.Handlers.Bundles;
@@ -13,7 +14,7 @@ public class BundleProcessor(
     TextAssetHandler textAssetHandler)
 {
     public async Task ProcessBundles(string moddedPath, string patchPath, ProcessingOptions options,
-        ImageExportType exportType)
+        ImageExportType exportType, AssetBundleCompressionType compressionType = AssetBundleCompressionType.LZ4)
     {
         PrepareDirectories();
 
@@ -29,7 +30,7 @@ public class BundleProcessor(
         var (textureMatches, textAssetMatches, otherMatches) = CategorizeMatches(matches);
         var exportResults = await PerformExports(moddedPath, textureMatches, textAssetMatches, otherMatches, exportType,
             options.TextFormat);
-        await PerformImports(patchPath, textureMatches, textAssetMatches, otherMatches, exportResults);
+        await PerformImports(patchPath, textureMatches, textAssetMatches, otherMatches, exportResults, compressionType);
     }
 
     private static void PrepareDirectories()
@@ -81,7 +82,7 @@ public class BundleProcessor(
 
     private async Task PerformImports(string patchPath, List<AssetMatch> textureMatches,
         List<AssetMatch> textAssetMatches,
-        List<AssetMatch> otherMatches, ExportResults exportResults)
+        List<AssetMatch> otherMatches, ExportResults exportResults, AssetBundleCompressionType compressionType)
     {
         var loader = new BundleLoader();
 
@@ -90,7 +91,7 @@ public class BundleProcessor(
 
         var importResults = await ExecuteImports(loader, textureMatches, textAssetMatches, otherMatches);
 
-        SaveChanges(loader, patchPath, importResults);
+        SaveChanges(loader, patchPath, importResults, compressionType);
 
         LogResults(exportResults, importResults);
     }
@@ -128,9 +129,10 @@ public class BundleProcessor(
         return new ImportResults(importedCount, textureImportCount, textAssetImportCount);
     }
 
-    private static void SaveChanges(BundleLoader loader, string patchPath, ImportResults importResults)
+    private static void SaveChanges(BundleLoader loader, string patchPath, ImportResults importResults,
+        AssetBundleCompressionType compressionType)
     {
-        if (importResults.TotalImported > 0) BundleSaver.SaveModdedBundle(loader, patchPath);
+        if (importResults.TotalImported > 0) BundleSaver.SaveModdedBundle(loader, patchPath, compressionType);
     }
 
     private static void LogResults(ExportResults exportResults, ImportResults importResults)
