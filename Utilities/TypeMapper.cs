@@ -1,6 +1,6 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 
-namespace BA_MU.Core.Utils;
+namespace BABU.Utilities;
 
 public static class TypeMapper
 {

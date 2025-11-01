@@ -1,18 +1,16 @@
-﻿using BA_MU.Bundle;
-using BA_MU.Core.Models;
-using BA_MU.Core.Utils;
-using BA_MU.Helpers;
-
+using BABU.Handlers.Bundles;
+using BABU.Models;
+using BABU.Utilities;
 using ZLinq;
 
-namespace BA_MU.Core.Services;
+namespace BABU.Services;
 
-public class Comparison
+public class AssetComparer
 {
-    public List<Match> FindMatches(string moddedPath, string patchPath, Options options)
+    public List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {
-        var moddedLoader = new Load();
-        var patchLoader = new Load();
+        var moddedLoader = new BundleLoader();
+        var patchLoader = new BundleLoader();
 
         try
         {
@@ -28,7 +26,8 @@ public class Comparison
         }
     }
 
-    private static List<Match> CompareAssets(Load moddedLoader, Load patchLoader, Options options)
+    private static List<AssetMatch> CompareAssets(BundleLoader moddedLoader, BundleLoader patchLoader,
+        ProcessingOptions options)
     {
         try
         {
@@ -48,7 +47,7 @@ public class Comparison
             var estimatedCapacity = patchAssetGroups
                 .AsValueEnumerable()
                 .Sum(g => g.Count());
-            var matches = new List<Match>(estimatedCapacity);
+            var matches = new List<AssetMatch>(estimatedCapacity);
 
             foreach (var group in patchAssetGroups)
             {
@@ -59,7 +58,7 @@ public class Comparison
 
                 var newMatches = group
                     .AsValueEnumerable()
-                    .Select(patchAsset => new Match(moddedAsset.Key, patchAsset.Key, patchAsset.Value.Name,
+                    .Select(patchAsset => new AssetMatch(moddedAsset.Key, patchAsset.Key, patchAsset.Value.Name,
                         patchAsset.Value.Type, patchAsset.Value.TypeId))
                     .ToArray();
 
@@ -70,12 +69,12 @@ public class Comparison
         }
         catch (Exception ex)
         {
-            Logs.Error($"Comparing assets: {ex.Message}");
+            Logger.Error($"Comparing assets: {ex.Message}");
             return [];
         }
     }
 
-    private static Dictionary<long, (string Name, string Type, int TypeId)> GetAssetInfo(Load loader)
+    private static Dictionary<long, (string Name, string Type, int TypeId)> GetAssetInfo(BundleLoader loader)
     {
         var assets = new Dictionary<long, (string Name, string Type, int TypeId)>();
         var assetsFileInstance = loader.GetAssetsFileInstance();

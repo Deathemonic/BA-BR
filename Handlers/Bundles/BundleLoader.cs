@@ -1,12 +1,11 @@
-﻿using AssetsTools.NET.Extra;
+using AssetsTools.NET.Extra;
 
+namespace BABU.Handlers.Bundles;
 
-namespace BA_MU.Bundle;
-
-public class Load
+public class BundleLoader
 {
-    private BundleFileInstance? _bundleInstance;
     private readonly AssetsManager _assetsManager = new();
+    private BundleFileInstance? _bundleInstance;
 
     public bool LoadBundle(string path)
     {
@@ -16,7 +15,7 @@ public class Load
         _bundleInstance = _assetsManager.LoadBundleFile(path);
         return _bundleInstance != null;
     }
-    
+
     public BundleFileInstance? GetBundleInstance()
     {
         return _bundleInstance;

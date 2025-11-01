@@ -1,4 +1,4 @@
-﻿namespace BA_MU.Helpers;
+namespace BABU.Utilities;
 
 public static class FileManager
 {
@@ -17,7 +17,7 @@ public static class FileManager
     {
         var filePath = Path.Combine(directory, fileName);
         var counter = 1;
-        
+
         while (File.Exists(filePath))
         {
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
@@ -39,7 +39,7 @@ public static class FileManager
     {
         return GetPath("Dumps");
     }
-    
+
     public static string GetModdedPath()
     {
         return GetPath("Modded");
@@ -68,7 +68,7 @@ public static class FileManager
         }
         catch (Exception ex)
         {
-            Logs.Error($"Failed to cleanup directory {directoryPath}", ex);
+            Logger.Error($"Failed to cleanup directory {directoryPath}", ex);
         }
     }
 }

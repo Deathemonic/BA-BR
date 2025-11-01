@@ -1,21 +1,21 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using BA_MU.Helpers;
+using BABU.Utilities;
 
-namespace BA_MU.Bundle;
+namespace BABU.Handlers.Bundles;
 
-public static class Save
+public static class BundleSaver
 {
-    public static void SaveModdedBundle(Load patchLoader, string originalPatchPath)
+    public static void SaveModdedBundle(BundleLoader patchLoader, string originalPatchPath)
     {
         try
         {
             var bundleFileInstance = patchLoader.GetBundleInstance();
             var assetsFileInstance = patchLoader.GetAssetsFileInstance();
-            
+
             if (bundleFileInstance == null || assetsFileInstance == null)
             {
-                Logs.Error("Could not get bundle or assets file instance for saving");
+                Logger.Error("Could not get bundle or assets file instance for saving");
                 return;
             }
 
@@ -26,54 +26,51 @@ public static class Save
             var outputPath = Path.Combine(moddedFolderPath, originalFileName);
 
             var replacerCount = CountReplacers(assetsFileInstance);
-            
+
             if (replacerCount == 0)
             {
-                Logs.Warn("No modifications detected in assets file");
+                Logger.Warn("No modifications detected in assets file");
                 return;
             }
 
-            Logs.Info($"Saving {replacerCount} modified assets...");
+            Logger.Info($"Saving {replacerCount} modified assets...");
 
             var dirInfo = bundleFileInstance.file.BlockAndDirInfo.DirectoryInfos
                 .FirstOrDefault(d => !d.Name.EndsWith(".resS"));
 
             if (dirInfo == null)
             {
-                Logs.Error("Could not find main directory in bundle");
+                Logger.Error("Could not find main directory in bundle");
                 return;
             }
 
             using var tempStream = new MemoryStream();
             using var tempWriter = new AssetsFileWriter(tempStream);
-            
+
             assetsFileInstance.file.Write(tempWriter);
-            
+
             dirInfo.SetNewData(tempStream.ToArray());
 
             using var finalWriter = new AssetsFileWriter(outputPath);
             bundleFileInstance.file.Write(finalWriter);
 
-            Logs.Success($"Successfully saved modded bundle to: {outputPath}");
-            Logs.Info($"Applied {replacerCount} asset modifications");
+            Logger.Success($"Successfully saved modded bundle to: {outputPath}");
+            Logger.Info($"Applied {replacerCount} asset modifications");
         }
         catch (Exception ex)
         {
-            Logs.Error("Error saving modded bundle", ex);
+            Logger.Error("Error saving modded bundle", ex);
         }
     }
 
     private static int CountReplacers(AssetsFileInstance assetsFileInstance)
     {
         var count = 0;
-        
+
         foreach (var assetInfo in assetsFileInstance.file.AssetInfos)
-        {
             if (assetInfo.Replacer != null)
-            {
                 count++;
-            }
-        }
+
         return count;
     }
 }

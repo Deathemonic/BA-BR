@@ -1,12 +1,11 @@
-﻿using BA_MU.Core.Utils;
-using BA_MU.Helpers;
+﻿using BABU.Utilities;
 
-namespace BA_MU.CLI;
+namespace BABU.CLI;
 
 public static class Args
 {
     /// <summary>
-    /// Blue Archive - Mod Updater
+    ///     Blue Archive - Mod Updater
     /// </summary>
     /// <param name="modded">-m, Path to the modded asset bundle.</param>
     /// <param name="patch">-p, Path to the patch asset bundle.</param>
@@ -18,11 +17,11 @@ public static class Args
     /// <param name="verbose">-v, Enable verbose debug output.</param>
     /// <param name="types">-t, List all available asset types.</param>
     public static void Run(
-        string modded = "", 
-        string patch = "", 
-        string? includeTypes = null, 
-        string? excludeTypes = null, 
-        string? onlyTypes = null, 
+        string modded = "",
+        string patch = "",
+        string? includeTypes = null,
+        string? excludeTypes = null,
+        string? onlyTypes = null,
         bool verbose = false,
         string imageFormat = "tga",
         string textFormat = "txt",
@@ -30,15 +29,12 @@ public static class Args
     {
         if (types)
         {
-            Logs.Info("Available asset types:");
-            foreach (var type in TypeMapper.GetAllTypes())
-            {
-                Console.WriteLine($"  {type}");
-            }
+            Logger.Info("Available asset types:");
+            foreach (var type in TypeMapper.GetAllTypes()) Console.WriteLine($"  {type}");
             return;
         }
 
-        Logs.SetVerbose(verbose);
+        Logger.SetVerbose(verbose);
         _ = Parse.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat);
     }
 }

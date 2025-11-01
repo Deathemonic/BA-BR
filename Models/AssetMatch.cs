@@ -1,8 +1,8 @@
-﻿using BA_MU.Helpers;
+using BABU.Utilities;
 
-namespace BA_MU.Core.Models;
+namespace BABU.Models;
 
-public record Match(
+public record AssetMatch(
     long ModdedId,
     long PatchId,
     string Name,
