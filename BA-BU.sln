@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BA-MU", "BA-MU.csproj", "{31AEF19F-BE01-449D-94C3-C91CBDBA8843}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BA-BU", "BA-BU.csproj", "{31AEF19F-BE01-449D-94C3-C91CBDBA8843}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
