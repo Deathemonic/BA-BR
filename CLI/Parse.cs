@@ -37,9 +37,7 @@ public static class Parse
             CompressionType = ParseCompressionType(compress)
         };
 
-        var processor = new BundleProcessor();
-
-        await processor.ProcessBundles(config);
+        await BundleProcessor.ProcessBundles(config);
     }
 
     private static ImageExportType ParseImageFormat(string imageFormat)
