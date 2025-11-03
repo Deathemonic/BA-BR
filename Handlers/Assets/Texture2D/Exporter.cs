@@ -1,7 +1,5 @@
 using AssetsTools.NET;
-using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using BABU.Handlers.Bundle;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
@@ -76,14 +74,16 @@ public static class Exporter
         {
             Logger.Debug($"Starting export for asset {assetInfo.PathId}");
 
-            var textureTemplate = Processor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+            var textureTemplate =
+                Processor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureTemplate == null)
                 return false;
 
             if (!Processor.ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
                 return false;
 
-            var textureBaseField = Processor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+            var textureBaseField =
+                Processor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureBaseField == null)
                 return false;
 
@@ -104,4 +104,3 @@ public static class Exporter
         }
     }
 }
-

@@ -276,16 +276,14 @@ public static class Serializer
 
     private static void SkipJsonValue(ref Utf8JsonReader reader)
     {
-        if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.StartArray)
+        if (reader.TokenType != JsonTokenType.StartObject && reader.TokenType != JsonTokenType.StartArray) return;
+        var depth = reader.CurrentDepth;
+        while (reader.Read() && reader.CurrentDepth > depth)
         {
-            var depth = reader.CurrentDepth;
-            while (reader.Read() && reader.CurrentDepth > depth)
-            {
-            }
         }
     }
 
-    public static void WriteDefaultValue(AssetsFileWriter writer, AssetTypeTemplateField tempField)
+    private static void WriteDefaultValue(AssetsFileWriter writer, AssetTypeTemplateField tempField)
     {
         var align = tempField.IsAligned;
 
