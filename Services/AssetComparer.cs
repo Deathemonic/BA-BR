@@ -1,3 +1,4 @@
+using BABU.Contexts;
 using BABU.Handlers.Bundles;
 using BABU.Models;
 using BABU.Utilities;
@@ -7,7 +8,7 @@ namespace BABU.Services;
 
 public class AssetComparer
 {
-    public List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
+    public static List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {
         var moddedLoader = new BundleLoader();
         var patchLoader = new BundleLoader();
@@ -17,7 +18,14 @@ public class AssetComparer
             if (!moddedLoader.LoadBundle(moddedPath) || !patchLoader.LoadBundle(patchPath))
                 return [];
 
-            return CompareAssets(moddedLoader, patchLoader, options);
+            var context = new ComparisonContext
+            {
+                ModdedLoader = moddedLoader,
+                PatchLoader = patchLoader,
+                Options = options
+            };
+
+            return CompareAssets(context);
         }
         finally
         {
@@ -26,18 +34,17 @@ public class AssetComparer
         }
     }
 
-    private static List<AssetMatch> CompareAssets(BundleLoader moddedLoader, BundleLoader patchLoader,
-        ProcessingOptions options)
+    private static List<AssetMatch> CompareAssets(ComparisonContext context)
     {
         try
         {
-            var moddedAssets = GetAssetInfo(moddedLoader);
-            var patchAssets = GetAssetInfo(patchLoader);
+            var moddedAssets = GetAssetInfo(context.ModdedLoader);
+            var patchAssets = GetAssetInfo(context.PatchLoader);
 
             var patchAssetGroups = patchAssets
                 .AsValueEnumerable()
                 .GroupBy(p => (p.Value.Name, p.Value.Type))
-                .Where(g => !options.ShouldFilterAsset(g.Key.Type.ToLowerInvariant(), g.Key.Name))
+                .Where(g => !context.Options.ShouldFilterAsset(g.Key.Type.ToLowerInvariant(), g.Key.Name))
                 .ToArray();
 
             var moddedAssetsLookup = moddedAssets

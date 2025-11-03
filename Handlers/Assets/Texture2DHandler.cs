@@ -1,6 +1,7 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
+using BABU.Contexts;
 using BABU.Handlers.Bundles;
 using BABU.Models;
 using BABU.Utilities;
@@ -37,7 +38,15 @@ public class Texture2DHandler
 
         Logger.Info($"Exporting Texture2D assets as {exportType}...");
 
-        var exportedCount = ProcessExports(matches, exportType, assetsFileInstance, loader.GetAssetsManager());
+        var context = new Texture2DExportContext
+        {
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance,
+            AssetsManager = loader.GetAssetsManager(),
+            ExportType = exportType
+        };
+
+        var exportedCount = ProcessExports(context);
 
         return Task.FromResult(exportedCount);
     }
@@ -56,20 +65,26 @@ public class Texture2DHandler
 
         Logger.Info("Importing texture assets...");
 
-        var importedCount = await ProcessImports(matches, assetsFileInstance, loader.GetAssetsManager());
+        var context = new Texture2DImportContext
+        {
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance,
+            AssetsManager = loader.GetAssetsManager()
+        };
+
+        var importedCount = await ProcessImports(context);
 
         return importedCount;
     }
 
-    private static int ProcessExports(List<AssetMatch> matches, ImageExportType exportType,
-        AssetsFileInstance assetsFileInstance, AssetsManager assetsManager)
+    private static int ProcessExports(Texture2DExportContext context)
     {
         var exportedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleTexture(match, exportType, assetsFileInstance, assetsManager)) exportedCount++;
+                if (ExportSingleTexture(match, context)) exportedCount++;
             }
             catch (Exception ex)
             {
@@ -79,21 +94,20 @@ public class Texture2DHandler
         return exportedCount;
     }
 
-    private static bool ExportSingleTexture(AssetMatch match, ImageExportType exportType,
-        AssetsFileInstance assetsFileInstance, AssetsManager assetsManager)
+    private static bool ExportSingleTexture(AssetMatch match, Texture2DExportContext context)
     {
-        var assetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
+        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
         {
             Logger.Error($"Texture2D asset with PathId {match.ModdedId} not found in modded bundle");
             return false;
         }
 
-        var filePath = BuildExportFilePath(match.Name, exportType);
+        var filePath = BuildExportFilePath(match.Name, context.ExportType);
 
         Logger.Debug($"Attempting to export texture: {match.Name} (TypeId: {match.TypeId}, PathId: {match.ModdedId})");
 
-        var success = ExportTextureToFile(assetsFileInstance, assetsManager, assetInfo, filePath, exportType);
+        var success = ExportTextureToFile(context, assetInfo, filePath);
 
         if (!success)
         {
@@ -114,21 +128,20 @@ public class Texture2DHandler
         return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
     }
 
-    private static bool ExportTextureToFile(AssetsFileInstance assetsFileInstance, AssetsManager assetsManager,
-        AssetFileInfo assetInfo, string filePath, ImageExportType exportType)
+    private static bool ExportTextureToFile(Texture2DExportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {
             Logger.Debug($"Starting export for asset {assetInfo.PathId}");
 
-            var textureTemplate = GetTextureTemplate(assetsManager, assetsFileInstance, assetInfo);
+            var textureTemplate = GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureTemplate == null)
                 return false;
 
             if (!ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
                 return false;
 
-            var textureBaseField = GetTextureBaseField(assetsManager, assetsFileInstance, assetInfo);
+            var textureBaseField = GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureBaseField == null)
                 return false;
 
@@ -139,7 +152,7 @@ public class Texture2DHandler
             if (!ValidateTextureDimensions(textureFile))
                 return false;
 
-            return ExportTextureData(textureFile, assetsFileInstance, filePath, exportType);
+            return ExportTextureData(textureFile, context.AssetsFileInstance, filePath, context.ExportType);
         }
         catch (Exception ex)
         {
@@ -159,15 +172,14 @@ public class Texture2DHandler
         return false;
     }
 
-    private static async Task<int> ProcessImports(List<AssetMatch> matches, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static async Task<int> ProcessImports(Texture2DImportContext context)
     {
         var importedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleTexture(match, assetsFileInstance, assetsManager)) importedCount++;
+                if (await ImportSingleTexture(match, context)) importedCount++;
             }
             catch (Exception ex)
             {
@@ -177,10 +189,9 @@ public class Texture2DHandler
         return importedCount;
     }
 
-    private static async Task<bool> ImportSingleTexture(AssetMatch match, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static async Task<bool> ImportSingleTexture(AssetMatch match, Texture2DImportContext context)
     {
-        var targetAssetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
+        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
         {
             Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
@@ -196,7 +207,7 @@ public class Texture2DHandler
 
         Logger.Debug($"Processing texture: {match.Name}");
 
-        var success = await ImportTextureFromFile(assetsFileInstance, assetsManager, targetAssetInfo, filePath);
+        var success = await ImportTextureFromFile(context, targetAssetInfo, filePath);
 
         if (!success)
         {
@@ -222,18 +233,17 @@ public class Texture2DHandler
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static Task<bool> ImportTextureFromFile(AssetsFileInstance assetsFileInstance, AssetsManager assetsManager,
-        AssetFileInfo assetInfo, string filePath)
+    private static Task<bool> ImportTextureFromFile(Texture2DImportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {
             Logger.Debug($"Starting import for asset {assetInfo.PathId}");
 
-            var textureTemplate = GetTextureTemplate(assetsManager, assetsFileInstance, assetInfo);
+            var textureTemplate = GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureTemplate == null || !ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
                 return Task.FromResult(false);
 
-            var textureBaseField = GetTextureBaseField(assetsManager, assetsFileInstance, assetInfo);
+            var textureBaseField = GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureBaseField == null)
                 return Task.FromResult(false);
 

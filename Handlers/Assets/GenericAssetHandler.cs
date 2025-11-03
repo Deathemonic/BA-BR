@@ -2,13 +2,14 @@ using System.Text;
 using System.Text.Json;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BABU.Contexts;
 using BABU.Handlers.Bundles;
 using BABU.Models;
 using BABU.Utilities;
 
 namespace BABU.Handlers.Assets;
 
-public class GenericAssetHandler
+public static class GenericAssetHandler
 {
     private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
 
@@ -33,7 +34,14 @@ public class GenericAssetHandler
 
         Logger.Info("Exporting JSON dumps...");
 
-        var exportedCount = await ProcessExports(matches, assetsFileInstance, loader.GetAssetsManager());
+        var context = new ExportContext
+        {
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance,
+            AssetsManager = loader.GetAssetsManager()
+        };
+
+        var exportedCount = await ProcessExports(context);
 
         return exportedCount;
     }
@@ -52,20 +60,27 @@ public class GenericAssetHandler
 
         Logger.Info("Importing JSON assets...");
 
-        var importedCount = await ProcessImports(loader, matches, assetsFileInstance);
+        var context = new ImportContext
+        {
+            Loader = loader,
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance
+        };
+
+        var importedCount = await ProcessImports(context);
 
         return importedCount;
     }
 
-    private static async Task<int> ProcessExports(List<AssetMatch> matches, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static async Task<int> ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (await ExportSingleAsset(match, assetsFileInstance, assetsManager)) exportedCount++;
+                if (await ExportSingleAsset(match, context)) 
+                    exportedCount++;
             }
             catch (Exception ex)
             {
@@ -75,17 +90,16 @@ public class GenericAssetHandler
         return exportedCount;
     }
 
-    private static async Task<bool> ExportSingleAsset(AssetMatch match, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static async Task<bool> ExportSingleAsset(AssetMatch match, ExportContext context)
     {
-        var assetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
+        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
         {
             Logger.Error($"Asset with PathId {match.ModdedId} not found in modded bundle");
             return false;
         }
 
-        var baseField = GetBaseField(assetsManager, assetsFileInstance, assetInfo, match.ModdedId);
+        var baseField = GetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo, match.ModdedId);
         if (baseField == null)
             return false;
 
@@ -251,15 +265,15 @@ public class GenericAssetHandler
         return false;
     }
 
-    private static async Task<int> ProcessImports(BundleLoader loader, List<AssetMatch> matches,
-        AssetsFileInstance assetsFileInstance)
+    private static async Task<int> ProcessImports(ImportContext context)
     {
         var importedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleAsset(loader, match, assetsFileInstance)) importedCount++;
+                if (await ImportSingleAsset(match, context)) 
+                    importedCount++;
             }
             catch (Exception ex)
             {
@@ -269,10 +283,9 @@ public class GenericAssetHandler
         return importedCount;
     }
 
-    private static async Task<bool> ImportSingleAsset(BundleLoader loader, AssetMatch match,
-        AssetsFileInstance assetsFileInstance)
+    private static async Task<bool> ImportSingleAsset(AssetMatch match, ImportContext context)
     {
-        var targetAssetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
+        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
         {
             Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
@@ -288,7 +301,7 @@ public class GenericAssetHandler
 
         Logger.Debug($"Processing asset: {match.Name}");
 
-        var success = await ImportAssetFromJson(loader, targetAssetInfo, filePath);
+        var success = await ImportAssetFromJson(context.Loader, targetAssetInfo, filePath);
 
         if (!success)
         {

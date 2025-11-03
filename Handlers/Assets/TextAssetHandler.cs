@@ -1,5 +1,6 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BABU.Contexts;
 using BABU.Handlers.Bundles;
 using BABU.Models;
 using BABU.Utilities;
@@ -35,7 +36,15 @@ public class TextAssetHandler
 
         Logger.Info("Exporting TextAsset assets...");
 
-        var exportedCount = ProcessExports(matches, assetsFileInstance, loader.GetAssetsManager(), textFormat);
+        var context = new TextAssetExportContext
+        {
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance,
+            AssetsManager = loader.GetAssetsManager(),
+            TextFormat = textFormat
+        };
+
+        var exportedCount = ProcessExports(context);
 
         return Task.FromResult(exportedCount);
     }
@@ -54,21 +63,26 @@ public class TextAssetHandler
 
         Logger.Info("Importing text assets...");
 
-        var assetsManager = loader.GetAssetsManager();
-        var importedCount = await ProcessImports(matches, assetsFileInstance, assetsManager);
+        var context = new TextAssetImportContext
+        {
+            Matches = matches,
+            AssetsFileInstance = assetsFileInstance,
+            AssetsManager = loader.GetAssetsManager()
+        };
+
+        var importedCount = await ProcessImports(context);
 
         return importedCount;
     }
 
-    private static int ProcessExports(List<AssetMatch> matches, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager, string textFormat)
+    private static int ProcessExports(TextAssetExportContext context)
     {
         var exportedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleTextAsset(match, assetsFileInstance, assetsManager, textFormat)) exportedCount++;
+                if (ExportSingleTextAsset(match, context)) exportedCount++;
             }
             catch (Exception ex)
             {
@@ -78,22 +92,21 @@ public class TextAssetHandler
         return exportedCount;
     }
 
-    private static bool ExportSingleTextAsset(AssetMatch match, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager, string textFormat)
+    private static bool ExportSingleTextAsset(AssetMatch match, TextAssetExportContext context)
     {
-        var assetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
+        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
         {
             Logger.Error($"TextAsset with PathId {match.ModdedId} not found in modded bundle");
             return false;
         }
 
-        var filePath = BuildExportFilePath(match.Name, textFormat);
+        var filePath = BuildExportFilePath(match.Name, context.TextFormat);
 
         Logger.Debug(
             $"Attempting to export text asset: {match.Name} (TypeId: {match.TypeId}, PathId: {match.ModdedId})");
 
-        var success = ExportTextAssetToFile(assetsFileInstance, assetsManager, assetInfo, filePath);
+        var success = ExportTextAssetToFile(context, assetInfo, filePath);
 
         if (!success)
         {
@@ -113,14 +126,13 @@ public class TextAssetHandler
         return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
     }
 
-    private static bool ExportTextAssetToFile(AssetsFileInstance assetsFileInstance, AssetsManager assetsManager,
-        AssetFileInfo assetInfo, string filePath)
+    private static bool ExportTextAssetToFile(TextAssetExportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {
             Logger.Debug($"Starting TextAsset export for asset {assetInfo.PathId}");
 
-            var textAssetBaseField = GetTextAssetBaseField(assetsManager, assetsFileInstance, assetInfo);
+            var textAssetBaseField = GetTextAssetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textAssetBaseField == null)
                 return false;
 
@@ -202,15 +214,14 @@ public class TextAssetHandler
         return false;
     }
 
-    private static async Task<int> ProcessImports(List<AssetMatch> matches, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static async Task<int> ProcessImports(TextAssetImportContext context)
     {
         var importedCount = 0;
 
-        foreach (var match in matches)
+        foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleTextAsset(match, assetsFileInstance, assetsManager))
+                if (await ImportSingleTextAsset(match, context))
                     importedCount++;
             }
             catch (Exception ex)
@@ -221,10 +232,9 @@ public class TextAssetHandler
         return importedCount;
     }
 
-    private static Task<bool> ImportSingleTextAsset(AssetMatch match, AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
+    private static Task<bool> ImportSingleTextAsset(AssetMatch match, TextAssetImportContext context)
     {
-        var targetAssetInfo = assetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
+        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
         {
             Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
@@ -240,7 +250,7 @@ public class TextAssetHandler
 
         Logger.Debug($"Processing text asset: {match.Name}");
 
-        var success = ImportTextAssetFromFile(assetsFileInstance, assetsManager, targetAssetInfo, filePath);
+        var success = ImportTextAssetFromFile(context, targetAssetInfo, filePath);
 
         if (!success)
         {
@@ -266,8 +276,7 @@ public class TextAssetHandler
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static bool ImportTextAssetFromFile(AssetsFileInstance assetsFileInstance, AssetsManager assetsManager,
-        AssetFileInfo assetInfo, string filePath)
+    private static bool ImportTextAssetFromFile(TextAssetImportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {
@@ -279,7 +288,7 @@ public class TextAssetHandler
                 return false;
             }
 
-            var baseField = assetsManager.GetBaseField(assetsFileInstance, assetInfo);
+            var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
             if (baseField == null)
             {
                 Logger.Error($"Failed to get base field for TextAsset {assetInfo.PathId}");

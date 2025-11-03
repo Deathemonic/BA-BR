@@ -1,5 +1,6 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Texture;
+using BABU.Contexts;
 using BABU.Handlers.Assets;
 using BABU.Models;
 using BABU.Services;
@@ -27,19 +28,28 @@ public static class Parse
 
         var options = ProcessingOptions.FromStrings(includeTypes, excludeTypes, onlyTypes);
         options = options with { TextFormat = textFormat };
-        var exportFormat = imageFormat.Equals("png", StringComparison.InvariantCultureIgnoreCase)
-            ? ImageExportType.Png
-            : ImageExportType.Tga;
+        
+        var config = new BundleProcessingConfig
+        {
+            ModdedPath = modded,
+            PatchPath = patch,
+            Options = options,
+            ExportType = ParseImageFormat(imageFormat),
+            CompressionType = ParseCompressionType(compress)
+        };
 
-        var compressionType = ParseCompressionType(compress);
-
-        var assetComparer = new AssetComparer();
-        var genericAssetHandler = new GenericAssetHandler();
         var texture2DHandler = new Texture2DHandler();
         var textAssetHandler = new TextAssetHandler();
-        var processor = new BundleProcessor(assetComparer, genericAssetHandler, texture2DHandler, textAssetHandler);
+        var processor = new BundleProcessor(texture2DHandler, textAssetHandler);
 
-        await processor.ProcessBundles(modded, patch, options, exportFormat, compressionType);
+        await processor.ProcessBundles(config);
+    }
+
+    private static ImageExportType ParseImageFormat(string imageFormat)
+    {
+        return imageFormat.Equals("png", StringComparison.InvariantCultureIgnoreCase)
+            ? ImageExportType.Png
+            : ImageExportType.Tga;
     }
 
     private static AssetBundleCompressionType ParseCompressionType(string compress)
