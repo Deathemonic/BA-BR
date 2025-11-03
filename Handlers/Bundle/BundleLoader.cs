@@ -1,6 +1,6 @@
 using AssetsTools.NET.Extra;
 
-namespace BABU.Handlers.Bundles;
+namespace BABU.Handlers.Bundle;
 
 public class BundleLoader
 {

@@ -2,7 +2,7 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Bundles;
+namespace BABU.Handlers.Bundle;
 
 public static class BundleSaver
 {

@@ -2,9 +2,9 @@ using System.Text;
 using System.Text.Json;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using BABU.Contexts;
-using BABU.Handlers.Bundles;
+using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 using BABU.Utilities;
 
 namespace BABU.Handlers.Assets;
@@ -79,7 +79,7 @@ public static class GenericAssetHandler
         foreach (var match in context.Matches)
             try
             {
-                if (await ExportSingleAsset(match, context)) 
+                if (await ExportSingleAsset(match, context))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -272,7 +272,7 @@ public static class GenericAssetHandler
         foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleAsset(match, context)) 
+                if (await ImportSingleAsset(match, context))
                     importedCount++;
             }
             catch (Exception ex)

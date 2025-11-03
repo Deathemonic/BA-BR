@@ -1,10 +1,8 @@
-using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using BABU.Handlers.Bundles;
-using BABU.Models;
+using BABU.Handlers.Bundle;
 
-namespace BABU.Contexts;
+namespace BABU.Models.Context;
 
 public readonly record struct ExportContext
 {

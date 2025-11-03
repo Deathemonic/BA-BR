@@ -1,15 +1,15 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using BABU.Contexts;
-using BABU.Handlers.Bundles;
+using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 using BABU.Utilities;
 
 namespace BABU.Handlers.Assets;
 
 public class TextAssetHandler
 {
-    public Task<int> ExportTextAssets(string moddedPath, List<AssetMatch> matches, string textFormat)
+    public static Task<int> ExportTextAssets(string moddedPath, List<AssetMatch> matches, string textFormat)
     {
         FileManager.DumpDirExists();
 
@@ -49,7 +49,7 @@ public class TextAssetHandler
         return Task.FromResult(exportedCount);
     }
 
-    public async Task<int> ImportTextAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportTextAssets(BundleLoader loader, List<AssetMatch> matches)
     {
         if (!ValidateSetup())
             return 0;
@@ -132,7 +132,8 @@ public class TextAssetHandler
         {
             Logger.Debug($"Starting TextAsset export for asset {assetInfo.PathId}");
 
-            var textAssetBaseField = GetTextAssetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+            var textAssetBaseField =
+                GetTextAssetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textAssetBaseField == null)
                 return false;
 
@@ -276,7 +277,8 @@ public class TextAssetHandler
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static bool ImportTextAssetFromFile(TextAssetImportContext context, AssetFileInfo assetInfo, string filePath)
+    private static bool ImportTextAssetFromFile(TextAssetImportContext context, AssetFileInfo assetInfo,
+        string filePath)
     {
         try
         {

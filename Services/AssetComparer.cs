@@ -1,12 +1,12 @@
-using BABU.Contexts;
-using BABU.Handlers.Bundles;
+using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 using BABU.Utilities;
 using ZLinq;
 
 namespace BABU.Services;
 
-public class AssetComparer
+public static class AssetComparer
 {
     public static List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {

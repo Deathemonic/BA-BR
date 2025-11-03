@@ -1,8 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Texture;
-using BABU.Contexts;
-using BABU.Handlers.Assets;
 using BABU.Models;
+using BABU.Models.Context;
 using BABU.Services;
 using BABU.Utilities;
 
@@ -28,7 +27,7 @@ public static class Parse
 
         var options = ProcessingOptions.FromStrings(includeTypes, excludeTypes, onlyTypes);
         options = options with { TextFormat = textFormat };
-        
+
         var config = new BundleProcessingConfig
         {
             ModdedPath = modded,
@@ -38,9 +37,7 @@ public static class Parse
             CompressionType = ParseCompressionType(compress)
         };
 
-        var texture2DHandler = new Texture2DHandler();
-        var textAssetHandler = new TextAssetHandler();
-        var processor = new BundleProcessor(texture2DHandler, textAssetHandler);
+        var processor = new BundleProcessor();
 
         await processor.ProcessBundles(config);
     }

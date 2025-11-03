@@ -1,15 +1,13 @@
 using AssetsTools.NET;
-using BABU.Contexts;
 using BABU.Handlers.Assets;
-using BABU.Handlers.Bundles;
+using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 using BABU.Utilities;
 
 namespace BABU.Services;
 
-public class BundleProcessor(
-    Texture2DHandler texture2DHandler,
-    TextAssetHandler textAssetHandler)
+public class BundleProcessor
 {
     public async Task ProcessBundles(BundleProcessingConfig config)
     {
@@ -72,10 +70,12 @@ public class BundleProcessor(
             exportedCount = await GenericAssetHandler.ExportAssets(config.ModdedPath, assets.OtherMatches);
 
         if (assets.TextureMatches.Count > 0)
-            textureExportCount = await texture2DHandler.ExportTextures(config.ModdedPath, assets.TextureMatches, config.ExportType);
+            textureExportCount =
+                await Texture2DHandler.ExportTextures(config.ModdedPath, assets.TextureMatches, config.ExportType);
 
         if (assets.TextAssetMatches.Count > 0)
-            textAssetExportCount = await textAssetHandler.ExportTextAssets(config.ModdedPath, assets.TextAssetMatches, config.TextFormat);
+            textAssetExportCount =
+                await TextAssetHandler.ExportTextAssets(config.ModdedPath, assets.TextAssetMatches, config.TextFormat);
 
         return new ExportResults(exportedCount, textureExportCount, textAssetExportCount);
     }
@@ -120,10 +120,10 @@ public class BundleProcessor(
             importedCount = await GenericAssetHandler.ImportAssets(loader, assets.OtherMatches);
 
         if (assets.TextureMatches.Count > 0)
-            textureImportCount = await texture2DHandler.ImportTextures(loader, assets.TextureMatches);
+            textureImportCount = await Texture2DHandler.ImportTextures(loader, assets.TextureMatches);
 
         if (assets.TextAssetMatches.Count > 0)
-            textAssetImportCount = await textAssetHandler.ImportTextAssets(loader, assets.TextAssetMatches);
+            textAssetImportCount = await TextAssetHandler.ImportTextAssets(loader, assets.TextAssetMatches);
 
         return new ImportResults(importedCount, textureImportCount, textAssetImportCount);
     }
