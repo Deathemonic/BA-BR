@@ -10,41 +10,9 @@ namespace BABU.Handlers.Assets.Texture2D;
 
 public static class Exporter
 {
-    public static Task<int> ExportTextures(string moddedPath, List<AssetMatch> matches,
-        ImageExportType exportType = ImageExportType.Tga)
+    public static Task<int> ExportTextures(Texture2DExportContext context)
     {
-        FileManager.DumpDirExists();
-
-        if (matches.Count == 0)
-        {
-            Logger.Warn("No Texture2D assets to export");
-            return Task.FromResult(0);
-        }
-
-        var loader = new BundleLoader();
-
-        if (!loader.LoadBundle(moddedPath))
-        {
-            Logger.Error("Failed to load modded bundle for texture export");
-            return Task.FromResult(0);
-        }
-
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for texture export");
-            return Task.FromResult(0);
-        }
-
-        Logger.Info($"Exporting Texture2D assets as {exportType}...");
-
-        var context = new Texture2DExportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager(),
-            ExportType = exportType
-        };
+        Logger.Info($"Exporting Texture2D assets as {context.ExportType}...");
 
         var exportedCount = ProcessExports(context);
 

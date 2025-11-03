@@ -9,40 +9,9 @@ namespace BABU.Handlers.Assets.TextAsset;
 
 public static class Exporter
 {
-    public static Task<int> ExportTextAssets(string moddedPath, List<AssetMatch> matches, string textFormat)
+    public static Task<int> ExportTextAssets(TextAssetExportContext context)
     {
-        FileManager.DumpDirExists();
-
-        if (matches.Count == 0)
-        {
-            Logger.Warn("No TextAsset assets to export");
-            return Task.FromResult(0);
-        }
-
-        var loader = new BundleLoader();
-
-        if (!loader.LoadBundle(moddedPath))
-        {
-            Logger.Error("Failed to load modded bundle for text export");
-            return Task.FromResult(0);
-        }
-
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for text export");
-            return Task.FromResult(0);
-        }
-
         Logger.Info("Exporting TextAsset assets...");
-
-        var context = new TextAssetExportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager(),
-            TextFormat = textFormat
-        };
 
         var exportedCount = ProcessExports(context);
 

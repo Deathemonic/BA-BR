@@ -8,26 +8,12 @@ namespace BABU.Handlers.Assets.TextAsset;
 
 public static class Importer
 {
-    public static async Task<int> ImportTextAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportTextAssets(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;
 
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for import");
-            return 0;
-        }
-
         Logger.Info("Importing text assets...");
-
-        var context = new TextAssetImportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager()
-        };
 
         var importedCount = await ProcessImports(context);
 
@@ -44,7 +30,7 @@ public static class Importer
         return false;
     }
 
-    private static async Task<int> ProcessImports(TextAssetImportContext context)
+    private static async Task<int> ProcessImports(ImportContext context)
     {
         var importedCount = 0;
 
@@ -62,7 +48,7 @@ public static class Importer
         return importedCount;
     }
 
-    private static Task<bool> ImportSingleTextAsset(AssetMatch match, TextAssetImportContext context)
+    private static Task<bool> ImportSingleTextAsset(AssetMatch match, ImportContext context)
     {
         var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
@@ -106,7 +92,7 @@ public static class Importer
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static bool ImportTextAssetFromFile(TextAssetImportContext context, AssetFileInfo assetInfo,
+    private static bool ImportTextAssetFromFile(ImportContext context, AssetFileInfo assetInfo,
         string filePath)
     {
         try

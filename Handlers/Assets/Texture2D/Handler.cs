@@ -1,19 +1,19 @@
 using AssetsTools.NET.Texture;
 using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 
 namespace BABU.Handlers.Assets.Texture2D;
 
 public static class Texture2DHandler
 {
-    public static Task<int> ExportTextures(string moddedPath, List<AssetMatch> matches,
-        ImageExportType exportType = ImageExportType.Tga)
+    public static Task<int> ExportTextures(Texture2DExportContext context)
     {
-        return Exporter.ExportTextures(moddedPath, matches, exportType);
+        return Exporter.ExportTextures(context);
     }
 
-    public static async Task<int> ImportTextures(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportTextures(ImportContext context)
     {
-        return await Importer.ImportTextures(loader, matches);
+        return await Importer.ImportTextures(context);
     }
 }

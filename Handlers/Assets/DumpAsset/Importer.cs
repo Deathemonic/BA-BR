@@ -10,26 +10,12 @@ namespace BABU.Handlers.Assets.DumpAsset;
 
 public static class Importer
 {
-    public static async Task<int> ImportAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportAssets(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;
 
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for import");
-            return 0;
-        }
-
         Logger.Info("Importing JSON assets...");
-
-        var context = new ImportContext
-        {
-            Loader = loader,
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance
-        };
 
         var importedCount = await ProcessImports(context);
 

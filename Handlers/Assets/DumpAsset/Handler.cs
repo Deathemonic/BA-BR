@@ -1,18 +1,19 @@
 using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 
 namespace BABU.Handlers.Assets.DumpAsset;
 
 public static class GenericAssetHandler
 {
-    public static async Task<int> ExportAssets(string moddedPath, List<AssetMatch> matches)
+    public static async Task<int> ExportAssets(ExportContext context)
     {
-        return await Exporter.ExportAssets(moddedPath, matches);
+        return await Exporter.ExportAssets(context);
     }
 
-    public static async Task<int> ImportAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportAssets(ImportContext context)
     {
-        return await Importer.ImportAssets(loader, matches);
+        return await Importer.ImportAssets(context);
     }
 }
 

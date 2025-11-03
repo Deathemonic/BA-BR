@@ -12,33 +12,9 @@ public static class Exporter
 {
     private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
 
-    public static async Task<int> ExportAssets(string moddedPath, List<AssetMatch> matches)
+    public static async Task<int> ExportAssets(ExportContext context)
     {
-        FileManager.DumpDirExists();
-
-        var loader = new BundleLoader();
-
-        if (!loader.LoadBundle(moddedPath))
-        {
-            Logger.Error("Failed to load modded bundle for export");
-            return 0;
-        }
-
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for export");
-            return 0;
-        }
-
         Logger.Info("Exporting JSON dumps...");
-
-        var context = new ExportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager()
-        };
 
         var exportedCount = await ProcessExports(context);
 

@@ -1,17 +1,18 @@
 using BABU.Handlers.Bundle;
 using BABU.Models;
+using BABU.Models.Context;
 
 namespace BABU.Handlers.Assets.TextAsset;
 
 public static class TextAssetHandler
 {
-    public static Task<int> ExportTextAssets(string moddedPath, List<AssetMatch> matches, string textFormat)
+    public static Task<int> ExportTextAssets(TextAssetExportContext context)
     {
-        return Exporter.ExportTextAssets(moddedPath, matches, textFormat);
+        return Exporter.ExportTextAssets(context);
     }
 
-    public static async Task<int> ImportTextAssets(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportTextAssets(ImportContext context)
     {
-        return await Importer.ImportTextAssets(loader, matches);
+        return await Importer.ImportTextAssets(context);
     }
 }

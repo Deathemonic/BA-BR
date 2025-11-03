@@ -62,27 +62,68 @@ public class BundleProcessor
         };
     }
 
-    private async Task<ExportResults> PerformExports(BundleProcessingConfig config, CategorizedAssets assets)
+    private static async Task<ExportResults> PerformExports(BundleProcessingConfig config, CategorizedAssets assets)
     {
+        FileManager.DumpDirExists();
+
+        var loader = new BundleLoader();
+        if (!loader.LoadBundle(config.ModdedPath))
+        {
+            Logger.Error("Failed to load modded bundle for export");
+            return new ExportResults(0, 0, 0);
+        }
+
+        var assetsFileInstance = loader.GetAssetsFileInstance();
+        if (assetsFileInstance == null)
+        {
+            Logger.Error("Failed to get assets file instance for export");
+            return new ExportResults(0, 0, 0);
+        }
+
+        var assetsManager = loader.GetAssetsManager();
+
         var exportedCount = 0;
-        var textureExportCount = 0;
-        var textAssetExportCount = 0;
-
         if (assets.OtherMatches.Count > 0)
-            exportedCount = await GenericAssetHandler.ExportAssets(config.ModdedPath, assets.OtherMatches);
+        {
+            var context = new ExportContext
+            {
+                Matches = assets.OtherMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager
+            };
+            exportedCount = await GenericAssetHandler.ExportAssets(context);
+        }
 
+        var textureExportCount = 0;
         if (assets.TextureMatches.Count > 0)
-            textureExportCount =
-                await Texture2DHandler.ExportTextures(config.ModdedPath, assets.TextureMatches, config.ExportType);
+        {
+            var context = new Texture2DExportContext
+            {
+                Matches = assets.TextureMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager,
+                ExportType = config.ExportType
+            };
+            textureExportCount = await Texture2DHandler.ExportTextures(context);
+        }
 
+        var textAssetExportCount = 0;
         if (assets.TextAssetMatches.Count > 0)
-            textAssetExportCount =
-                await TextAssetHandler.ExportTextAssets(config.ModdedPath, assets.TextAssetMatches, config.TextFormat);
+        {
+            var context = new TextAssetExportContext
+            {
+                Matches = assets.TextAssetMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager,
+                TextFormat = config.TextFormat
+            };
+            textAssetExportCount = await TextAssetHandler.ExportTextAssets(context);
+        }
 
         return new ExportResults(exportedCount, textureExportCount, textAssetExportCount);
     }
 
-    private async Task PerformImports(BundleProcessingConfig config, CategorizedAssets assets,
+    private static async Task PerformImports(BundleProcessingConfig config, CategorizedAssets assets,
         ExportResults exportResults)
     {
         var loader = new BundleLoader();
@@ -112,20 +153,55 @@ public class BundleProcessor
         return false;
     }
 
-    private async Task<ImportResults> ExecuteImports(BundleLoader loader, CategorizedAssets assets)
+    private static async Task<ImportResults> ExecuteImports(BundleLoader loader, CategorizedAssets assets)
     {
+        var assetsFileInstance = loader.GetAssetsFileInstance();
+        if (assetsFileInstance == null)
+        {
+            Logger.Error("Failed to get assets file instance for import");
+            return new ImportResults(0, 0, 0);
+        }
+
+        var assetsManager = loader.GetAssetsManager();
+
         var importedCount = 0;
-        var textureImportCount = 0;
-        var textAssetImportCount = 0;
-
         if (assets.OtherMatches.Count > 0)
-            importedCount = await GenericAssetHandler.ImportAssets(loader, assets.OtherMatches);
+        {
+            var context = new ImportContext
+            {
+                Loader = loader,
+                Matches = assets.OtherMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager
+            };
+            importedCount = await GenericAssetHandler.ImportAssets(context);
+        }
 
+        var textureImportCount = 0;
         if (assets.TextureMatches.Count > 0)
-            textureImportCount = await Texture2DHandler.ImportTextures(loader, assets.TextureMatches);
+        {
+            var context = new ImportContext
+            {
+                Loader = loader,
+                Matches = assets.TextureMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager
+            };
+            textureImportCount = await Texture2DHandler.ImportTextures(context);
+        }
 
+        var textAssetImportCount = 0;
         if (assets.TextAssetMatches.Count > 0)
-            textAssetImportCount = await TextAssetHandler.ImportTextAssets(loader, assets.TextAssetMatches);
+        {
+            var context = new ImportContext
+            {
+                Loader = loader,
+                Matches = assets.TextAssetMatches,
+                AssetsFileInstance = assetsFileInstance,
+                AssetsManager = assetsManager
+            };
+            textAssetImportCount = await TextAssetHandler.ImportTextAssets(context);
+        }
 
         return new ImportResults(importedCount, textureImportCount, textAssetImportCount);
     }

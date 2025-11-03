@@ -8,26 +8,12 @@ namespace BABU.Handlers.Assets.Texture2D;
 
 public static class Importer
 {
-    public static async Task<int> ImportTextures(BundleLoader loader, List<AssetMatch> matches)
+    public static async Task<int> ImportTextures(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;
 
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for import");
-            return 0;
-        }
-
         Logger.Info("Importing texture assets...");
-
-        var context = new Texture2DImportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager()
-        };
 
         var importedCount = await ProcessImports(context);
 
@@ -44,7 +30,7 @@ public static class Importer
         return false;
     }
 
-    private static async Task<int> ProcessImports(Texture2DImportContext context)
+    private static async Task<int> ProcessImports(ImportContext context)
     {
         var importedCount = 0;
 
@@ -61,7 +47,7 @@ public static class Importer
         return importedCount;
     }
 
-    private static async Task<bool> ImportSingleTexture(AssetMatch match, Texture2DImportContext context)
+    private static async Task<bool> ImportSingleTexture(AssetMatch match, ImportContext context)
     {
         var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
@@ -105,7 +91,7 @@ public static class Importer
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static Task<bool> ImportTextureFromFile(Texture2DImportContext context, AssetFileInfo assetInfo,
+    private static Task<bool> ImportTextureFromFile(ImportContext context, AssetFileInfo assetInfo,
         string filePath)
     {
         try
