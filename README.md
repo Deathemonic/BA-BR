@@ -33,7 +33,7 @@ The process works as follows:
 ### Basic Example
 
 ```shell
-bamu --modded your_modded.bundle --patch game_asset.bundle
+babu --modded your_modded.bundle --patch game_asset.bundle
 ```
 
 This command will find matching assets, export the modified ones from `your_modded.bundle`, and import them into
@@ -42,7 +42,7 @@ This command will find matching assets, export the modified ones from `your_modd
 <details>
 <summary>Command Line</summary>
 
-### `bamu --help`
+### `babu --help`
 
 | Argument                 | Alias       | Description                                                                   | Default |
 |--------------------------|-------------|-------------------------------------------------------------------------------|---------|
@@ -64,8 +64,8 @@ This command will find matching assets, export the modified ones from `your_modd
 2. Clone this repository
 
 ```sh
-git clone https://github.com/Deathemonic/BA-MU
-cd BA-MU
+git clone https://github.com/Deathemonic/BA-BU
+cd BA-BU
 ```
 
 3. Build using `dotnet`
@@ -79,7 +79,8 @@ dotnet build
 - [BA-AD](https://github.com/Deathemonic/BA-AD): A tool and library that downloads the latest **Blue Archive** assets.
 - [BA-AX](https://github.com/Deathemonic/BA-AX): A tool and library that extracts **Blue Archive** assets.
 - [BA-FB](https://github.com/Deathemonic/BA-FB): A tool for dumping and generating **Blue Archive** flatbuffers.
-- [BA-CY](https://github.com/Deathemonic/BA-CY): Library for handling **Blue Archive** catalogs, tables, serialization/deserialization, encryption, and hashing.
+- [BA-CY](https://github.com/Deathemonic/BA-CY): Library for handling **Blue Archive** catalogs, tables,
+  serialization/deserialization, encryption, and hashing.
 
 ### Contributing
 
@@ -93,12 +94,7 @@ by submitting a pull request or issue. Always appreciate the help.
 
 ---
 
-<footer>
-
-### Copyright
-
-Blue Archive is a registered trademark of NAT GAMES Co., Ltd., NEXON Korea Corp., and Yostar, Inc.
-This project is not affiliated with, endorsed by, or connected to NAT GAMES Co., Ltd., NEXON Korea Corp., NEXON GAMES Co., Ltd., IODivision, Yostar, Inc., or any of their subsidiaries or affiliates.
-All game assets, content, and materials are copyrighted by their respective owners and are used for informational and educational purposes only.
-
-</footer>
+<sub>**Copyright** - Blue Archive is a registered trademark of NAT GAMES Co., Ltd., NEXON Korea Corp., and Yostar, Inc.
+This project is not affiliated with, endorsed by, or connected to NAT GAMES Co., Ltd., NEXON Korea Corp., NEXON GAMES
+Co., Ltd., IODivision, Yostar, Inc., or any of their subsidiaries or affiliates. All game assets, content, and materials
+are copyrighted by their respective owners and are used for informational and educational purposes only.</sub>
