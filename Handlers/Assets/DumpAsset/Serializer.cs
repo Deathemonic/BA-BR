@@ -1,136 +1,12 @@
-using System.Text;
 using System.Text.Json;
 using AssetsTools.NET;
-using AssetsTools.NET.Extra;
-using BABU.Handlers.Bundle;
-using BABU.Models;
-using BABU.Models.Context;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets;
+namespace BABU.Handlers.Assets.DumpAsset;
 
-public static class GenericAssetHandler
+public static class Serializer
 {
-    private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
-
-    public static async Task<int> ExportAssets(string moddedPath, List<AssetMatch> matches)
-    {
-        FileManager.DumpDirExists();
-
-        var loader = new BundleLoader();
-
-        if (!loader.LoadBundle(moddedPath))
-        {
-            Logger.Error("Failed to load modded bundle for export");
-            return 0;
-        }
-
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for export");
-            return 0;
-        }
-
-        Logger.Info("Exporting JSON dumps...");
-
-        var context = new ExportContext
-        {
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance,
-            AssetsManager = loader.GetAssetsManager()
-        };
-
-        var exportedCount = await ProcessExports(context);
-
-        return exportedCount;
-    }
-
-    public static async Task<int> ImportAssets(BundleLoader loader, List<AssetMatch> matches)
-    {
-        if (!ValidateSetup())
-            return 0;
-
-        var assetsFileInstance = loader.GetAssetsFileInstance();
-        if (assetsFileInstance == null)
-        {
-            Logger.Error("Failed to get assets file instance for import");
-            return 0;
-        }
-
-        Logger.Info("Importing JSON assets...");
-
-        var context = new ImportContext
-        {
-            Loader = loader,
-            Matches = matches,
-            AssetsFileInstance = assetsFileInstance
-        };
-
-        var importedCount = await ProcessImports(context);
-
-        return importedCount;
-    }
-
-    private static async Task<int> ProcessExports(ExportContext context)
-    {
-        var exportedCount = 0;
-
-        foreach (var match in context.Matches)
-            try
-            {
-                if (await ExportSingleAsset(match, context))
-                    exportedCount++;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Error exporting asset {match.ModdedId}", ex);
-            }
-
-        return exportedCount;
-    }
-
-    private static async Task<bool> ExportSingleAsset(AssetMatch match, ExportContext context)
-    {
-        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
-        if (assetInfo == null)
-        {
-            Logger.Error($"Asset with PathId {match.ModdedId} not found in modded bundle");
-            return false;
-        }
-
-        var baseField = GetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo, match.ModdedId);
-        if (baseField == null)
-            return false;
-
-        var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
-
-        await ExportJsonData(baseField, filePath);
-
-        Logger.Debug($"Exported: {match.Name} ({match.Type})");
-        return true;
-    }
-
-    private static AssetTypeValueField? GetBaseField(AssetsManager assetsManager, AssetsFileInstance assetsFileInstance,
-        AssetFileInfo assetInfo, long assetId)
-    {
-        var baseField = assetsManager.GetBaseField(assetsFileInstance, assetInfo);
-        if (baseField != null)
-            return baseField;
-
-        Logger.Error($"Failed to get base field for asset {assetId}");
-        return null;
-    }
-
-    private static async Task ExportJsonData(AssetTypeValueField baseField, string filePath)
-    {
-        await using var fileStream = File.Create(filePath);
-        await using var writer = new Utf8JsonWriter(fileStream, WriterOptions);
-        RecurseJsonDump(writer, baseField, false);
-        await writer.FlushAsync();
-    }
-
-    private static void RecurseJsonDump(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor)
+    public static void RecurseJsonDump(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor)
     {
         var template = field.TemplateField;
         var isArray = template.IsArray;
@@ -255,139 +131,7 @@ public static class GenericAssetHandler
         writer.WriteEndObject();
     }
 
-    private static bool ValidateSetup()
-    {
-        var dumpsDir = FileManager.GetDumpPath();
-        if (Directory.Exists(dumpsDir))
-            return true;
-
-        Logger.Error("Dumps directory not found. Please run parse command first");
-        return false;
-    }
-
-    private static async Task<int> ProcessImports(ImportContext context)
-    {
-        var importedCount = 0;
-
-        foreach (var match in context.Matches)
-            try
-            {
-                if (await ImportSingleAsset(match, context))
-                    importedCount++;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Error importing asset {match.PatchId}", ex);
-            }
-
-        return importedCount;
-    }
-
-    private static async Task<bool> ImportSingleAsset(AssetMatch match, ImportContext context)
-    {
-        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
-        if (targetAssetInfo == null)
-        {
-            Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
-            return false;
-        }
-
-        var filePath = Path.Combine(FileManager.GetDumpPath(), match.JsonFileName);
-        if (!File.Exists(filePath))
-        {
-            Logger.Error($"JSON file not found: {filePath}");
-            return false;
-        }
-
-        Logger.Debug($"Processing asset: {match.Name}");
-
-        var success = await ImportAssetFromJson(context.Loader, targetAssetInfo, filePath);
-
-        if (!success)
-        {
-            Logger.Error($"Failed to import asset for {match.Name}");
-            return false;
-        }
-
-        Logger.Debug($"Imported asset: {match.Name}");
-        return true;
-    }
-
-    private static async Task<bool> ImportAssetFromJson(BundleLoader loader, AssetFileInfo targetAssetInfo,
-        string filePath)
-    {
-        try
-        {
-            await using var fileStream = File.OpenRead(filePath);
-            var assetsManager = loader.GetAssetsManager();
-            var assetsFileInstance = loader.GetAssetsFileInstance();
-
-            if (assetsFileInstance == null)
-            {
-                Logger.Error("Failed to get assets file instance");
-                return false;
-            }
-
-            var tempField = assetsManager.GetTemplateBaseField(assetsFileInstance, targetAssetInfo);
-            if (tempField == null)
-            {
-                Logger.Error($"Failed to get template field for asset {targetAssetInfo.PathId}");
-                return false;
-            }
-
-            var jsonData = await ImportJsonAsset(fileStream, tempField);
-            if (jsonData == null)
-            {
-                Logger.Error("Failed to import JSON data");
-                return false;
-            }
-
-            var replacer = new ContentReplacerFromBuffer(jsonData);
-            targetAssetInfo.Replacer = replacer;
-
-            Logger.Debug($"Asset replacer set successfully for {targetAssetInfo.PathId}");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"Exception during asset import: {ex.Message}");
-            return false;
-        }
-    }
-
-    private static async Task<byte[]?> ImportJsonAsset(Stream readStream, AssetTypeTemplateField tempField)
-    {
-        using var ms = new MemoryStream();
-        var writer = new AssetsFileWriter(ms)
-        {
-            BigEndian = false
-        };
-
-        try
-        {
-            using var streamReader = new StreamReader(readStream, leaveOpen: true);
-            var jsonText = await streamReader.ReadToEndAsync();
-            var jsonBytes = Encoding.UTF8.GetBytes(jsonText);
-            var reader = new Utf8JsonReader(jsonBytes);
-
-            if (!reader.Read())
-            {
-                Logger.Error("Failed to read JSON: empty document");
-                return null;
-            }
-
-            RecurseJsonImport(ref reader, writer, tempField);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"Failed to import JSON: {ex.Message}");
-            return null;
-        }
-
-        return ms.ToArray();
-    }
-
-    private static void RecurseJsonImport(ref Utf8JsonReader reader, AssetsFileWriter writer,
+    public static void RecurseJsonImport(ref Utf8JsonReader reader, AssetsFileWriter writer,
         AssetTypeTemplateField tempField)
     {
         var align = tempField.IsAligned;
@@ -541,7 +285,7 @@ public static class GenericAssetHandler
         }
     }
 
-    private static void WriteDefaultValue(AssetsFileWriter writer, AssetTypeTemplateField tempField)
+    public static void WriteDefaultValue(AssetsFileWriter writer, AssetTypeTemplateField tempField)
     {
         var align = tempField.IsAligned;
 

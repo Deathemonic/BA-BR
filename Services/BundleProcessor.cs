@@ -1,5 +1,7 @@
 using AssetsTools.NET;
-using BABU.Handlers.Assets;
+using BABU.Handlers.Assets.DumpAsset;
+using BABU.Handlers.Assets.TextAsset;
+using BABU.Handlers.Assets.Texture2D;
 using BABU.Handlers.Bundle;
 using BABU.Models;
 using BABU.Models.Context;
