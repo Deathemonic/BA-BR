@@ -3,7 +3,7 @@ using AssetsTools.NET.Texture;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Models.Types;
-using BABU.Services;
+using BABU.Services.Bundle;
 using BABU.Utilities;
 
 namespace BABU.CLI;
