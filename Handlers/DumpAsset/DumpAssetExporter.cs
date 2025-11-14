@@ -14,11 +14,10 @@ public static class DumpAssetExporter
     public static async Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting JSON dumps...");
-
-        var exportedCount = await ProcessExports(context);
-
-        return exportedCount;
+        
+        return await ProcessExports(context);
     }
+
 
     private static async Task<int> ProcessExports(ExportContext context)
     {

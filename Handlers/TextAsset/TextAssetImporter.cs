@@ -13,10 +13,8 @@ public static class TextAssetImporter
             return 0;
 
         Logger.Info("Importing text assets...");
-
-        var importedCount = await ProcessImports(context);
-
-        return importedCount;
+        
+        return await ProcessImports(context);;
     }
 
     private static bool ValidateSetup()

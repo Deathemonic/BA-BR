@@ -14,12 +14,10 @@ public static class DumpAssetImporter
     {
         if (!ValidateSetup())
             return 0;
-
+    
         Logger.Info("Importing JSON assets...");
-
-        var importedCount = await ProcessImports(context);
-
-        return importedCount;
+    
+        return await ProcessImports(context);
     }
 
     private static bool ValidateSetup()

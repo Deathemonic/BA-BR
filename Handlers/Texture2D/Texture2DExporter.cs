@@ -12,9 +12,7 @@ public static class Texture2DExporter
     {
         Logger.Info($"Exporting Texture2D assets as {context.ExportType}...");
 
-        var exportedCount = ProcessExports(context);
-
-        return Task.FromResult(exportedCount);
+        return Task.FromResult(ProcessExports(context));
     }
 
     private static int ProcessExports(ExportContext context)

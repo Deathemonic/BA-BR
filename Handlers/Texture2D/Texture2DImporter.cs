@@ -14,9 +14,7 @@ public static class Texture2DImporter
 
         Logger.Info("Importing texture assets...");
 
-        var importedCount = await ProcessImports(context);
-
-        return importedCount;
+        return await ProcessImports(context);
     }
 
     private static bool ValidateSetup()

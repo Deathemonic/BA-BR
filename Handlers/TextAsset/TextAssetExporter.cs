@@ -12,10 +12,8 @@ public static class TextAssetExporter
     public static Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting TextAsset assets...");
-
-        var exportedCount = ProcessExports(context);
-
-        return Task.FromResult(exportedCount);
+        
+        return Task.FromResult(ProcessExports(context));
     }
 
     private static int ProcessExports(ExportContext context)
