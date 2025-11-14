@@ -5,7 +5,7 @@ using BABU.Utilities;
 
 namespace BABU.CLI;
 
-public static class Args
+public static class Arguments
 {
     /// <summary>
     ///     Blue Archive - Mod Updater
@@ -40,6 +40,6 @@ public static class Args
         }
 
         Logger.SetVerbose(verbose);
-        _ = Parse.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat, compress);
+        _ = Parser.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat, compress);
     }
 }

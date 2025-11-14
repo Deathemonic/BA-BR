@@ -8,7 +8,7 @@ using BABU.Utilities;
 
 namespace BABU.CLI;
 
-public static class Parse
+public static class Parser
 {
     public static async Task Execute(
         string modded,

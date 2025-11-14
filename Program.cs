@@ -1,4 +1,4 @@
 ﻿using BABU.CLI;
 using ConsoleAppFramework;
 
-ConsoleApp.Run(args, Args.Run);
+ConsoleApp.Run(args, Arguments.Run);
