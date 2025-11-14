@@ -73,29 +73,14 @@ public static class BundleProcessorService
         if (instance == null || manager == null)
             return new ExportResults(0, 0, 0);
 
-        var exportedCount = 0;
-        if (assets.OtherMatches.Count > 0)
-        {
-            var context = BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat,
-                config.ExportType);
-            exportedCount = await DumpAssetExporter.Export(context);
-        }
+        var exportedCount = await DumpAssetExporter.Export(
+            BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ExportType));
 
-        var textureExportCount = 0;
-        if (assets.TextureMatches.Count > 0)
-        {
-            var context = BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat,
-                config.ExportType);
-            textureExportCount = await Texture2DExporter.Export(context);
-        }
+        var textureExportCount = await Texture2DExporter.Export(
+            BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ExportType));
 
-        var textAssetExportCount = 0;
-        if (assets.TextAssetMatches.Count > 0)
-        {
-            var context = BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat,
-                config.ExportType);
-            textAssetExportCount = await TextAssetExporter.Export(context);
-        }
+        var textAssetExportCount = await TextAssetExporter.Export(
+            BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ExportType));
 
         return new ExportResults(exportedCount, textureExportCount, textAssetExportCount);
     }
@@ -141,26 +126,14 @@ public static class BundleProcessorService
 
         var assetsManager = loaderService.GetAssetsManager();
 
-        var importedCount = 0;
-        if (assets.OtherMatches.Count > 0)
-        {
-            var context = BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager);
-            importedCount = await DumpAssetImporter.Import(context);
-        }
+        var importedCount = await DumpAssetImporter.Import(
+            BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager));
 
-        var textureImportCount = 0;
-        if (assets.TextureMatches.Count > 0)
-        {
-            var context = BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager);
-            textureImportCount = await Texture2DImporter.Import(context);
-        }
+        var textureImportCount = await Texture2DImporter.Import(
+            BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager));
 
-        var textAssetImportCount = 0;
-        if (assets.TextAssetMatches.Count > 0)
-        {
-            var context = BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager);
-            textAssetImportCount = await TextAssetImporter.Import(context);
-        }
+        var textAssetImportCount = await TextAssetImporter.Import(
+            BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager));
 
         return new ImportResults(importedCount, textureImportCount, textAssetImportCount);
     }
@@ -168,7 +141,8 @@ public static class BundleProcessorService
     private static void SaveChanges(BundleLoaderService loaderService, string patchPath, ImportResults importResults,
         AssetBundleCompressionType compressionType)
     {
-        if (importResults.TotalImported > 0) BundleSaverService.SaveModdedBundle(loaderService, patchPath, compressionType);
+        if (importResults.TotalImported > 0)
+            BundleSaverService.SaveModdedBundle(loaderService, patchPath, compressionType);
     }
 
     private static void LogResults(ExportResults exportResults, ImportResults importResults)
