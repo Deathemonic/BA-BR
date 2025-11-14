@@ -170,7 +170,7 @@ public static class AudioClipExporter
     {
         if (string.IsNullOrEmpty(filepath))
         {
-            audioData = Array.Empty<byte>();
+            audioData = [];
             return false;
         }
 
@@ -178,7 +178,7 @@ public static class AudioClipExporter
         {
             var searchPath = filepath;
             if (searchPath.StartsWith("archive:/"))
-                searchPath = searchPath.Substring(9);
+                searchPath = searchPath[9..];
             searchPath = Path.GetFileName(searchPath);
 
             var bundle = fileInstance.parentBundle.file;
