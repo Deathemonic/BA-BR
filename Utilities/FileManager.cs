@@ -2,10 +2,7 @@ namespace BABU.Utilities;
 
 public static class FileManager
 {
-    public static string Clean(string fileName)
-    {
-        return string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
-    }
+    public static string Clean(string fileName) => string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
 
     public static string CreateJsonName(string assetName, string assetType)
     {
@@ -30,20 +27,11 @@ public static class FileManager
         return filePath;
     }
 
-    private static string GetPath(string path)
-    {
-        return Path.Combine(Directory.GetCurrentDirectory(), path);
-    }
+    private static string GetPath(string path) => Path.Combine(Directory.GetCurrentDirectory(), path);
 
-    public static string GetDumpPath()
-    {
-        return GetPath("Dumps");
-    }
+    public static string GetDumpPath() => GetPath("Dumps");
 
-    public static string GetModdedPath()
-    {
-        return GetPath("Modded");
-    }
+    public static string GetModdedPath() => GetPath("Modded");
 
     public static void DumpDirExists()
     {

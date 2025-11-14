@@ -2,9 +2,9 @@ using System.Text.Json;
 using AssetsTools.NET;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.DumpAsset;
+namespace BABU.Handlers.DumpAsset;
 
-public static class Serializer
+public static class DumpAssetSerializer
 {
     public static void RecurseJsonDump(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor)
     {

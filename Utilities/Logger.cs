@@ -8,20 +8,13 @@ public static class Logger
 
     private static string Timestamp => $"{DateTime.Now:hh:mm:ss tt}";
 
-    public static void SetVerbose(bool enabled)
-    {
-        _verboseEnabled = enabled;
-    }
+    public static void SetVerbose(bool enabled) => _verboseEnabled = enabled;
 
-    public static void Info(string message)
-    {
+    public static void Info(string message) =>
         Console.WriteLine(Chalk.Gray + Timestamp + Chalk.Blue + " [INFO] " + message);
-    }
 
-    public static void Warn(string message)
-    {
+    public static void Warn(string message) =>
         Console.WriteLine(Chalk.Gray + Timestamp + Chalk.Yellow + " [WARN] " + message);
-    }
 
     public static void Error(string message, Exception? ex = null)
     {
@@ -35,8 +28,6 @@ public static class Logger
         Console.WriteLine(Chalk.Gray + Timestamp + Chalk.Cyan + " [DEBUG] " + message);
     }
 
-    public static void Success(string message)
-    {
+    public static void Success(string message) =>
         Console.WriteLine(Chalk.Gray + Timestamp + Chalk.Green + " [SUCCESS] " + message);
-    }
 }

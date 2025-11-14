@@ -20,13 +20,3 @@ public readonly record struct CategorizedAssets
     public required List<AssetMatch> TextAssetMatches { get; init; }
     public required List<AssetMatch> OtherMatches { get; init; }
 }
-
-public readonly record struct ExportResults(int ExportedCount, int TextureExportCount, int TextAssetExportCount)
-{
-    public int TotalExported => ExportedCount + TextureExportCount + TextAssetExportCount;
-}
-
-public readonly record struct ImportResults(int ImportedCount, int ImportedTextureCount, int ImportedTextAssetCount)
-{
-    public int TotalImported => ImportedCount + ImportedTextureCount + ImportedTextAssetCount;
-}

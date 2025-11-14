@@ -30,12 +30,10 @@ public record ProcessingOptions(
         return DefaultExclusions.Contains(lowerAssetType);
     }
 
-    public static ProcessingOptions FromStrings(string? includeTypes, string? excludeTypes, string? onlyTypes)
-    {
-        return new ProcessingOptions(
+    public static ProcessingOptions FromStrings(string? includeTypes, string? excludeTypes, string? onlyTypes) =>
+        new(
             includeTypes?.Split(',').Select(t => t.Trim().ToLowerInvariant()).ToHashSet(),
             excludeTypes?.Split(',').Select(t => t.Trim().ToLowerInvariant()).ToHashSet(),
             onlyTypes?.Split(',').Select(t => t.Trim().ToLowerInvariant()).ToHashSet()
         );
-    }
 }

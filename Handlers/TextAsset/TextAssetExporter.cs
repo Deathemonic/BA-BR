@@ -5,11 +5,11 @@ using BABU.Models.Context;
 using BABU.Models.Types;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.TextAsset;
+namespace BABU.Handlers.TextAsset;
 
-public static class Exporter
+public static class TextAssetExporter
 {
-    public static Task<int> ExportTextAssets(TextAssetExportContext context)
+    public static Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting TextAsset assets...");
 
@@ -18,7 +18,7 @@ public static class Exporter
         return Task.FromResult(exportedCount);
     }
 
-    private static int ProcessExports(TextAssetExportContext context)
+    private static int ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
 
@@ -35,7 +35,7 @@ public static class Exporter
         return exportedCount;
     }
 
-    private static bool ExportSingleTextAsset(AssetMatch match, TextAssetExportContext context)
+    private static bool ExportSingleTextAsset(AssetMatch match, ExportContext context)
     {
         var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
@@ -69,7 +69,7 @@ public static class Exporter
         return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
     }
 
-    private static bool ExportTextAssetToFile(TextAssetExportContext context, AssetFileInfo assetInfo, string filePath)
+    private static bool ExportTextAssetToFile(ExportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {

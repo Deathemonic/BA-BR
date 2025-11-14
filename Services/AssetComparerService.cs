@@ -1,17 +1,17 @@
-using BABU.Handlers.Bundle;
 using BABU.Models;
 using BABU.Models.Context;
+using BABU.Services.Bundle;
 using BABU.Utilities;
 using ZLinq;
 
 namespace BABU.Services;
 
-public static class AssetComparer
+public static class AssetComparerService
 {
     public static List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {
-        var moddedLoader = new BundleLoader();
-        var patchLoader = new BundleLoader();
+        var moddedLoader = new BundleLoaderService();
+        var patchLoader = new BundleLoaderService();
 
         try
         {
@@ -20,8 +20,8 @@ public static class AssetComparer
 
             var context = new ComparisonContext
             {
-                ModdedLoader = moddedLoader,
-                PatchLoader = patchLoader,
+                ModdedLoaderService = moddedLoader,
+                PatchLoaderService = patchLoader,
                 Options = options
             };
 
@@ -38,8 +38,8 @@ public static class AssetComparer
     {
         try
         {
-            var moddedAssets = GetAssetInfo(context.ModdedLoader);
-            var patchAssets = GetAssetInfo(context.PatchLoader);
+            var moddedAssets = GetAssetInfo(context.ModdedLoaderService);
+            var patchAssets = GetAssetInfo(context.PatchLoaderService);
 
             var patchAssetGroups = patchAssets
                 .AsValueEnumerable()
@@ -81,17 +81,18 @@ public static class AssetComparer
         }
     }
 
-    private static Dictionary<long, (string Name, string Type, int TypeId)> GetAssetInfo(BundleLoader loader)
+    private static Dictionary<long, (string Name, string Type, int TypeId)> GetAssetInfo(
+        BundleLoaderService loaderService)
     {
         var assets = new Dictionary<long, (string Name, string Type, int TypeId)>();
-        var assetsFileInstance = loader.GetAssetsFileInstance();
+        var assetsFileInstance = loaderService.GetAssetsFileInstance();
 
         if (assetsFileInstance == null)
             return assets;
 
         foreach (var assetInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable())
         {
-            var baseField = loader.GetAssetsManager().GetBaseField(assetsFileInstance, assetInfo);
+            var baseField = loaderService.GetAssetsManager().GetBaseField(assetsFileInstance, assetInfo);
             var assetName = "Unknown";
             var assetType = TypeMapper.GetAssetTypeName(assetInfo.TypeId);
 

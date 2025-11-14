@@ -4,11 +4,11 @@ using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.Texture2D;
+namespace BABU.Handlers.Texture2D;
 
-public static class Exporter
+public static class Texture2DExporter
 {
-    public static Task<int> ExportTextures(Texture2DExportContext context)
+    public static Task<int> Export(ExportContext context)
     {
         Logger.Info($"Exporting Texture2D assets as {context.ExportType}...");
 
@@ -17,7 +17,7 @@ public static class Exporter
         return Task.FromResult(exportedCount);
     }
 
-    private static int ProcessExports(Texture2DExportContext context)
+    private static int ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
 
@@ -34,7 +34,7 @@ public static class Exporter
         return exportedCount;
     }
 
-    private static bool ExportSingleTexture(AssetMatch match, Texture2DExportContext context)
+    private static bool ExportSingleTexture(AssetMatch match, ExportContext context)
     {
         var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
@@ -68,33 +68,33 @@ public static class Exporter
         return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
     }
 
-    private static bool ExportTextureToFile(Texture2DExportContext context, AssetFileInfo assetInfo, string filePath)
+    private static bool ExportTextureToFile(ExportContext context, AssetFileInfo assetInfo, string filePath)
     {
         try
         {
             Logger.Debug($"Starting export for asset {assetInfo.PathId}");
 
             var textureTemplate =
-                Processor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+                Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureTemplate == null)
                 return false;
 
-            if (!Processor.ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
+            if (!Texture2DProcessor.ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
                 return false;
 
             var textureBaseField =
-                Processor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+                Texture2DProcessor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureBaseField == null)
                 return false;
 
-            var textureFile = Processor.CreateTextureFile(textureBaseField);
+            var textureFile = Texture2DProcessor.CreateTextureFile(textureBaseField);
             if (textureFile == null)
                 return false;
 
-            if (!Processor.ValidateTextureDimensions(textureFile))
+            if (!Texture2DProcessor.ValidateTextureDimensions(textureFile))
                 return false;
 
-            return Processor.ExportTextureData(textureFile, context.AssetsFileInstance, filePath, context.ExportType);
+            return Texture2DProcessor.ExportTextureData(textureFile, context.AssetsFileInstance, filePath, context.ExportType);
         }
         catch (Exception ex)
         {

@@ -3,9 +3,9 @@ using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.Texture2D;
+namespace BABU.Handlers.Texture2D;
 
-public static class Processor
+public static class Texture2DProcessor
 {
     public static AssetTypeTemplateField? GetTextureTemplate(AssetsManager assetsManager,
         AssetsFileInstance assetsFileInstance, AssetFileInfo assetInfo)

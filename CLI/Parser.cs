@@ -38,6 +38,6 @@ public static class Parser
             TextFormat = textFormat
         };
 
-        await BundleProcessor.ProcessBundles(config);
+        await BundleProcessorService.ProcessBundles(config);
     }
 }

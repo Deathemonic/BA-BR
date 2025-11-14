@@ -3,11 +3,11 @@ using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.TextAsset;
+namespace BABU.Handlers.TextAsset;
 
-public static class Importer
+public static class TextAssetImporter
 {
-    public static async Task<int> ImportTextAssets(ImportContext context)
+    public static async Task<int> Import(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;

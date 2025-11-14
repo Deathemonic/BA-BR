@@ -5,13 +5,13 @@ using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.DumpAsset;
+namespace BABU.Handlers.DumpAsset;
 
-public static class Exporter
+public static class DumpAssetExporter
 {
     private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
 
-    public static async Task<int> ExportAssets(ExportContext context)
+    public static async Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting JSON dumps...");
 
@@ -74,7 +74,7 @@ public static class Exporter
     {
         await using var fileStream = File.Create(filePath);
         await using var writer = new Utf8JsonWriter(fileStream, WriterOptions);
-        Serializer.RecurseJsonDump(writer, baseField, false);
+        DumpAssetSerializer.RecurseJsonDump(writer, baseField, false);
         await writer.FlushAsync();
     }
 }

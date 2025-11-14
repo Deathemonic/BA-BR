@@ -1,8 +1,8 @@
 using AssetsTools.NET.Extra;
 
-namespace BABU.Handlers.Bundle;
+namespace BABU.Services.Bundle;
 
-public class BundleLoader
+public class BundleLoaderService
 {
     private readonly AssetsManager _assetsManager = new();
     private BundleFileInstance? _bundleInstance;
@@ -16,15 +16,9 @@ public class BundleLoader
         return _bundleInstance != null;
     }
 
-    public BundleFileInstance? GetBundleInstance()
-    {
-        return _bundleInstance;
-    }
+    public BundleFileInstance? GetBundleInstance() => _bundleInstance;
 
-    public AssetsManager GetAssetsManager()
-    {
-        return _assetsManager;
-    }
+    public AssetsManager GetAssetsManager() => _assetsManager;
 
     public AssetsFileInstance? GetAssetsFileInstance()
     {

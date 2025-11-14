@@ -2,17 +2,17 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Bundle;
+namespace BABU.Services.Bundle;
 
-public static class BundleSaver
+public static class BundleSaverService
 {
-    public static void SaveModdedBundle(BundleLoader patchLoader, string originalPatchPath,
+    public static void SaveModdedBundle(BundleLoaderService patchLoaderService, string originalPatchPath,
         AssetBundleCompressionType compressionType = AssetBundleCompressionType.LZ4)
     {
         try
         {
-            var bundleFileInstance = patchLoader.GetBundleInstance();
-            var assetsFileInstance = patchLoader.GetAssetsFileInstance();
+            var bundleFileInstance = patchLoaderService.GetBundleInstance();
+            var assetsFileInstance = patchLoaderService.GetAssetsFileInstance();
 
             if (bundleFileInstance == null || assetsFileInstance == null)
             {

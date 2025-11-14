@@ -3,11 +3,11 @@ using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.Texture2D;
+namespace BABU.Handlers.Texture2D;
 
-public static class Importer
+public static class Texture2DImporter
 {
-    public static async Task<int> ImportTextures(ImportContext context)
+    public static async Task<int> Import(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;
@@ -98,20 +98,22 @@ public static class Importer
             Logger.Debug($"Starting import for asset {assetInfo.PathId}");
 
             var textureTemplate =
-                Processor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
-            if (textureTemplate == null || !Processor.ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
+                Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+            if (textureTemplate == null ||
+                !Texture2DProcessor.ConfigureTemplateFields(textureTemplate, assetInfo.PathId))
                 return Task.FromResult(false);
 
             var textureBaseField =
-                Processor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
+                Texture2DProcessor.GetTextureBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
             if (textureBaseField == null)
                 return Task.FromResult(false);
 
-            var textureFile = Processor.CreateTextureFile(textureBaseField);
-            if (textureFile == null || !Processor.ValidateImportFile(filePath))
+            var textureFile = Texture2DProcessor.CreateTextureFile(textureBaseField);
+            if (textureFile == null || !Texture2DProcessor.ValidateImportFile(filePath))
                 return Task.FromResult(false);
 
-            return Task.FromResult(Processor.ProcessTextureImport(textureFile, textureBaseField, assetInfo, filePath));
+            return Task.FromResult(
+                Texture2DProcessor.ProcessTextureImport(textureFile, textureBaseField, assetInfo, filePath));
         }
         catch (Exception ex)
         {

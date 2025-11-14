@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using AssetsTools.NET;
-using BABU.Handlers.Bundle;
 using BABU.Models;
 using BABU.Models.Context;
+using BABU.Services.Bundle;
 using BABU.Utilities;
 
-namespace BABU.Handlers.Assets.DumpAsset;
+namespace BABU.Handlers.DumpAsset;
 
-public static class Importer
+public static class DumpAssetImporter
 {
-    public static async Task<int> ImportAssets(ImportContext context)
+    public static async Task<int> Import(ImportContext context)
     {
         if (!ValidateSetup())
             return 0;
@@ -68,7 +68,7 @@ public static class Importer
 
         Logger.Debug($"Processing asset: {match.Name}");
 
-        var success = await ImportAssetFromJson(context.Loader, targetAssetInfo, filePath);
+        var success = await ImportAssetFromJson(context.LoaderService, targetAssetInfo, filePath);
 
         if (!success)
         {
@@ -80,14 +80,14 @@ public static class Importer
         return true;
     }
 
-    private static async Task<bool> ImportAssetFromJson(BundleLoader loader, AssetFileInfo targetAssetInfo,
+    private static async Task<bool> ImportAssetFromJson(BundleLoaderService loaderService, AssetFileInfo targetAssetInfo,
         string filePath)
     {
         try
         {
             await using var fileStream = File.OpenRead(filePath);
-            var assetsManager = loader.GetAssetsManager();
-            var assetsFileInstance = loader.GetAssetsFileInstance();
+            var assetsManager = loaderService.GetAssetsManager();
+            var assetsFileInstance = loaderService.GetAssetsFileInstance();
 
             if (assetsFileInstance == null)
             {
@@ -143,7 +143,7 @@ public static class Importer
                 return null;
             }
 
-            Serializer.RecurseJsonImport(ref reader, writer, tempField);
+            DumpAssetSerializer.RecurseJsonImport(ref reader, writer, tempField);
         }
         catch (Exception ex)
         {
