@@ -3,8 +3,7 @@ namespace BABU.Models;
 public record ProcessingOptions(
     HashSet<string>? IncludeTypes = null,
     HashSet<string>? ExcludeTypes = null,
-    HashSet<string>? OnlyTypes = null,
-    string TextFormat = "txt"
+    HashSet<string>? OnlyTypes = null
 )
 {
     private static readonly HashSet<string> DefaultExclusions = new(StringComparer.OrdinalIgnoreCase)

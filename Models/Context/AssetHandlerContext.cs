@@ -1,6 +1,7 @@
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using BABU.Handlers.Bundle;
+using BABU.Models.Types;
 
 namespace BABU.Models.Context;
 
@@ -24,7 +25,7 @@ public readonly record struct TextAssetExportContext
     public required List<AssetMatch> Matches { get; init; }
     public required AssetsFileInstance AssetsFileInstance { get; init; }
     public required AssetsManager AssetsManager { get; init; }
-    public required string TextFormat { get; init; }
+    public required TextFormat TextFormat { get; init; }
 }
 
 public readonly record struct Texture2DExportContext

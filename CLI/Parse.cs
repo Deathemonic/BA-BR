@@ -2,6 +2,7 @@
 using AssetsTools.NET.Texture;
 using BABU.Models;
 using BABU.Models.Context;
+using BABU.Models.Types;
 using BABU.Services;
 using BABU.Utilities;
 
@@ -15,9 +16,9 @@ public static class Parse
         string? includeTypes = null,
         string? excludeTypes = null,
         string? onlyTypes = null,
-        string imageFormat = "tga",
-        string textFormat = "txt",
-        string compress = "LZ4")
+        ImageExportType imageFormat = ImageExportType.Tga,
+        TextFormat textFormat = TextFormat.Txt,
+        AssetBundleCompressionType compress = AssetBundleCompressionType.None)
     {
         if (string.IsNullOrEmpty(modded) || string.IsNullOrEmpty(patch))
         {
@@ -26,36 +27,17 @@ public static class Parse
         }
 
         var options = ProcessingOptions.FromStrings(includeTypes, excludeTypes, onlyTypes);
-        options = options with { TextFormat = textFormat };
 
         var config = new BundleProcessingConfig
         {
             ModdedPath = modded,
             PatchPath = patch,
             Options = options,
-            ExportType = ParseImageFormat(imageFormat),
-            CompressionType = ParseCompressionType(compress)
+            ExportType = imageFormat,
+            CompressionType = compress,
+            TextFormat = textFormat
         };
 
         await BundleProcessor.ProcessBundles(config);
-    }
-
-    private static ImageExportType ParseImageFormat(string imageFormat)
-    {
-        return imageFormat.Equals("png", StringComparison.InvariantCultureIgnoreCase)
-            ? ImageExportType.Png
-            : ImageExportType.Tga;
-    }
-
-    private static AssetBundleCompressionType ParseCompressionType(string compress)
-    {
-        return compress.ToLowerInvariant() switch
-        {
-            "off" => AssetBundleCompressionType.None,
-            "lzma" => AssetBundleCompressionType.LZMA,
-            "lz4" => AssetBundleCompressionType.LZ4,
-            "lz4fast" => AssetBundleCompressionType.LZ4Fast,
-            _ => AssetBundleCompressionType.LZ4
-        };
     }
 }

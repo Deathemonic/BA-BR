@@ -7,6 +7,7 @@ using BABU.Handlers.Assets.Texture2D;
 using BABU.Handlers.Bundle;
 using BABU.Models;
 using BABU.Models.Context;
+using BABU.Models.Types;
 using BABU.Utilities;
 
 namespace BABU.Services;
@@ -275,7 +276,7 @@ public static class BundleProcessor
         List<AssetMatch> matches,
         AssetsFileInstance instance,
         AssetsManager manager,
-        string textFormat)
+        TextFormat textFormat)
     {
         return new TextAssetExportContext
         {

@@ -1,5 +1,6 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Texture;
+using BABU.Models.Types;
 
 namespace BABU.Models.Context;
 
@@ -10,8 +11,7 @@ public readonly record struct BundleProcessingConfig()
     public required ProcessingOptions Options { get; init; }
     public ImageExportType ExportType { get; init; } = ImageExportType.Tga;
     public AssetBundleCompressionType CompressionType { get; init; } = AssetBundleCompressionType.LZ4;
-
-    public string TextFormat => Options.TextFormat;
+    public TextFormat TextFormat { get; init; } = TextFormat.Txt;
 }
 
 public readonly record struct CategorizedAssets

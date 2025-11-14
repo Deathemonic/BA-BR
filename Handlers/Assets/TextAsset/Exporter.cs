@@ -2,6 +2,7 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Models;
 using BABU.Models.Context;
+using BABU.Models.Types;
 using BABU.Utilities;
 
 namespace BABU.Handlers.Assets.TextAsset;
@@ -61,7 +62,7 @@ public static class Exporter
         return true;
     }
 
-    private static string BuildExportFilePath(string assetName, string textFormat)
+    private static string BuildExportFilePath(string assetName, TextFormat textFormat)
     {
         var cleanAssetName = FileManager.Clean(assetName);
         var fileName = $"{cleanAssetName}.{textFormat}";
