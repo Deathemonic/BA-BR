@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="BA-BU.csproj" />
+  <Project Path="BABU.FMOD/BABU.FMOD.csproj" />
+  <Project Path="BABU/BABU.csproj" />
 </Solution>
