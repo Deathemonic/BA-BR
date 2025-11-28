@@ -1,5 +1,6 @@
 using AssetsTools.NET;
 using BABU.FMOD;
+using BABU.FMOD.API;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Models.Types;
@@ -77,19 +78,20 @@ public static class AudioClipImporter
             return Task.FromResult(false);
         }
 
-        var compressionFormat = (CompressionFormat)baseField["m_CompressionFormat"].AsInt;
-        var filePath = FindAudioFile(match.Name);
+        var dumpsDir = FileManager.GetDumpPath();
+        var cleanAssetName = FileManager.Clean(match.Name);
+        var audioFileInfo = AudioFileDetector.FindAndDetectAudioFile(dumpsDir, cleanAssetName);
 
-        if (filePath == null)
+        if (audioFileInfo == null)
         {
-            Logger.Error($"Audio file not found for: {FileManager.Clean(match.Name)}");
+            Logger.Error($"Audio file not found for: {cleanAssetName}");
             return Task.FromResult(false);
         }
 
         Logger.Debug($"Processing audio clip: {match.Name}");
 
-        var success = ImportAudioClipFromFile(context, targetAssetInfo, baseField, filePath, compressionFormat, encoder,
-            decoder);
+        var success = ImportAudioClipFromFile(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
+            audioFileInfo.Value.Format, encoder, decoder);
 
         if (!success)
         {
@@ -101,24 +103,8 @@ public static class AudioClipImporter
         return Task.FromResult(true);
     }
 
-    private static string? FindAudioFile(string assetName)
-    {
-        var cleanAssetName = FileManager.Clean(assetName);
-        var dumpsDir = FileManager.GetDumpPath();
-
-        var wavPath = Path.Combine(dumpsDir, $"{cleanAssetName}.wav");
-        if (File.Exists(wavPath))
-            return wavPath;
-
-        var oggPath = Path.Combine(dumpsDir, $"{cleanAssetName}.ogg");
-        if (File.Exists(oggPath))
-            return oggPath;
-
-        return null;
-    }
-
     private static bool ImportAudioClipFromFile(ImportContext context, AssetFileInfo assetInfo,
-        AssetTypeValueField baseField, string filePath, CompressionFormat format, Encoder encoder, Decoder decoder)
+        AssetTypeValueField baseField, string filePath, FSBANK_FORMAT format, Encoder encoder, Decoder decoder)
     {
         try
         {
@@ -130,10 +116,9 @@ public static class AudioClipImporter
                 return false;
             }
 
-            var fmodFormat = TypeMapper.GetFmodFormat(format);
-            Logger.Debug($"Encoding {filePath} to FSB ({fmodFormat})...");
+            Logger.Debug($"Encoding {filePath} to FSB ({format})...");
 
-            var fsbData = encoder.EncodeToFsb(filePath, fmodFormat);
+            var fsbData = encoder.EncodeToFsb(filePath, format);
 
             if (fsbData.Length == 0)
             {
@@ -151,7 +136,7 @@ public static class AudioClipImporter
             baseField["m_Frequency"].AsInt = audioInfo.Frequency;
             baseField["m_Channels"].AsInt = audioInfo.Channels;
             baseField["m_Length"].AsFloat = audioInfo.Length;
-            baseField["m_CompressionFormat"].AsInt = (int)TypeMapper.GetCompressionFormat(fmodFormat);
+            baseField["m_CompressionFormat"].AsInt = (int)TypeMapper.GetCompressionFormat(format);
 
             if (!baseField["m_Resource"].IsDummy)
             {

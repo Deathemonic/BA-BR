@@ -70,7 +70,7 @@ public class Decoder : IDisposable
             };
 
             var result = _system.createSound(fsbData,
-                MODE.OPENMEMORY | MODE.CREATECOMPRESSEDSAMPLE,
+                MODE.OPENMEMORY,
                 ref exInfo,
                 out sound);
 
