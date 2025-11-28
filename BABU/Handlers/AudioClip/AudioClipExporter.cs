@@ -1,10 +1,9 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BABU.FMOD;
 using BABU.Models;
 using BABU.Models.Context;
-using BABU.Models.Types;
 using BABU.Utilities;
-using Fmod5Sharp;
 
 namespace BABU.Handlers.AudioClip;
 
@@ -13,17 +12,29 @@ public static class AudioClipExporter
     public static Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting AudioClip assets...");
-        return Task.FromResult(ProcessExports(context));
+
+        using var decoder = new Decoder();
+        try
+        {
+            decoder.Initialize();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Failed to initialize FMOD Decoder", ex);
+            return Task.FromResult(0);
+        }
+
+        return Task.FromResult(ProcessExports(context, decoder));
     }
 
-    private static int ProcessExports(ExportContext context)
+    private static int ProcessExports(ExportContext context, Decoder decoder)
     {
         var exportedCount = 0;
 
         foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleAudioClip(match, context)) exportedCount++;
+                if (ExportSingleAudioClip(match, context, decoder)) exportedCount++;
             }
             catch (Exception ex)
             {
@@ -33,7 +44,7 @@ public static class AudioClipExporter
         return exportedCount;
     }
 
-    private static bool ExportSingleAudioClip(AssetMatch match, ExportContext context)
+    private static bool ExportSingleAudioClip(AssetMatch match, ExportContext context, Decoder decoder)
     {
         var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
         if (assetInfo == null)
@@ -49,13 +60,11 @@ public static class AudioClipExporter
             return false;
         }
 
-        var compressionFormat = (CompressionFormat)baseField["m_CompressionFormat"].AsInt;
-        var extension = GetExtension(compressionFormat);
-        var filePath = BuildExportFilePath(match.Name, extension);
+        var filePath = BuildExportFilePath(match.Name, "wav");
 
-        Logger.Debug($"Attempting to export audio clip: {match.Name} (Format: {compressionFormat})");
+        Logger.Debug($"Attempting to export audio clip: {match.Name}");
 
-        var success = ExportAudioClipToFile(context, baseField, assetInfo, filePath);
+        var success = ExportAudioClipToFile(context, baseField, assetInfo, filePath, decoder);
 
         if (!success)
         {
@@ -75,7 +84,7 @@ public static class AudioClipExporter
     }
 
     private static bool ExportAudioClipToFile(ExportContext context, AssetTypeValueField baseField,
-        AssetFileInfo assetInfo, string filePath)
+        AssetFileInfo assetInfo, string filePath, Decoder decoder)
     {
         try
         {
@@ -86,36 +95,23 @@ public static class AudioClipExporter
             var resourceSize = baseField["m_Resource.m_Size"].AsULong;
 
             if (!GetAudioBytes(context.AssetsFileInstance, resourceSource, resourceOffset, resourceSize,
-                    out var resourceData))
+                    out var fsbData))
             {
                 Logger.Error($"Failed to get audio bytes for asset {assetInfo.PathId}");
                 return false;
             }
 
-            if (!FsbLoader.TryLoadFsbFromByteArray(resourceData, out var bank) || bank == null)
+            if (fsbData.Length == 0)
             {
-                Logger.Error($"Failed to load FSB bank for asset {assetInfo.PathId}");
+                Logger.Error($"FSB data is empty for asset {assetInfo.PathId}");
                 return false;
             }
 
-            var samples = bank.Samples;
-            if (samples.Count == 0)
-            {
-                Logger.Error($"No samples found in FSB bank for asset {assetInfo.PathId}");
-                return false;
-            }
+            Logger.Debug($"Decoding FSB to WAV...");
+            var wavData = decoder.DecodeToWav(fsbData);
 
-            samples[0].RebuildAsStandardFileFormat(out var sampleData, out var sampleExtension);
-            if (sampleData == null)
-            {
-                Logger.Error($"Failed to rebuild audio sample for asset {assetInfo.PathId}");
-                return false;
-            }
-
-            if (sampleExtension?.ToLowerInvariant() == "wav") FixWav(ref sampleData);
-
-            File.WriteAllBytes(filePath, sampleData);
-            Logger.Debug($"Successfully wrote {sampleData.Length} bytes to {filePath}");
+            File.WriteAllBytes(filePath, wavData);
+            Logger.Debug($"Successfully wrote {wavData.Length} bytes to {filePath}");
             return true;
         }
         catch (Exception ex)
@@ -125,45 +121,6 @@ public static class AudioClipExporter
             return false;
         }
     }
-
-    private static void FixWav(ref byte[] wavData)
-    {
-        var origLength = wavData.Length;
-
-        for (var i = 36; i < origLength - 2; i++) wavData[i] = wavData[i + 2];
-
-        Array.Resize(ref wavData, origLength - 2);
-
-        var riffHeaderChunkSize = BitConverter.GetBytes(wavData.Length - 8);
-        if (!BitConverter.IsLittleEndian) Array.Reverse(riffHeaderChunkSize);
-
-        riffHeaderChunkSize.CopyTo(wavData, 4);
-
-        var fmtHeaderChunkSize = BitConverter.GetBytes(16);
-        if (!BitConverter.IsLittleEndian) Array.Reverse(fmtHeaderChunkSize);
-
-        fmtHeaderChunkSize.CopyTo(wavData, 16);
-
-        var dataHeaderChunkSize = BitConverter.GetBytes(wavData.Length - 44);
-        if (!BitConverter.IsLittleEndian) Array.Reverse(dataHeaderChunkSize);
-
-        dataHeaderChunkSize.CopyTo(wavData, 40);
-    }
-
-    private static string GetExtension(CompressionFormat format) =>
-        format switch
-        {
-            CompressionFormat.Pcm => "wav",
-            CompressionFormat.Vorbis => "ogg",
-            CompressionFormat.Adpcm => "wav",
-            CompressionFormat.Mp3 => "mp3",
-            CompressionFormat.Vag => "dat",
-            CompressionFormat.Hevag => "dat",
-            CompressionFormat.Xma => "dat",
-            CompressionFormat.Aac => "aac",
-            CompressionFormat.Gcadpcm => "wav",
-            _ => "dat"
-        };
 
     private static bool GetAudioBytes(AssetsFileInstance fileInstance, string filepath, ulong offset, ulong size,
         out byte[] audioData)

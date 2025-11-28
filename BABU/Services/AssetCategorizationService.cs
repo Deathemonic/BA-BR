@@ -11,14 +11,18 @@ public static class AssetCategorizationService
             matches.Where(m => m.Type.Equals("Texture2D", StringComparison.OrdinalIgnoreCase)).ToList();
         var textAssetMatches =
             matches.Where(m => m.Type.Equals("TextAsset", StringComparison.OrdinalIgnoreCase)).ToList();
+        var audioClipMatches =
+            matches.Where(m => m.Type.Equals("AudioClip", StringComparison.OrdinalIgnoreCase)).ToList();
         var otherMatches = matches.Where(m =>
             !m.Type.Equals("Texture2D", StringComparison.OrdinalIgnoreCase) &&
-            !m.Type.Equals("TextAsset", StringComparison.OrdinalIgnoreCase)).ToList();
+            !m.Type.Equals("TextAsset", StringComparison.OrdinalIgnoreCase) &&
+            !m.Type.Equals("AudioClip", StringComparison.OrdinalIgnoreCase)).ToList();
 
         return new CategorizedAssets
         {
             TextureMatches = textureMatches,
             TextAssetMatches = textAssetMatches,
+            AudioClipMatches = audioClipMatches,
             OtherMatches = otherMatches
         };
     }

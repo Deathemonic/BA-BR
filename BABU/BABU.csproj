@@ -27,6 +27,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BAAD.Core\BAAD.Core.csproj" />
+        <ProjectReference Include="..\BACY\BACY.csproj" />
+        <ProjectReference Include="..\BABU.FMOD\BABU.FMOD.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <EmbeddedResource Include="Resources\**\*" />
     </ItemGroup>
 

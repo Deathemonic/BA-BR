@@ -1,4 +1,7 @@
 using AssetsTools.NET.Extra;
+using BABU.FMOD.API;
+using BABU.Models.Types;
+using ZLinq;
 
 namespace BABU.Utilities;
 
@@ -8,8 +11,32 @@ public static class TypeMapper
         ? ((AssetClassID)typeId).ToString()
         : $"Unknown_{typeId}";
 
-    public static IEnumerable<string> GetAllTypes() =>
+    public static string[] GetAllAssetTypes() =>
         Enum.GetValues<AssetClassID>()
+            .AsValueEnumerable()
             .Select(assetClass => assetClass.ToString())
-            .OrderBy(x => x);
+            .OrderBy(x => x)
+            .ToArray();
+
+    public static FSBANK_FORMAT GetFmodFormat(CompressionFormat format) =>
+        format switch
+        {
+            CompressionFormat.Vorbis => FSBANK_FORMAT.VORBIS,
+            CompressionFormat.Adpcm => FSBANK_FORMAT.FADPCM,
+            CompressionFormat.Xma => FSBANK_FORMAT.XMA,
+            CompressionFormat.Gcadpcm => FSBANK_FORMAT.FADPCM,
+            CompressionFormat.Atrac9 => FSBANK_FORMAT.AT9_PS4,
+            _ => FSBANK_FORMAT.PCM
+        };
+
+    public static CompressionFormat GetCompressionFormat(FSBANK_FORMAT format) =>
+        format switch
+        {
+            FSBANK_FORMAT.VORBIS => CompressionFormat.Vorbis,
+            FSBANK_FORMAT.FADPCM => CompressionFormat.Adpcm,
+            FSBANK_FORMAT.XMA => CompressionFormat.Xma,
+            FSBANK_FORMAT.AT9_PS4 => CompressionFormat.Atrac9,
+            FSBANK_FORMAT.AT9_PSVITA => CompressionFormat.Atrac9,
+            _ => CompressionFormat.Pcm
+        };
 }

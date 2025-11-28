@@ -1,5 +1,6 @@
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
+using BABU.Handlers.AudioClip;
 using BABU.Handlers.DumpAsset;
 using BABU.Handlers.TextAsset;
 using BABU.Handlers.Texture2D;
@@ -18,7 +19,7 @@ public static class BundleExportService
 
         var (instance, manager) = LoadBundleForExport(config.ModdedPath);
         if (instance == null || manager == null)
-            return new ExportResults(0, 0, 0);
+            return new ExportResults(0, 0, 0, 0);
 
         var exportedCount = await DumpAssetExporter.Export(
             BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ExportType));
@@ -29,7 +30,10 @@ public static class BundleExportService
         var textAssetExportCount = await TextAssetExporter.Export(
             BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ExportType));
 
-        return new ExportResults(exportedCount, textureExportCount, textAssetExportCount);
+        var audioClipExportCount = await AudioClipExporter.Export(
+            BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ExportType));
+
+        return new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
     }
 
     private static (AssetsFileInstance? instance, AssetsManager? manager) LoadBundleForExport(string path)

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 namespace BACY;
 
 
@@ -187,38 +188,38 @@ struct UniffiRustCallStatus {
 }
 
 // Base class for all uniffi exceptions
-internal class UniffiException: System.Exception {
+public class UniffiException: System.Exception {
     public UniffiException(): base() {}
     public UniffiException(string message): base(message) {}
 }
 
-internal class UndeclaredErrorException: UniffiException {
+public class UndeclaredErrorException: UniffiException {
     public UndeclaredErrorException(string message): base(message) {}
 }
 
-internal class PanicException: UniffiException {
+public class PanicException: UniffiException {
     public PanicException(string message): base(message) {}
 }
 
-internal class AllocationException: UniffiException {
+public class AllocationException: UniffiException {
     public AllocationException(string message): base(message) {}
 }
 
-internal class InternalException: UniffiException {
+public class InternalException: UniffiException {
     public InternalException(string message): base(message) {}
 }
 
-internal class InvalidEnumException: InternalException {
+public class InvalidEnumException: InternalException {
     public InvalidEnumException(string message): base(message) {
     }
 }
 
-internal class UniffiContractVersionException: UniffiException {
+public class UniffiContractVersionException: UniffiException {
     public UniffiContractVersionException(string message): base(message) {
     }
 }
 
-internal class UniffiContractChecksumException: UniffiException {
+public class UniffiContractChecksumException: UniffiException {
     public UniffiContractChecksumException(string message): base(message) {
     }
 }
@@ -537,7 +538,7 @@ class BigEndianStream {
 
 
 // This is an implementation detail that will be called internally by the public API.
-static class _UniFFILib {
+static partial class _UniFFILib {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiRustFutureContinuationCallback(
         ulong @data,sbyte @pollResult
@@ -815,504 +816,627 @@ static class _UniFFILib {
         
         }
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint uniffi_bacy_fn_func_calculate_crc32(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint uniffi_bacy_fn_func_calculate_crc32(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_calculate_md5(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_calculate_md5(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_bacy_fn_func_calculate_xxhash(RustBuffer @data,sbyte @bit64,sbyte @endian,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ulong uniffi_bacy_fn_func_calculate_xxhash(RustBuffer @data,sbyte @bit64,sbyte @endian,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern double uniffi_bacy_fn_func_convert_double(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial double uniffi_bacy_fn_func_convert_double(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern float uniffi_bacy_fn_func_convert_float(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial float uniffi_bacy_fn_func_convert_float(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uniffi_bacy_fn_func_convert_int(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial int uniffi_bacy_fn_func_convert_int(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern long uniffi_bacy_fn_func_convert_long(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial long uniffi_bacy_fn_func_convert_long(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_convert_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_convert_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint uniffi_bacy_fn_func_convert_uint(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint uniffi_bacy_fn_func_convert_uint(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_bacy_fn_func_convert_ulong(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ulong uniffi_bacy_fn_func_convert_ulong(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_create_key(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_create_key(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_deserialize_media_catalog(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_deserialize_media_catalog(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_deserialize_table_catalog(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_deserialize_table_catalog(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern double uniffi_bacy_fn_func_encrypt_double(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial double uniffi_bacy_fn_func_encrypt_double(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern float uniffi_bacy_fn_func_encrypt_float(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial float uniffi_bacy_fn_func_encrypt_float(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_encrypt_name(RustBuffer @filename,long @crc,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_encrypt_name(RustBuffer @filename,long @crc,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_encrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_encrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_evaluate_crc32(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_evaluate_crc32(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_extract_all_zip_files(RustBuffer @zipData,RustBuffer @filename,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_extract_all_zip_files(RustBuffer @zipData,RustBuffer @filename,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_extract_zip_file(RustBuffer @zipData,RustBuffer @filename,RustBuffer @fileToExtract,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_extract_zip_file(RustBuffer @zipData,RustBuffer @filename,RustBuffer @fileToExtract,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_bacy_fn_func_forge_crc(RustBuffer @filePath,uint @targetCrc,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_bacy_fn_func_forge_crc(RustBuffer @filePath,uint @targetCrc,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_bacy_fn_func_match_crc(RustBuffer @filePath,RustBuffer @targetFilePath,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_bacy_fn_func_match_crc(RustBuffer @filePath,RustBuffer @targetFilePath,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_media_catalog_to_json(RustBuffer @catalog,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_media_catalog_to_json(RustBuffer @catalog,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_bacy_fn_func_set_use_encryption(sbyte @enabled,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_bacy_fn_func_set_use_encryption(sbyte @enabled,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_table_catalog_to_json(RustBuffer @catalog,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_table_catalog_to_json(RustBuffer @catalog,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern sbyte uniffi_bacy_fn_func_use_encryption(ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial sbyte uniffi_bacy_fn_func_use_encryption(ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_xor_bytes(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_bytes(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_xor_data(RustBuffer @name,RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_data(RustBuffer @name,RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uniffi_bacy_fn_func_xor_int32(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial int uniffi_bacy_fn_func_xor_int32(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern long uniffi_bacy_fn_func_xor_int64(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial long uniffi_bacy_fn_func_xor_int64(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_bacy_fn_func_xor_str(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_str(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint uniffi_bacy_fn_func_xor_uint32(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint uniffi_bacy_fn_func_xor_uint32(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_bacy_fn_func_xor_uint64(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ulong uniffi_bacy_fn_func_xor_uint64(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_bacy_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_bacy_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_bacy_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_bacy_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_bacy_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_bacy_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_u8(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_u8(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_u8(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_u8(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern byte ffi_bacy_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial byte ffi_bacy_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_i8(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_i8(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_i8(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_i8(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern sbyte ffi_bacy_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial sbyte ffi_bacy_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_u16(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_u16(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_u16(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_u16(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort ffi_bacy_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort ffi_bacy_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_i16(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_i16(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_i16(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_i16(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern short ffi_bacy_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial short ffi_bacy_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_u32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_u32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_u32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_u32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint ffi_bacy_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint ffi_bacy_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_i32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_i32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_i32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_i32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int ffi_bacy_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial int ffi_bacy_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_u64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_u64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_u64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_u64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong ffi_bacy_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ulong ffi_bacy_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_i64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_i64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_i64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_i64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern long ffi_bacy_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial long ffi_bacy_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_f32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_f32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_f32(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_f32(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern float ffi_bacy_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial float ffi_bacy_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_f64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_f64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_f64(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_f64(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern double ffi_bacy_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial double ffi_bacy_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_pointer(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_pointer(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_pointer(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_pointer(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr ffi_bacy_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr ffi_bacy_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_rust_buffer(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_rust_buffer(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_rust_buffer(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_rust_buffer(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_bacy_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_bacy_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_cancel_void(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_cancel_void(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_free_void(IntPtr @handle
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_free_void(IntPtr @handle
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_bacy_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_bacy_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_calculate_crc32(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_calculate_crc32(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_calculate_md5(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_calculate_md5(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_calculate_xxhash(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_calculate_xxhash(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_double(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_double(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_float(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_float(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_int(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_int(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_long(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_long(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_string(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_string(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_uint(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_uint(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_convert_ulong(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_convert_ulong(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_create_key(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_create_key(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_deserialize_media_catalog(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_deserialize_media_catalog(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_deserialize_table_catalog(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_deserialize_table_catalog(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_encrypt_double(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_encrypt_double(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_encrypt_float(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_encrypt_float(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_encrypt_name(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_encrypt_name(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_encrypt_string(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_encrypt_string(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_evaluate_crc32(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_evaluate_crc32(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_extract_all_zip_files(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_extract_all_zip_files(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_extract_zip_file(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_extract_zip_file(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_forge_crc(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_forge_crc(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_match_crc(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_match_crc(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_media_catalog_to_json(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_media_catalog_to_json(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_set_use_encryption(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_set_use_encryption(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_table_catalog_to_json(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_table_catalog_to_json(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_use_encryption(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_use_encryption(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_bytes(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_bytes(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_data(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_data(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_int32(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_int32(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_int64(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_int64(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_str(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_str(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_uint32(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_uint32(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_bacy_checksum_func_xor_uint64(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_bacy_checksum_func_xor_uint64(
     );
 
-    [DllImport("bacy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint ffi_bacy_uniffi_contract_version(
+    [LibraryImport("bacy")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint ffi_bacy_uniffi_contract_version(
     );
 
     
 
     static void uniffiCheckContractApiVersion() {
         var scaffolding_contract_version = _UniFFILib.ffi_bacy_uniffi_contract_version();
-        if (29 != scaffolding_contract_version) {
-            throw new UniffiContractVersionException($"BACY: uniffi bindings expected version `29`, library returned `{scaffolding_contract_version}`");
+        if (30 != scaffolding_contract_version) {
+            throw new UniffiContractVersionException($"BACY: uniffi bindings expected version `30`, library returned `{scaffolding_contract_version}`");
         }
     }
 
@@ -1775,7 +1899,7 @@ class FfiConverterByteArray: FfiConverterRustBuffer<byte[]> {
 
 
 
-internal record CrcResult (
+public record CrcResult (
     uint @value, 
     string @hex
 ) {
@@ -1805,7 +1929,7 @@ class FfiConverterTypeCrcResult: FfiConverterRustBuffer<CrcResult> {
 
 
 
-internal record Media (
+public record Media (
     string @path, 
     string @fileName, 
     long @bytes, 
@@ -1855,7 +1979,7 @@ class FfiConverterTypeMedia: FfiConverterRustBuffer<Media> {
 
 
 
-internal record MediaCatalog (
+public record MediaCatalog (
     Dictionary<string, Media> @table
 ) {
 }
@@ -1881,7 +2005,7 @@ class FfiConverterTypeMediaCatalog: FfiConverterRustBuffer<MediaCatalog> {
 
 
 
-internal record Table (
+public record Table (
     string @name, 
     long @size, 
     long @crc, 
@@ -1935,7 +2059,7 @@ class FfiConverterTypeTable: FfiConverterRustBuffer<Table> {
 
 
 
-internal record TableCatalog (
+public record TableCatalog (
     Dictionary<string, Table> @table
 ) {
 }
@@ -1961,7 +2085,7 @@ class FfiConverterTypeTableCatalog: FfiConverterRustBuffer<TableCatalog> {
 
 
 
-internal record ZipFileEntry (
+public record ZipFileEntry (
     string @name, 
     byte[] @data
 ) {
@@ -1993,7 +2117,7 @@ class FfiConverterTypeZipFileEntry: FfiConverterRustBuffer<ZipFileEntry> {
 
 
 
-internal class CatalogException: UniffiException {
+public class CatalogException: UniffiException {
     CatalogException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -2060,7 +2184,7 @@ class FfiConverterTypeCatalogError : FfiConverterRustBuffer<CatalogException>, C
 
 
 
-internal class HashException: UniffiException {
+public class HashException: UniffiException {
     HashException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -2119,7 +2243,7 @@ class FfiConverterTypeHashError : FfiConverterRustBuffer<HashException>, CallSta
 
 
 
-internal class TableEncryptionException: UniffiException {
+public class TableEncryptionException: UniffiException {
     TableEncryptionException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -2170,7 +2294,7 @@ class FfiConverterTypeTableEncryptionError : FfiConverterRustBuffer<TableEncrypt
 
 
 
-internal class TableZipException: UniffiException {
+public class TableZipException: UniffiException {
     TableZipException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -2427,7 +2551,7 @@ class FfiConverterDictionaryStringTypeTable: FfiConverterRustBuffer<Dictionary<s
     }
 }
 #pragma warning restore 8625
-internal static class BacyMethods {
+public static class BacyMethods {
     /// <exception cref="HashException"></exception>
     public static uint CalculateCrc32(string @path) {
         return FfiConverterUInt32.INSTANCE.Lift(

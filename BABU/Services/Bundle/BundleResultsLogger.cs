@@ -24,6 +24,10 @@ public static class BundleResultsLogger
         if (results.TextAssetExportCount > 0)
             Logger.Success(
                 $"Successfully exported {results.TextAssetExportCount} text assets to {FileManager.GetDumpPath()}");
+
+        if (results.AudioClipExportCount > 0)
+            Logger.Success(
+                $"Successfully exported {results.AudioClipExportCount} audio clips to {FileManager.GetDumpPath()}");
     }
 
     private static void LogImportResults(ImportResults results)
@@ -35,6 +39,9 @@ public static class BundleResultsLogger
 
         if (results.ImportedTextAssetCount > 0)
             Logger.Success($"Successfully imported {results.ImportedTextAssetCount} text assets");
+
+        if (results.ImportedAudioClipCount > 0)
+            Logger.Success($"Successfully imported {results.ImportedAudioClipCount} audio clips");
 
         if (results.TotalImported > 0)
             Logger.Success($"{results.TotalImported} assets have been marked as modified and will be saved");

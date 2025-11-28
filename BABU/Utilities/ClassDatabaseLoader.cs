@@ -14,7 +14,7 @@ public static class ClassDatabaseLoader
             Logger.Info("Starting class database loading...");
 
             var assembly = Assembly.GetExecutingAssembly();
-            const string resourceName = "BA_MU.Resources.classdata.tpk";
+            const string resourceName = "BABU.Resources.classdata.tpk";
 
             Logger.Debug($"Looking for embedded resource: {resourceName}");
 

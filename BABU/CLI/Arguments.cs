@@ -35,7 +35,7 @@ public static class Arguments
         if (types)
         {
             Logger.Info("Available asset types:");
-            foreach (var type in TypeMapper.GetAllTypes()) Console.WriteLine($"  {type}");
+            foreach (var type in TypeMapper.GetAllAssetTypes()) Console.WriteLine($"  {type}");
             return;
         }
 

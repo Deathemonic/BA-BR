@@ -24,7 +24,11 @@ msbuild.err
 msbuild.wrn
 sample/
 
+BABU.FMOD/Native/
+
 .vs/
 .idea/
 
 sample/
+
+Test/

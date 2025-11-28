@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="BAAD.Core/BAAD.Core.csproj" />
   <Project Path="BABU.FMOD/BABU.FMOD.csproj" />
   <Project Path="BABU/BABU.csproj" />
+  <Project Path="BACY/BACY.csproj" />
 </Solution>

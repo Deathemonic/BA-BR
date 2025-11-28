@@ -1,4 +1,4 @@
-﻿# Blue Archive - Bundle Updater
+﻿# Blue Archive - Bundle Repacker
 
 A tool that re-dump AssetBundle for Blue Archive.
 
@@ -6,13 +6,13 @@ A tool that re-dump AssetBundle for Blue Archive.
 
 ### Release
 
-You can download the latest [releases](https://github.com/Deathemonic/BA-BU/releases)
+You can download the latest [releases](https://github.com/Deathemonic/BA-BR/releases)
 
-[Windows](https://github.com/Deathemonic/BA-BU/releases/latest/download/BA-MU-win-x64.zip) | [Linux](https://github.com/Deathemonic/BA-BU/releases/latest/download/BA-MU-linux-x64.zip) | [MacOS](https://github.com/Deathemonic/BA-BU/releases/latest/download/BA-MU-osx-arm64.zip)
+[Windows](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-win-x64.zip) | [Linux](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-linux-x64.zip) | [MacOS](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-osx-arm64.zip)
 
 ## Usage
 
-BA-BU automates the process of transferring modifications from a modded AssetBundle to an original (or "patch")
+**BA-BR** automates the process of transferring modifications from a modded AssetBundle to an original (or "patch")
 AssetBundle. This is useful for updating mods when a game receives a new patch.
 
 The process works as follows:
@@ -33,7 +33,7 @@ The process works as follows:
 ### Basic Example
 
 ```shell
-babu --modded your_modded.bundle --patch game_asset.bundle
+babr --modded your_modded.bundle --patch game_asset.bundle
 ```
 
 This command will find matching assets, export the modified ones from `your_modded.bundle`, and import them into
@@ -42,7 +42,7 @@ This command will find matching assets, export the modified ones from `your_modd
 <details>
 <summary>Command Line</summary>
 
-### `babu --help`
+### `babr --help`
 
 | Argument                 | Alias       | Description                                                                   | Default |
 |--------------------------|-------------|-------------------------------------------------------------------------------|---------|
@@ -64,8 +64,8 @@ This command will find matching assets, export the modified ones from `your_modd
 2. Clone this repository
 
 ```sh
-git clone https://github.com/Deathemonic/BA-BU
-cd BA-BU
+git clone https://github.com/Deathemonic/BA-BR
+cd BA-BR
 ```
 
 3. Build using `dotnet`

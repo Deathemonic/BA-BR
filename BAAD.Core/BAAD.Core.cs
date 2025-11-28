@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 namespace BAAD.Core;
@@ -189,38 +190,38 @@ struct UniffiRustCallStatus {
 }
 
 // Base class for all uniffi exceptions
-internal class UniffiException: System.Exception {
+public class UniffiException: System.Exception {
     public UniffiException(): base() {}
     public UniffiException(string message): base(message) {}
 }
 
-internal class UndeclaredErrorException: UniffiException {
+public class UndeclaredErrorException: UniffiException {
     public UndeclaredErrorException(string message): base(message) {}
 }
 
-internal class PanicException: UniffiException {
+public class PanicException: UniffiException {
     public PanicException(string message): base(message) {}
 }
 
-internal class AllocationException: UniffiException {
+public class AllocationException: UniffiException {
     public AllocationException(string message): base(message) {}
 }
 
-internal class InternalException: UniffiException {
+public class InternalException: UniffiException {
     public InternalException(string message): base(message) {}
 }
 
-internal class InvalidEnumException: InternalException {
+public class InvalidEnumException: InternalException {
     public InvalidEnumException(string message): base(message) {
     }
 }
 
-internal class UniffiContractVersionException: UniffiException {
+public class UniffiContractVersionException: UniffiException {
     public UniffiContractVersionException(string message): base(message) {
     }
 }
 
-internal class UniffiContractChecksumException: UniffiException {
+public class UniffiContractChecksumException: UniffiException {
     public UniffiContractChecksumException(string message): base(message) {
     }
 }
@@ -539,7 +540,7 @@ class BigEndianStream {
 
 
 // This is an implementation detail that will be called internally by the public API.
-static class _UniFFILib {
+static partial class _UniFFILib {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiRustFutureContinuationCallback(
         ulong @data,sbyte @pollResult
@@ -811,472 +812,589 @@ static class _UniFFILib {
         
         }
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_clear_all(RustBuffer @dir
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_clear_all(RustBuffer @dir
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_create_parent_dir(RustBuffer @path
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_create_parent_dir(RustBuffer @path
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_baad_core_fn_func_data_dir(ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_baad_core_fn_func_data_dir(ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_baad_core_fn_func_get_data_path(RustBuffer @filename,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_baad_core_fn_func_get_data_path(RustBuffer @filename,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_baad_core_fn_func_get_feature_config(ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer uniffi_baad_core_fn_func_get_feature_config(ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_get_output_dir(RustBuffer @path
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_get_output_dir(RustBuffer @path
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_init_logging(RustBuffer @config,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_init_logging(RustBuffer @config,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_init_logging_default(ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_init_logging_default(ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_is_dir_empty(RustBuffer @path
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_is_dir_empty(RustBuffer @path
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_load_file(RustBuffer @path
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_load_file(RustBuffer @path
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_debug(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_debug(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_debug_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_debug_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_debug_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_debug_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_error(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_error(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_error_from_string(RustBuffer @errorMessage,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_error_from_string(RustBuffer @errorMessage,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_error_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_error_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_error_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_error_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_info(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_info(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_info_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_info_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_info_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_info_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_recoverable_error_from_string(RustBuffer @errorMessage,RustBuffer @recoveryAction,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_recoverable_error_from_string(RustBuffer @errorMessage,RustBuffer @recoveryAction,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_trace(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_trace(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_trace_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_trace_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_trace_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_trace_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_warn(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_warn(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_warn_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_warn_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_log_warn_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_warn_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr uniffi_baad_core_fn_func_save_file(RustBuffer @path,RustBuffer @content
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr uniffi_baad_core_fn_func_save_file(RustBuffer @path,RustBuffer @content
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_set_app_name(RustBuffer @name,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_set_app_name(RustBuffer @name,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_baad_core_fn_func_set_data_dir(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_set_data_dir(RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_baad_core_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_baad_core_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_baad_core_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_baad_core_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_baad_core_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_baad_core_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_u8(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_u8(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_u8(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_u8(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern byte ffi_baad_core_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial byte ffi_baad_core_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_i8(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_i8(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_i8(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_i8(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern sbyte ffi_baad_core_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial sbyte ffi_baad_core_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_u16(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_u16(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_u16(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_u16(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort ffi_baad_core_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort ffi_baad_core_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_i16(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_i16(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_i16(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_i16(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern short ffi_baad_core_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial short ffi_baad_core_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_u32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_u32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_u32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_u32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint ffi_baad_core_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint ffi_baad_core_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_i32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_i32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_i32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_i32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int ffi_baad_core_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial int ffi_baad_core_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_u64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_u64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_u64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_u64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong ffi_baad_core_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ulong ffi_baad_core_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_i64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_i64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_i64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_i64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern long ffi_baad_core_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial long ffi_baad_core_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_f32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_f32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_f32(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_f32(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern float ffi_baad_core_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial float ffi_baad_core_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_f64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_f64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_f64(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_f64(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern double ffi_baad_core_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial double ffi_baad_core_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_pointer(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_pointer(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_pointer(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_pointer(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr ffi_baad_core_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial IntPtr ffi_baad_core_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_rust_buffer(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_rust_buffer(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_rust_buffer(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_rust_buffer(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer ffi_baad_core_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial RustBuffer ffi_baad_core_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_cancel_void(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_cancel_void(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_free_void(IntPtr @handle
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_free_void(IntPtr @handle
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void ffi_baad_core_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void ffi_baad_core_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_clear_all(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_clear_all(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_create_parent_dir(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_create_parent_dir(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_data_dir(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_data_dir(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_get_data_path(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_get_data_path(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_get_feature_config(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_get_feature_config(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_get_output_dir(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_get_output_dir(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_init_logging(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_init_logging(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_init_logging_default(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_init_logging_default(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_is_dir_empty(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_is_dir_empty(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_load_file(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_load_file(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_debug(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_debug(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_debug_with_field(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_debug_with_field(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_debug_with_fields(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_debug_with_fields(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_error(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_error(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_error_from_string(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_error_from_string(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_error_with_field(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_error_with_field(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_error_with_fields(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_error_with_fields(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_info(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_info(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_info_with_field(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_info_with_field(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_info_with_fields(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_info_with_fields(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_recoverable_error_from_string(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_recoverable_error_from_string(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_trace(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_trace(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_trace_with_field(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_trace_with_field(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_trace_with_fields(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_trace_with_fields(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_warn(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_warn(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_warn_with_field(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_warn_with_field(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_log_warn_with_fields(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_warn_with_fields(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_save_file(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_save_file(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_set_app_name(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_set_app_name(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_baad_core_checksum_func_set_data_dir(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_set_data_dir(
     );
 
-    [DllImport("baad_core", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint ffi_baad_core_uniffi_contract_version(
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial uint ffi_baad_core_uniffi_contract_version(
     );
 
     
@@ -1573,7 +1691,7 @@ class FfiConverterByteArray: FfiConverterRustBuffer<byte[]> {
 
 
 
-internal record FeatureConfig (
+public record FeatureConfig (
     bool @logsEnabled, 
     bool @debugEnabled, 
     bool @errorEnabled
@@ -1607,7 +1725,7 @@ class FfiConverterTypeFeatureConfig: FfiConverterRustBuffer<FeatureConfig> {
 
 
 
-internal record LoggingConfig (
+public record LoggingConfig (
     bool @enableConsole, 
     bool @enableJson, 
     bool @enableDebug, 
@@ -1651,7 +1769,7 @@ class FfiConverterTypeLoggingConfig: FfiConverterRustBuffer<LoggingConfig> {
 
 
 
-internal class ConfigException: UniffiException {
+public class ConfigException: UniffiException {
     ConfigException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -1702,7 +1820,7 @@ class FfiConverterTypeConfigError : FfiConverterRustBuffer<ConfigException>, Cal
 
 
 
-internal class FileException: UniffiException {
+public class FileException: UniffiException {
     FileException(string message): base(message) {}
 
     // Each variant is a nested class
@@ -2009,7 +2127,7 @@ internal static class _UniFFIAsync {
     }
 }
 #pragma warning restore 8625
-internal static class BaadCoreMethods {
+public static class BaadCoreMethods {
     /// <exception cref="FileException"></exception>
    public static async Task ClearAll(string @dir) 
    {await _UniFFIAsync.UniffiRustCallAsync(

@@ -1,5 +1,6 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BABU.Handlers.AudioClip;
 using BABU.Handlers.DumpAsset;
 using BABU.Handlers.TextAsset;
 using BABU.Handlers.Texture2D;
@@ -47,7 +48,7 @@ public static class BundleImportService
         if (assetsFileInstance == null)
         {
             Logger.Error("Failed to get assets file instance for import");
-            return new ImportResults(0, 0, 0);
+            return new ImportResults(0, 0, 0, 0);
         }
 
         var assetsManager = loaderService.GetAssetsManager();
@@ -61,7 +62,10 @@ public static class BundleImportService
         var textAssetImportCount = await TextAssetImporter.Import(
             BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager));
 
-        return new ImportResults(importedCount, textureImportCount, textAssetImportCount);
+        var audioClipImportCount = await AudioClipImporter.Import(
+            BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager));
+
+        return new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount);
     }
 
     private static void SaveChanges(BundleLoaderService loaderService, string patchPath, ImportResults importResults,
