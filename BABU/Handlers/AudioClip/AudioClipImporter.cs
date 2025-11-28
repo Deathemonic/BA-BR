@@ -129,21 +129,20 @@ public static class AudioClipImporter
             var audioInfo = decoder.GetFsbInfo(fsbData);
             Logger.Debug($"Audio Info: {audioInfo.Frequency}Hz, {audioInfo.Channels}ch, {audioInfo.Length:F3}s");
 
-            var audioData = baseField["m_AudioData"];
-            audioData.AsByteArray = fsbData;
-            baseField["m_Size"].AsULong = (ulong)fsbData.Length;
-
             baseField["m_Frequency"].AsInt = audioInfo.Frequency;
             baseField["m_Channels"].AsInt = audioInfo.Channels;
             baseField["m_Length"].AsFloat = audioInfo.Length;
             baseField["m_CompressionFormat"].AsInt = (int)TypeMapper.GetCompressionFormat(format);
 
-            if (!baseField["m_Resource"].IsDummy)
+            var resource = baseField["m_Resource"];
+            resource["m_Source"].AsString = "";
+            resource["m_Offset"].AsULong = 0;
+            resource["m_Size"].AsULong = (ulong)fsbData.Length;
+
+            var audioDataField = baseField["m_AudioData"];
+            if (audioDataField != null && !audioDataField.IsDummy)
             {
-                var resource = baseField["m_Resource"];
-                resource["m_Source"].AsString = "";
-                resource["m_Offset"].AsULong = 0;
-                resource["m_Size"].AsULong = 0;
+                audioDataField.AsByteArray = fsbData;
             }
 
             var newInfo = assetInfo;
