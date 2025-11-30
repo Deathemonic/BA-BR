@@ -41,36 +41,27 @@ public static class AssetComparerService
             var moddedAssets = GetAssetInfo(context.ModdedLoaderService);
             var patchAssets = GetAssetInfo(context.PatchLoaderService);
 
-            var patchAssetGroups = patchAssets
+            var moddedAssetsLookup = moddedAssets
+                .AsValueEnumerable()
+                .GroupBy(m => (m.Value.Name, m.Value.Type))
+                .ToFrozenDictionary(g => g.Key, g => g.First());
+
+            var matches = patchAssets
                 .AsValueEnumerable()
                 .GroupBy(p => (p.Value.Name, p.Value.Type))
                 .Where(g => !context.Options.ShouldFilterAsset(g.Key.Type.ToLowerInvariant(), g.Key.Name))
-                .ToArray();
-
-            var moddedAssetsLookup = moddedAssets
-                .AsValueEnumerable()
-                .ToDictionary(m => (m.Value.Name, m.Value.Type), m => m);
-
-            var estimatedCapacity = patchAssetGroups
-                .AsValueEnumerable()
-                .Sum(g => g.Count());
-            var matches = new List<AssetMatch>(estimatedCapacity);
-
-            foreach (var group in patchAssetGroups)
-            {
-                if (!moddedAssetsLookup.TryGetValue(group.Key, out var moddedAsset))
-                    continue;
-
-                if (moddedAsset.Key == 0) continue;
-
-                var newMatches = group
-                    .AsValueEnumerable()
-                    .Select(patchAsset => new AssetMatch(moddedAsset.Key, patchAsset.Key, patchAsset.Value.Name,
-                        patchAsset.Value.Type, patchAsset.Value.TypeId))
-                    .ToArray();
-
-                matches.AddRange(newMatches);
-            }
+                .Where(g => moddedAssetsLookup.TryGetValue(g.Key, out var moddedAsset) && moddedAsset.Key != 0)
+                .SelectMany(g =>
+                {
+                    var moddedAsset = moddedAssetsLookup[g.Key];
+                    return g.Select(patchAsset => new AssetMatch(
+                        moddedAsset.Key,
+                        patchAsset.Key,
+                        patchAsset.Value.Name,
+                        patchAsset.Value.Type,
+                        patchAsset.Value.TypeId));
+                })
+                .ToList();
 
             return matches;
         }

@@ -7,16 +7,27 @@ public static class AssetCategorizationService
 {
     public static CategorizedAssets CategorizeMatches(List<AssetMatch> matches)
     {
-        var textureMatches =
-            matches.Where(m => m.Type.Equals("Texture2D", StringComparison.OrdinalIgnoreCase)).ToList();
-        var textAssetMatches =
-            matches.Where(m => m.Type.Equals("TextAsset", StringComparison.OrdinalIgnoreCase)).ToList();
-        var audioClipMatches =
-            matches.Where(m => m.Type.Equals("AudioClip", StringComparison.OrdinalIgnoreCase)).ToList();
-        var otherMatches = matches.Where(m =>
-            !m.Type.Equals("Texture2D", StringComparison.OrdinalIgnoreCase) &&
-            !m.Type.Equals("TextAsset", StringComparison.OrdinalIgnoreCase) &&
-            !m.Type.Equals("AudioClip", StringComparison.OrdinalIgnoreCase)).ToList();
+        var textureMatches = new List<AssetMatch>();
+        var textAssetMatches = new List<AssetMatch>();
+        var audioClipMatches = new List<AssetMatch>();
+        var otherMatches = new List<AssetMatch>();
+
+        foreach (var match in matches)
+            switch (match.Type.ToLowerInvariant())
+            {
+                case "texture2d":
+                    textureMatches.Add(match);
+                    break;
+                case "textasset":
+                    textAssetMatches.Add(match);
+                    break;
+                case "audioclip":
+                    audioClipMatches.Add(match);
+                    break;
+                default:
+                    otherMatches.Add(match);
+                    break;
+            }
 
         return new CategorizedAssets
         {
