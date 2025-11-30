@@ -12,9 +12,9 @@ public static class Arguments
     /// </summary>
     /// <param name="modded">-m, Path to the modded asset bundle, a directory of assets, or a single asset file.</param>
     /// <param name="patch">-p, Path to the patch assetbundle.</param>
-    /// <param name="include">Comma-separated list of asset types to include (e.g., "gameobject,transform").</param>
-    /// <param name="exclude">Comma-separated list of asset types to exclude (e.g., "gameobject,transform").</param>
-    /// <param name="only">Only allow these asset types to match (e.g., "mesh,texture2d").</param>
+    /// <param name="include">Asset types to include (e.g., --include texture2d audioclip).</param>
+    /// <param name="exclude">Asset types to exclude (e.g., --exclude gameobject transform).</param>
+    /// <param name="only">Only allow these asset types to match (e.g., --only mesh texture2d).</param>
     /// <param name="output">-o, Output directory for Dumps and Modded folders.</param>
     /// <param name="export">-e, Export assets only without importing.</param>
     /// <param name="imageFormat">--image, Image format for texture export (Tga, Png, Bmp, Jpg).</param>
@@ -25,9 +25,9 @@ public static class Arguments
     public static void Run(
         string modded = "",
         string patch = "",
-        string? include = null,
-        string? exclude = null,
-        string? only = null,
+        string[]? include = null,
+        string[]? exclude = null,
+        string[]? only = null,
         string? output = null,
         bool export = false,
         bool verbose = false,

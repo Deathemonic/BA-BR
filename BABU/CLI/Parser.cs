@@ -13,9 +13,9 @@ public static class Parser
     public static async Task Execute(
         string modded,
         string patch,
-        string? includeTypes,
-        string? excludeTypes,
-        string? onlyTypes,
+        string[]? includeTypes,
+        string[]? excludeTypes,
+        string[]? onlyTypes,
         string? outputDirectory,
         bool exportOnly,
         ImageExportType imageFormat,
