@@ -15,7 +15,8 @@ public static class Arguments
     /// <param name="include">Comma-separated list of asset types to include (e.g., "gameobject,transform").</param>
     /// <param name="exclude">Comma-separated list of asset types to exclude (e.g., "gameobject,transform").</param>
     /// <param name="only">Only allow these asset types to match (e.g., "mesh,texture2d").</param>
-    /// <param name="export">-e, Export assets only without importing (only works with bundle files).</param>
+    /// <param name="output">-o, Output directory for Dumps and Modded folders.</param>
+    /// <param name="export">-e, Export assets only without importing.</param>
     /// <param name="imageFormat">--image, Image format for texture export (Tga, Png, Bmp, Jpg).</param>
     /// <param name="textFormat">--text, Content format for text asset export (Txt or Bytes).</param>
     /// <param name="compress">-c, Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).</param>
@@ -27,6 +28,7 @@ public static class Arguments
         string? include = null,
         string? exclude = null,
         string? only = null,
+        string? output = null,
         bool export = false,
         bool verbose = false,
         ImageExportType imageFormat = ImageExportType.Tga,
@@ -42,6 +44,6 @@ public static class Arguments
         }
 
         Logger.SetVerbose(verbose);
-        Parser.Execute(modded, patch, include, exclude, only, export, imageFormat, textFormat, compress).Wait();
+        Parser.Execute(modded, patch, include, exclude, only, output, export, imageFormat, textFormat, compress).Wait();
     }
 }

@@ -16,37 +16,33 @@ public static class Parser
         string? includeTypes,
         string? excludeTypes,
         string? onlyTypes,
+        string? outputDirectory,
         bool exportOnly,
         ImageExportType imageFormat,
         TextFormat textFormat,
         AssetBundleCompressionType compress)
     {
-        if (string.IsNullOrEmpty(modded))
+        if (string.IsNullOrEmpty(modded) || string.IsNullOrEmpty(patch))
         {
-            Logger.Error("Modded bundle path (-m) is required");
+            Logger.Error("Both modded (-m) and patch (-p) bundle paths are required");
             return;
         }
 
-        var isExportOnly = exportOnly || string.IsNullOrEmpty(patch);
-
-        if (!isExportOnly && string.IsNullOrEmpty(patch))
-        {
-            Logger.Error("Patch bundle path (-p) is required");
-            return;
-        }
+        if (!string.IsNullOrEmpty(outputDirectory))
+            FileManager.SetOutputDirectory(outputDirectory);
 
         var options = ProcessingOptions.FromStrings(includeTypes, excludeTypes, onlyTypes);
 
         var config = new BundleProcessingConfig
         {
             ModdedPath = modded,
-            PatchPath = patch ?? modded, // Use modded as patch if not provided (export all)
+            PatchPath = patch,
             Options = options,
             ImageFormat = imageFormat,
             CompressionFormat = compress,
             TextFormat = textFormat
         };
 
-        await BundleProcessorService.ProcessBundles(config, isExportOnly);
+        await BundleProcessorService.ProcessBundles(config, exportOnly);
     }
 }
