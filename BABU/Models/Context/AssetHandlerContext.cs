@@ -5,15 +5,19 @@ using BABU.Services.Bundle;
 
 namespace BABU.Models.Context;
 
-public readonly record struct ExportContext(
-    List<AssetMatch> Matches,
-    AssetsFileInstance AssetsFileInstance,
-    AssetsManager AssetsManager,
-    TextFormat TextFormat,
-    ImageExportType ImageFormat);
+public record ExportContext
+{
+    public required List<AssetMatch> Matches { get; init; }
+    public required AssetsFileInstance AssetsFileInstance { get; init; }
+    public required AssetsManager AssetsManager { get; init; }
+    public required TextFormat TextFormat { get; init; }
+    public required ImageExportType ImageFormat { get; init; }
+}
 
-public readonly record struct ImportContext(
-    List<AssetMatch> Matches,
-    AssetsFileInstance AssetsFileInstance,
-    AssetsManager AssetsManager,
-    BundleLoaderService LoaderService);
+public record ImportContext
+{
+    public required List<AssetMatch> Matches { get; init; }
+    public required AssetsFileInstance AssetsFileInstance { get; init; }
+    public required AssetsManager AssetsManager { get; init; }
+    public required BundleLoaderService LoaderService { get; init; }
+}

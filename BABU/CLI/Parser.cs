@@ -13,12 +13,12 @@ public static class Parser
     public static async Task Execute(
         string modded,
         string patch,
-        string? includeTypes = null,
-        string? excludeTypes = null,
-        string? onlyTypes = null,
-        ImageExportType imageFormat = ImageExportType.Tga,
-        TextFormat textFormat = TextFormat.Txt,
-        AssetBundleCompressionType compress = AssetBundleCompressionType.None)
+        string? includeTypes,
+        string? excludeTypes,
+        string? onlyTypes,
+        ImageExportType imageFormat,
+        TextFormat textFormat,
+        AssetBundleCompressionType compress)
     {
         if (string.IsNullOrEmpty(modded) || string.IsNullOrEmpty(patch))
         {

@@ -10,12 +10,14 @@ public static class FileManager
         return $"{cleanName}_{assetType}.json";
     }
 
-    public static string GetFilePath(string directory, string fileName)
+    public static string GetFilePath(string directory, string fileName) => GetFilePath(directory, fileName, null);
+
+    public static string GetFilePath(string directory, string fileName, HashSet<string>? usedPaths)
     {
         var filePath = Path.Combine(directory, fileName);
         var counter = 1;
 
-        while (File.Exists(filePath))
+        while (IsPathInUse(filePath, usedPaths))
         {
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
             var extension = Path.GetExtension(fileName);
@@ -24,7 +26,16 @@ public static class FileManager
             counter++;
         }
 
+        usedPaths?.Add(filePath);
         return filePath;
+    }
+
+    private static bool IsPathInUse(string filePath, HashSet<string>? usedPaths)
+    {
+        if (usedPaths?.Contains(filePath) ?? false)
+            return true;
+
+        return File.Exists(filePath);
     }
 
     private static string GetPath(string path) => Path.Combine(Directory.GetCurrentDirectory(), path);

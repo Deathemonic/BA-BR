@@ -1,9 +1,11 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.FMOD;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.AudioClip;
 
@@ -24,17 +26,31 @@ public static class AudioClipExporter
             return Task.FromResult(0);
         }
 
-        return Task.FromResult(ProcessExports(context, decoder));
+        var audioContext = new AudioClipExportContext
+        {
+            Matches = context.Matches,
+            AssetsFileInstance = context.AssetsFileInstance,
+            AssetsManager = context.AssetsManager,
+            Decoder = decoder
+        };
+
+        return Task.FromResult(ProcessExports(audioContext));
     }
 
-    private static int ProcessExports(ExportContext context, Decoder decoder)
+    private static int ProcessExports(AudioClipExportContext context)
     {
         var exportedCount = 0;
+        var usedPaths = new HashSet<string>();
+
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
 
         foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleAudioClip(match, context, decoder)) exportedCount++;
+                if (ProcessAudioClip(match, context, usedPaths, assetInfoLookup))
+                    exportedCount++;
             }
             catch (Exception ex)
             {
@@ -44,10 +60,10 @@ public static class AudioClipExporter
         return exportedCount;
     }
 
-    private static bool ExportSingleAudioClip(AssetMatch match, ExportContext context, Decoder decoder)
+    private static bool ProcessAudioClip(AssetMatch match, AudioClipExportContext context,
+        HashSet<string> usedPaths, FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
-        if (assetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error($"AudioClip with PathId {match.ModdedId} not found in modded bundle");
             return false;
@@ -60,11 +76,11 @@ public static class AudioClipExporter
             return false;
         }
 
-        var filePath = BuildExportFilePath(match.Name, "wav");
+        var filePath = BuildExportFilePath(match.Name, "wav", usedPaths);
 
         Logger.Debug($"Attempting to export audio clip: {match.Name}");
 
-        var success = ExportAudioClipToFile(context, baseField, assetInfo, filePath, decoder);
+        var success = ExportAudioClip(context, baseField, assetInfo, filePath);
 
         if (!success)
         {
@@ -76,15 +92,15 @@ public static class AudioClipExporter
         return true;
     }
 
-    private static string BuildExportFilePath(string assetName, string extension)
+    private static string BuildExportFilePath(string assetName, string extension, HashSet<string> usedPaths)
     {
         var cleanAssetName = FileManager.Clean(assetName);
         var fileName = $"{cleanAssetName}.{extension}";
-        return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
+        return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName, usedPaths);
     }
 
-    private static bool ExportAudioClipToFile(ExportContext context, AssetTypeValueField baseField,
-        AssetFileInfo assetInfo, string filePath, Decoder decoder)
+    private static bool ExportAudioClip(AudioClipExportContext context, AssetTypeValueField baseField,
+        AssetFileInfo assetInfo, string filePath)
     {
         try
         {
@@ -108,7 +124,7 @@ public static class AudioClipExporter
             }
 
             Logger.Debug("Decoding FSB to WAV...");
-            var wavData = decoder.DecodeToWav(fsbData);
+            var wavData = context.Decoder.DecodeToWav(fsbData);
 
             File.WriteAllBytes(filePath, wavData);
             Logger.Debug($"Successfully wrote {wavData.Length} bytes to {filePath}");
@@ -142,7 +158,7 @@ public static class AudioClipExporter
             var reader = bundle.DataReader;
             var dirInf = bundle.BlockAndDirInfo.DirectoryInfos;
 
-            foreach (var info in dirInf.Where(info => info.Name == searchPath))
+            foreach (var info in dirInf.AsValueEnumerable().Where(info => info.Name == searchPath))
             {
                 lock (bundle.DataReader)
                 {
