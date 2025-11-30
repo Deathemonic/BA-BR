@@ -21,17 +21,25 @@ public static class BundleExportService
         if (instance == null || manager == null)
             return new ExportResults(0, 0, 0, 0);
 
-        var exportedCount = await DumpAssetExporter.Export(
-            BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ImageFormat));
+        var exportedCount = assets.OtherMatches.Count > 0
+            ? await DumpAssetExporter.Export(
+                BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
 
-        var textureExportCount = await Texture2DExporter.Export(
-            BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ImageFormat));
+        var textureExportCount = assets.TextureMatches.Count > 0
+            ? await Texture2DExporter.Export(
+                BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
 
-        var textAssetExportCount = await TextAssetExporter.Export(
-            BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ImageFormat));
+        var textAssetExportCount = assets.TextAssetMatches.Count > 0
+            ? await TextAssetExporter.Export(
+                BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
 
-        var audioClipExportCount = await AudioClipExporter.Export(
-            BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat));
+        var audioClipExportCount = assets.AudioClipMatches.Count > 0
+            ? await AudioClipExporter.Export(
+                BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
 
         return new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
     }

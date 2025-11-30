@@ -53,17 +53,25 @@ public static class BundleImportService
 
         var assetsManager = loaderService.GetAssetsManager();
 
-        var importedCount = await DumpAssetImporter.Import(
-            BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager));
+        var importedCount = assets.OtherMatches.Count > 0
+            ? await DumpAssetImporter.Import(
+                BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager))
+            : 0;
 
-        var textureImportCount = await Texture2DImporter.Import(
-            BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager));
+        var textureImportCount = assets.TextureMatches.Count > 0
+            ? await Texture2DImporter.Import(
+                BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager))
+            : 0;
 
-        var textAssetImportCount = await TextAssetImporter.Import(
-            BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager));
+        var textAssetImportCount = assets.TextAssetMatches.Count > 0
+            ? await TextAssetImporter.Import(
+                BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager))
+            : 0;
 
-        var audioClipImportCount = await AudioClipImporter.Import(
-            BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager));
+        var audioClipImportCount = assets.AudioClipMatches.Count > 0
+            ? await AudioClipImporter.Import(
+                BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager))
+            : 0;
 
         return new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount);
     }
