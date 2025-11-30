@@ -12,9 +12,10 @@ public static class Arguments
     /// </summary>
     /// <param name="modded">-m, Path to the modded asset bundle, a directory of assets, or a single asset file.</param>
     /// <param name="patch">-p, Path to the patch assetbundle.</param>
-    /// <param name="includeTypes">--include, Comma-separated list of asset types to include (e.g., "gameobject,transform").</param>
-    /// <param name="excludeTypes">--exclude, Comma-separated list of asset types to exclude (e.g., "gameobject,transform").</param>
-    /// <param name="onlyTypes">--only, Only allow these asset types to match (e.g., "mesh,texture2d").</param>
+    /// <param name="include">Comma-separated list of asset types to include (e.g., "gameobject,transform").</param>
+    /// <param name="exclude">Comma-separated list of asset types to exclude (e.g., "gameobject,transform").</param>
+    /// <param name="only">Only allow these asset types to match (e.g., "mesh,texture2d").</param>
+    /// <param name="export">-e, Export assets only without importing (only works with bundle files).</param>
     /// <param name="imageFormat">--image, Image format for texture export (Tga, Png, Bmp, Jpg).</param>
     /// <param name="textFormat">--text, Content format for text asset export (Txt or Bytes).</param>
     /// <param name="compress">-c, Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).</param>
@@ -23,9 +24,10 @@ public static class Arguments
     public static void Run(
         string modded = "",
         string patch = "",
-        string? includeTypes = null,
-        string? excludeTypes = null,
-        string? onlyTypes = null,
+        string? include = null,
+        string? exclude = null,
+        string? only = null,
+        bool export = false,
         bool verbose = false,
         ImageExportType imageFormat = ImageExportType.Tga,
         TextFormat textFormat = TextFormat.Txt,
@@ -40,6 +42,6 @@ public static class Arguments
         }
 
         Logger.SetVerbose(verbose);
-        _ = Parser.Execute(modded, patch, includeTypes, excludeTypes, onlyTypes, imageFormat, textFormat, compress);
+        Parser.Execute(modded, patch, include, exclude, only, export, imageFormat, textFormat, compress).Wait();
     }
 }

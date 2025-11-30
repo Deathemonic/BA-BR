@@ -7,9 +7,15 @@ namespace BABU.Services.Bundle;
 
 public static class BundleProcessorService
 {
-    public static async Task ProcessBundles(BundleProcessingConfig config)
+    public static async Task ProcessBundles(BundleProcessingConfig config, bool exportOnly = false)
     {
         var (skipExport, singleFile) = DetectInputMode(config.ModdedPath);
+
+        if (exportOnly && skipExport)
+        {
+            Logger.Error("Export-only mode (--export) only works with bundle files, not directories or single files");
+            return;
+        }
 
         if (!skipExport)
             PrepareDirectories();
@@ -34,6 +40,14 @@ public static class BundleProcessorService
         LogMatchingAssets(matches);
 
         var categorizedAssets = AssetCategorizationService.CategorizeMatches(matches);
+
+        if (exportOnly)
+        {
+            Logger.Info("Export-only mode: skipping import");
+            await BundleExportService.PerformExports(config, categorizedAssets);
+            return;
+        }
+
         var exportResults = skipExport
             ? new ExportResults(0, 0, 0, 0)
             : await BundleExportService.PerformExports(config, categorizedAssets);
@@ -47,6 +61,7 @@ public static class BundleProcessorService
         {
             Logger.Info($"Using custom Dumps folder: {moddedPath}");
             Logger.Info("Skipping export, proceeding directly to import...");
+            
             FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
             return (true, null);
         }
@@ -55,6 +70,7 @@ public static class BundleProcessorService
         {
             Logger.Info($"Using single file: {moddedPath}");
             Logger.Info("Skipping export, proceeding directly to import...");
+            
             var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
             FileManager.SetCustomDumpPath(directory);
             return (true, Path.GetFullPath(moddedPath));
