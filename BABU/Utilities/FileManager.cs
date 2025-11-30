@@ -2,6 +2,8 @@ namespace BABU.Utilities;
 
 public static class FileManager
 {
+    private static string? _customDumpPath;
+
     public static string Clean(string fileName) => string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
 
     public static string CreateJsonName(string assetName, string assetType)
@@ -40,7 +42,9 @@ public static class FileManager
 
     private static string GetPath(string path) => Path.Combine(Directory.GetCurrentDirectory(), path);
 
-    public static string GetDumpPath() => GetPath("Dumps");
+    public static string GetDumpPath() => _customDumpPath ?? GetPath("Dumps");
+
+    public static void SetCustomDumpPath(string? path) => _customDumpPath = path;
 
     public static string GetModdedPath() => GetPath("Modded");
 

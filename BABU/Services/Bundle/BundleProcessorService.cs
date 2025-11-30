@@ -9,9 +9,17 @@ public static class BundleProcessorService
 {
     public static async Task ProcessBundles(BundleProcessingConfig config)
     {
-        PrepareDirectories();
+        var skipExport = DetectDumpsFolder(config.ModdedPath);
 
-        var matches = AssetComparerService.FindMatches(config.ModdedPath, config.PatchPath, config.Options);
+        if (!skipExport)
+            PrepareDirectories();
+
+        var moddedPath = skipExport ? config.PatchPath : config.ModdedPath;
+        var matches = AssetComparerService.FindMatches(moddedPath, config.PatchPath, config.Options);
+
+        if (skipExport)
+            matches = AssetDumpsScannerService.FilterMatchesByAvailableFiles(matches, FileManager.GetDumpPath());
+
         if (matches.Count == 0)
         {
             Logger.Warn("No matching assets found");
@@ -21,8 +29,22 @@ public static class BundleProcessorService
         LogMatchingAssets(matches);
 
         var categorizedAssets = AssetCategorizationService.CategorizeMatches(matches);
-        var exportResults = await BundleExportService.PerformExports(config, categorizedAssets);
+        var exportResults = skipExport
+            ? new ExportResults(0, 0, 0, 0)
+            : await BundleExportService.PerformExports(config, categorizedAssets);
+
         await BundleImportService.PerformImports(config, categorizedAssets, exportResults);
+    }
+
+    private static bool DetectDumpsFolder(string moddedPath)
+    {
+        if (!Directory.Exists(moddedPath))
+            return false;
+
+        Logger.Info($"Using custom Dumps folder: {moddedPath}");
+        Logger.Info("Skipping export, proceeding directly to import...");
+        FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
+        return true;
     }
 
     private static void PrepareDirectories()
