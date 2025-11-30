@@ -3,7 +3,7 @@ using BABU.FMOD;
 using BABU.FMOD.API;
 using BABU.Models;
 using BABU.Models.Context;
-using BABU.Models.Types;
+using BABU.Services.Bundle;
 using BABU.Utilities;
 
 namespace BABU.Handlers.AudioClip;
@@ -30,7 +30,16 @@ public static class AudioClipImporter
             return 0;
         }
 
-        return await ProcessImports(context, encoder, decoder);
+        var resourceService = new BundleResourceService();
+        var result = await ProcessImports(context, encoder, decoder, resourceService);
+
+
+        if (result > 0 && context.AssetsFileInstance.parentBundle != null)
+        {
+            resourceService.WriteToBundle(context.AssetsFileInstance.parentBundle);
+        }
+
+        return result;
     }
 
     private static bool ValidateSetup()
@@ -43,14 +52,15 @@ public static class AudioClipImporter
         return false;
     }
 
-    private static async Task<int> ProcessImports(ImportContext context, Encoder encoder, Decoder decoder)
+    private static async Task<int> ProcessImports(ImportContext context, Encoder encoder, Decoder decoder,
+        BundleResourceService resourceService)
     {
         var importedCount = 0;
 
         foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleAudioClip(match, context, encoder, decoder))
+                if (await ImportSingleAudioClip(match, context, encoder, decoder, resourceService))
                     importedCount++;
             }
             catch (Exception ex)
@@ -62,7 +72,7 @@ public static class AudioClipImporter
     }
 
     private static Task<bool> ImportSingleAudioClip(AssetMatch match, ImportContext context, Encoder encoder,
-        Decoder decoder)
+        Decoder decoder, BundleResourceService resourceService)
     {
         var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
         if (targetAssetInfo == null)
@@ -91,7 +101,7 @@ public static class AudioClipImporter
         Logger.Debug($"Processing audio clip: {match.Name}");
 
         var success = ImportAudioClipFromFile(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
-            audioFileInfo.Value.Format, encoder, decoder);
+            audioFileInfo.Value.Format, encoder, decoder, resourceService);
 
         if (!success)
         {
@@ -104,7 +114,8 @@ public static class AudioClipImporter
     }
 
     private static bool ImportAudioClipFromFile(ImportContext context, AssetFileInfo assetInfo,
-        AssetTypeValueField baseField, string filePath, FSBANK_FORMAT format, Encoder encoder, Decoder decoder)
+        AssetTypeValueField baseField, string filePath, FSBANK_FORMAT format, Encoder encoder, Decoder decoder,
+        BundleResourceService resourceService)
     {
         try
         {
@@ -115,6 +126,8 @@ public static class AudioClipImporter
                 Logger.Error($"Import file not found: {filePath}");
                 return false;
             }
+
+            var audioName = baseField["m_Name"].AsString;
 
             Logger.Debug($"Encoding {filePath} to FSB ({format})...");
 
@@ -129,21 +142,17 @@ public static class AudioClipImporter
             var audioInfo = decoder.GetFsbInfo(fsbData);
             Logger.Debug($"Audio Info: {audioInfo.Frequency}Hz, {audioInfo.Channels}ch, {audioInfo.Length:F3}s");
 
+            var (resourcePath, resourceOffset, resourceSize) = resourceService.AddAsset(audioName, fsbData);
+
             baseField["m_Frequency"].AsInt = audioInfo.Frequency;
             baseField["m_Channels"].AsInt = audioInfo.Channels;
             baseField["m_Length"].AsFloat = audioInfo.Length;
             baseField["m_CompressionFormat"].AsInt = (int)TypeMapper.GetCompressionFormat(format);
 
             var resource = baseField["m_Resource"];
-            resource["m_Source"].AsString = "";
-            resource["m_Offset"].AsULong = 0;
-            resource["m_Size"].AsULong = (ulong)fsbData.Length;
-
-            var audioDataField = baseField["m_AudioData"];
-            if (audioDataField != null && !audioDataField.IsDummy)
-            {
-                audioDataField.AsByteArray = fsbData;
-            }
+            resource["m_Source"].AsString = resourcePath;
+            resource["m_Offset"].AsULong = (ulong)resourceOffset;
+            resource["m_Size"].AsULong = (ulong)resourceSize;
 
             var newInfo = assetInfo;
             newInfo.SetNewData(baseField);
