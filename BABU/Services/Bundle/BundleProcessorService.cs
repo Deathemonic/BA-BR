@@ -9,7 +9,7 @@ public static class BundleProcessorService
 {
     public static async Task ProcessBundles(BundleProcessingConfig config)
     {
-        var skipExport = DetectDumpsFolder(config.ModdedPath);
+        var (skipExport, singleFile) = DetectInputMode(config.ModdedPath);
 
         if (!skipExport)
             PrepareDirectories();
@@ -18,7 +18,12 @@ public static class BundleProcessorService
         var matches = AssetComparerService.FindMatches(moddedPath, config.PatchPath, config.Options);
 
         if (skipExport)
-            matches = AssetDumpsScannerService.FilterMatchesByAvailableFiles(matches, FileManager.GetDumpPath());
+        {
+            if (singleFile != null)
+                matches = AssetDumpsScannerService.FilterMatchesBySingleFile(matches, singleFile);
+            else
+                matches = AssetDumpsScannerService.FilterMatchesByAvailableFiles(matches, FileManager.GetDumpPath());
+        }
 
         if (matches.Count == 0)
         {
@@ -36,15 +41,32 @@ public static class BundleProcessorService
         await BundleImportService.PerformImports(config, categorizedAssets, exportResults);
     }
 
-    private static bool DetectDumpsFolder(string moddedPath)
+    private static (bool skipExport, string? singleFile) DetectInputMode(string moddedPath)
     {
-        if (!Directory.Exists(moddedPath))
-            return false;
+        if (Directory.Exists(moddedPath))
+        {
+            Logger.Info($"Using custom Dumps folder: {moddedPath}");
+            Logger.Info("Skipping export, proceeding directly to import...");
+            FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
+            return (true, null);
+        }
 
-        Logger.Info($"Using custom Dumps folder: {moddedPath}");
-        Logger.Info("Skipping export, proceeding directly to import...");
-        FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
-        return true;
+        if (File.Exists(moddedPath) && !IsBundleFile(moddedPath))
+        {
+            Logger.Info($"Using single file: {moddedPath}");
+            Logger.Info("Skipping export, proceeding directly to import...");
+            var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
+            FileManager.SetCustomDumpPath(directory);
+            return (true, Path.GetFullPath(moddedPath));
+        }
+
+        return (false, null);
+    }
+
+    private static bool IsBundleFile(string filePath)
+    {
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+        return extension == ".bundle" || extension == string.Empty;
     }
 
     private static void PrepareDirectories()

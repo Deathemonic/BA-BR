@@ -24,6 +24,36 @@ public static class AssetDumpsScannerService
         return availableMatches;
     }
 
+    public static List<AssetMatch> FilterMatchesBySingleFile(List<AssetMatch> allMatches, string filePath)
+    {
+        var fileName = Path.GetFileNameWithoutExtension(filePath);
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+
+        var match = allMatches.FirstOrDefault(m =>
+        {
+            var cleanName = FileManager.Clean(m.Name);
+            if (!fileName.Equals(cleanName, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return m.Type.ToLowerInvariant() switch
+            {
+                "texture2d" => TextureExtensions.Contains(extension),
+                "textasset" => TextAssetExtensions.Contains(extension),
+                "audioclip" => AudioExtensions.Contains(extension),
+                _ => extension == ".json"
+            };
+        });
+
+        if (match == null)
+        {
+            Logger.Error($"No matching asset found for file: {Path.GetFileName(filePath)}");
+            return [];
+        }
+
+        Logger.Debug($"Matched single file '{Path.GetFileName(filePath)}' to asset '{match.Name}' ({match.Type})");
+        return [match];
+    }
+
     private static bool HasMatchingFile(AssetMatch match, string dumpsPath)
     {
         var cleanName = FileManager.Clean(match.Name);
