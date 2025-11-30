@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using BABU.FMOD.API;
-using BABU.Models.Context;
 using ZLinq;
 
 namespace BABU.Utilities;
@@ -143,4 +142,6 @@ public static class AudioFileDetector
         var brand = BitConverter.ToUInt32(header.Slice(8));
         return brand == 0x2041344D || brand == 0x2042344D || brand == 0x3234706D || brand == 0x6D6F7369;
     }
+
+    public readonly record struct AudioFileInfo(string FilePath, FSBANK_FORMAT Format);
 }
