@@ -26,18 +26,12 @@ public static class AudioClipExporter
             return Task.FromResult(0);
         }
 
-        var audioContext = new AudioClipExportContext
-        {
-            Matches = context.Matches,
-            AssetsFileInstance = context.AssetsFileInstance,
-            AssetsManager = context.AssetsManager,
-            Decoder = decoder
-        };
+        var audioContext = context with { Decoder = decoder };
 
         return Task.FromResult(ProcessExports(audioContext));
     }
 
-    private static int ProcessExports(AudioClipExportContext context)
+    private static int ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
         var usedPaths = new HashSet<string>();
@@ -60,7 +54,7 @@ public static class AudioClipExporter
         return exportedCount;
     }
 
-    private static bool ProcessAudioClip(AssetMatch match, AudioClipExportContext context,
+    private static bool ProcessAudioClip(AssetMatch match, ExportContext context,
         HashSet<string> usedPaths, FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
         if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
@@ -99,7 +93,7 @@ public static class AudioClipExporter
         return FileManager.GetFilePath(FileManager.GetDumpPath(), fileName, usedPaths);
     }
 
-    private static bool ExportAudioClip(AudioClipExportContext context, AssetTypeValueField baseField,
+    private static bool ExportAudioClip(ExportContext context, AssetTypeValueField baseField,
         AssetFileInfo assetInfo, string filePath)
     {
         try
@@ -124,7 +118,7 @@ public static class AudioClipExporter
             }
 
             Logger.Debug("Decoding FSB to WAV...");
-            var wavData = context.Decoder.DecodeToWav(fsbData);
+            var wavData = context.Decoder!.DecodeToWav(fsbData);
 
             File.WriteAllBytes(filePath, wavData);
             Logger.Debug($"Successfully wrote {wavData.Length} bytes to {filePath}");

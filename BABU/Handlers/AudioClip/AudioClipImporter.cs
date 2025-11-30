@@ -33,11 +33,8 @@ public static class AudioClipImporter
         }
 
         var resourceService = new BundleResourceService();
-        var audioContext = new AudioClipImportContext
+        var audioContext = context with
         {
-            Matches = context.Matches,
-            AssetsFileInstance = context.AssetsFileInstance,
-            AssetsManager = context.AssetsManager,
             ResourceService = resourceService,
             Encoder = encoder,
             Decoder = decoder
@@ -61,7 +58,7 @@ public static class AudioClipImporter
         return false;
     }
 
-    private static Task<int> ProcessImports(AudioClipImportContext context)
+    private static Task<int> ProcessImports(ImportContext context)
     {
         var importedCount = 0;
         var dumpsDir = FileManager.GetDumpPath();
@@ -86,7 +83,7 @@ public static class AudioClipImporter
 
     private static bool ProcessAudioClip(
         AssetMatch match,
-        AudioClipImportContext context,
+        ImportContext context,
         string dumpsDir,
         FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
@@ -106,7 +103,7 @@ public static class AudioClipImporter
         var cleanAssetName = FileManager.Clean(match.Name);
         var audioFileInfo = AudioFileDetector.FindAndDetectAudioFile(dumpsDir, cleanAssetName);
 
-        if (audioFileInfo == null)
+        if (!audioFileInfo.HasValue)
         {
             Logger.Error($"Audio file not found for: {cleanAssetName}");
             return false;
@@ -127,7 +124,7 @@ public static class AudioClipImporter
         return true;
     }
 
-    private static bool ImportAudioClip(AudioClipImportContext context, AssetFileInfo assetInfo,
+    private static bool ImportAudioClip(ImportContext context, AssetFileInfo assetInfo,
         AssetTypeValueField baseField, string filePath, FSBANK_FORMAT format)
     {
         try
@@ -144,7 +141,7 @@ public static class AudioClipImporter
 
             Logger.Debug($"Encoding {filePath} to FSB ({format})...");
 
-            var fsbData = context.Encoder.EncodeToFsb(filePath, format);
+            var fsbData = context.Encoder!.EncodeToFsb(filePath, format);
 
             if (fsbData.Length == 0)
             {
@@ -152,10 +149,10 @@ public static class AudioClipImporter
                 return false;
             }
 
-            var audioInfo = context.Decoder.GetFsbInfo(fsbData);
+            var audioInfo = context.Decoder!.GetFsbInfo(fsbData);
             Logger.Debug($"Audio Info: {audioInfo.Frequency}Hz, {audioInfo.Channels}ch, {audioInfo.Length:F3}s");
 
-            var (resourcePath, resourceOffset, resourceSize) = context.ResourceService.AddAsset(audioName, fsbData);
+            var (resourcePath, resourceOffset, resourceSize) = context.ResourceService!.AddAsset(audioName, fsbData);
 
             baseField["m_Frequency"].AsInt = audioInfo.Frequency;
             baseField["m_Channels"].AsInt = audioInfo.Channels;

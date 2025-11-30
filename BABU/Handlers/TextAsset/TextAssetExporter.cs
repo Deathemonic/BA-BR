@@ -1,9 +1,11 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Models.Types;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.TextAsset;
 
@@ -20,10 +22,15 @@ public static class TextAssetExporter
     {
         var exportedCount = 0;
 
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
+
         foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleTextAsset(match, context)) exportedCount++;
+                if (ProcessTextAsset(match, context, assetInfoLookup))
+                    exportedCount++;
             }
             catch (Exception ex)
             {
@@ -33,10 +40,10 @@ public static class TextAssetExporter
         return exportedCount;
     }
 
-    private static bool ExportSingleTextAsset(AssetMatch match, ExportContext context)
+    private static bool ProcessTextAsset(AssetMatch match, ExportContext context,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
-        if (assetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error($"TextAsset with PathId {match.ModdedId} not found in modded bundle");
             return false;

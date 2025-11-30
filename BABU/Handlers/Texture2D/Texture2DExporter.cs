@@ -1,8 +1,10 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.Texture2D;
 
@@ -19,10 +21,15 @@ public static class Texture2DExporter
     {
         var exportedCount = 0;
 
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
+
         foreach (var match in context.Matches)
             try
             {
-                if (ExportSingleTexture(match, context)) exportedCount++;
+                if (ProcessTexture(match, context, assetInfoLookup))
+                    exportedCount++;
             }
             catch (Exception ex)
             {
@@ -32,10 +39,10 @@ public static class Texture2DExporter
         return exportedCount;
     }
 
-    private static bool ExportSingleTexture(AssetMatch match, ExportContext context)
+    private static bool ProcessTexture(AssetMatch match, ExportContext context,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
-        if (assetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error($"Texture2D asset with PathId {match.ModdedId} not found in modded bundle");
             return false;
@@ -97,7 +104,7 @@ public static class Texture2DExporter
         }
         catch (Exception ex)
         {
-            Logger.Debug($"Exception during export: {ex.Message}");
+            Logger.Error($"Exception during export: {ex.Message}");
             Logger.Debug($"Stack trace: {ex.StackTrace}");
             return false;
         }

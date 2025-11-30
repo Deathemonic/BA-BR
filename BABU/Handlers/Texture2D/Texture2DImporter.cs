@@ -1,7 +1,9 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.Texture2D;
 
@@ -31,10 +33,15 @@ public static class Texture2DImporter
     {
         var importedCount = 0;
 
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
+
         foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleTexture(match, context)) importedCount++;
+                if (await ProcessTexture(match, context, assetInfoLookup))
+                    importedCount++;
             }
             catch (Exception ex)
             {
@@ -44,10 +51,10 @@ public static class Texture2DImporter
         return importedCount;
     }
 
-    private static async Task<bool> ImportSingleTexture(AssetMatch match, ImportContext context)
+    private static async Task<bool> ProcessTexture(AssetMatch match, ImportContext context,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
-        if (targetAssetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
             Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
             return false;

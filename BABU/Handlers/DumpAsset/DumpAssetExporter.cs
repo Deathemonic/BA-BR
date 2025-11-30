@@ -1,9 +1,10 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using AssetsTools.NET;
-using AssetsTools.NET.Extra;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.DumpAsset;
 
@@ -14,19 +15,22 @@ public static class DumpAssetExporter
     public static async Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting JSON dumps...");
-        
+
         return await ProcessExports(context);
     }
-
 
     private static async Task<int> ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
 
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
+
         foreach (var match in context.Matches)
             try
             {
-                if (await ExportSingleAsset(match, context))
+                if (await ProcessAsset(match, context, assetInfoLookup))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -37,18 +41,21 @@ public static class DumpAssetExporter
         return exportedCount;
     }
 
-    private static async Task<bool> ExportSingleAsset(AssetMatch match, ExportContext context)
+    private static async Task<bool> ProcessAsset(AssetMatch match, ExportContext context,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var assetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.ModdedId);
-        if (assetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error($"Asset with PathId {match.ModdedId} not found in modded bundle");
             return false;
         }
 
-        var baseField = GetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo, match.ModdedId);
+        var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
+        {
+            Logger.Error($"Failed to get base field for asset {match.ModdedId}");
             return false;
+        }
 
         var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
 
@@ -56,17 +63,6 @@ public static class DumpAssetExporter
 
         Logger.Debug($"Exported: {match.Name} ({match.Type})");
         return true;
-    }
-
-    private static AssetTypeValueField? GetBaseField(AssetsManager assetsManager, AssetsFileInstance assetsFileInstance,
-        AssetFileInfo assetInfo, long assetId)
-    {
-        var baseField = assetsManager.GetBaseField(assetsFileInstance, assetInfo);
-        if (baseField != null)
-            return baseField;
-
-        Logger.Error($"Failed to get base field for asset {assetId}");
-        return null;
     }
 
     private static async Task ExportJsonData(AssetTypeValueField baseField, string filePath)

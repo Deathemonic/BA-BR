@@ -1,7 +1,9 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using BABU.Models;
 using BABU.Models.Context;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Handlers.TextAsset;
 
@@ -13,8 +15,8 @@ public static class TextAssetImporter
             return 0;
 
         Logger.Info("Importing text assets...");
-        
-        return await ProcessImports(context);;
+
+        return await ProcessImports(context);
     }
 
     private static bool ValidateSetup()
@@ -31,10 +33,14 @@ public static class TextAssetImporter
     {
         var importedCount = 0;
 
+        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId);
+
         foreach (var match in context.Matches)
             try
             {
-                if (await ImportSingleTextAsset(match, context))
+                if (await ProcessTextAsset(match, context, assetInfoLookup))
                     importedCount++;
             }
             catch (Exception ex)
@@ -45,10 +51,10 @@ public static class TextAssetImporter
         return importedCount;
     }
 
-    private static Task<bool> ImportSingleTextAsset(AssetMatch match, ImportContext context)
+    private static Task<bool> ProcessTextAsset(AssetMatch match, ImportContext context,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
     {
-        var targetAssetInfo = context.AssetsFileInstance.file.AssetInfos.FirstOrDefault(a => a.PathId == match.PatchId);
-        if (targetAssetInfo == null)
+        if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
             Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
             return Task.FromResult(false);
