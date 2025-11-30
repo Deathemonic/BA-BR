@@ -4,7 +4,7 @@ using BABU.Services.Bundle;
 using BABU.Utilities;
 using ZLinq;
 
-namespace BABU.Services;
+namespace BABU.Services.Asset;
 
 public static class AssetComparerService
 {

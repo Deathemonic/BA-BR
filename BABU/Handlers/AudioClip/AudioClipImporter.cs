@@ -35,9 +35,7 @@ public static class AudioClipImporter
 
 
         if (result > 0 && context.AssetsFileInstance.parentBundle != null)
-        {
             resourceService.WriteToBundle(context.AssetsFileInstance.parentBundle);
-        }
 
         return result;
     }
@@ -100,7 +98,7 @@ public static class AudioClipImporter
 
         Logger.Debug($"Processing audio clip: {match.Name}");
 
-        var success = ImportAudioClipFromFile(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
+        var success = ImportAudioClip(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
             audioFileInfo.Value.Format, encoder, decoder, resourceService);
 
         if (!success)
@@ -113,7 +111,7 @@ public static class AudioClipImporter
         return Task.FromResult(true);
     }
 
-    private static bool ImportAudioClipFromFile(ImportContext context, AssetFileInfo assetInfo,
+    private static bool ImportAudioClip(ImportContext context, AssetFileInfo assetInfo,
         AssetTypeValueField baseField, string filePath, FSBANK_FORMAT format, Encoder encoder, Decoder decoder,
         BundleResourceService resourceService)
     {

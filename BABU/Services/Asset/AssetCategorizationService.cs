@@ -1,7 +1,7 @@
 using BABU.Models;
 using BABU.Models.Context;
 
-namespace BABU.Services;
+namespace BABU.Services.Asset;
 
 public static class AssetCategorizationService
 {

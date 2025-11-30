@@ -22,7 +22,7 @@ public static class BundleImportService
 
         var importResults = await ExecuteImports(loader, assets);
 
-        SaveChanges(loader, config.PatchPath, importResults, config.CompressionType);
+        SaveChanges(loader, config.PatchPath, importResults, config.CompressionFormat);
 
         BundleResultsLogger.LogResults(exportResults, importResults);
     }

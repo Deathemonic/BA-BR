@@ -22,16 +22,16 @@ public static class BundleExportService
             return new ExportResults(0, 0, 0, 0);
 
         var exportedCount = await DumpAssetExporter.Export(
-            BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ExportType));
+            BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ImageFormat));
 
         var textureExportCount = await Texture2DExporter.Export(
-            BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ExportType));
+            BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ImageFormat));
 
         var textAssetExportCount = await TextAssetExporter.Export(
-            BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ExportType));
+            BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ImageFormat));
 
         var audioClipExportCount = await AudioClipExporter.Export(
-            BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ExportType));
+            BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat));
 
         return new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
     }
@@ -57,13 +57,13 @@ public static class BundleExportService
         AssetsFileInstance instance,
         AssetsManager manager,
         TextFormat textFormat = TextFormat.Txt,
-        ImageExportType exportType = ImageExportType.Tga) =>
+        ImageExportType imageFormat = ImageExportType.Tga) =>
         new()
         {
             Matches = matches,
             AssetsFileInstance = instance,
             AssetsManager = manager,
             TextFormat = textFormat,
-            ExportType = exportType
+            ImageFormat = imageFormat
         };
 }

@@ -7,7 +7,8 @@ namespace BABU.Utilities;
 
 public static class AudioFileDetector
 {
-    private static readonly FrozenSet<string> PriorityExtensions = FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
+    private static readonly FrozenSet<string> PriorityExtensions =
+        FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
 
     public static AudioFileInfo? FindAndDetectAudioFile(string directory, string baseName)
     {
@@ -17,12 +18,11 @@ public static class AudioFileDetector
         foreach (var extension in PriorityExtensions)
         {
             var candidatePath = Path.Combine(directory, $"{baseName}{extension}");
-            if (File.Exists(candidatePath))
-            {
-                var format = DetectFormatFromHeader(candidatePath);
-                if (format != null)
-                    return new AudioFileInfo(candidatePath, format.Value);
-            }
+
+            if (!File.Exists(candidatePath)) continue;
+            var format = DetectFormatFromHeader(candidatePath);
+            if (format != null)
+                return new AudioFileInfo(candidatePath, format.Value);
         }
 
         foreach (var filePath in Directory.EnumerateFiles(directory, $"{baseName}.*").AsValueEnumerable())
@@ -49,16 +49,13 @@ public static class AudioFileDetector
             if (IsRiffWave(header))
                 return DetectWaveFormat(header);
 
-            if (IsOggVorbis(header))
-                return FSBANK_FORMAT.VORBIS;
-
-            if (IsMp3(header))
+            if (IsOggVorbis(header) || IsMp3(header))
                 return FSBANK_FORMAT.VORBIS;
 
             if (IsFlac(header))
                 return FSBANK_FORMAT.PCM;
 
-            if (IsM4a(header))
+            if (IsM4A(header))
                 return FSBANK_FORMAT.VORBIS;
 
             return null;
@@ -89,20 +86,16 @@ public static class AudioFileDetector
             var chunkSize = BitConverter.ToUInt32(header.Slice(offset + 4, 4));
 
             if (header.Slice(offset, 4).SequenceEqual(fmtChunk))
-            {
                 if (offset + 10 <= header.Length)
                 {
                     var formatTag = BitConverter.ToUInt16(header.Slice(offset + 8, 2));
                     return formatTag switch
                     {
-                        0x0001 => FSBANK_FORMAT.PCM,
-                        0x0002 => FSBANK_FORMAT.FADPCM,
-                        0x0011 => FSBANK_FORMAT.FADPCM,
-                        0x0003 => FSBANK_FORMAT.PCM,
+                        0x0001 or 0x0003 => FSBANK_FORMAT.PCM,
+                        0x0002 or 0x0011 => FSBANK_FORMAT.FADPCM,
                         _ => FSBANK_FORMAT.PCM
                     };
                 }
-            }
 
             offset += 8 + (int)chunkSize;
             if (chunkSize % 2 == 1)
@@ -128,10 +121,7 @@ public static class AudioFileDetector
         if (header[0] == 'I' && header[1] == 'D' && header[2] == '3')
             return true;
 
-        if (header.Length >= 2 && header[0] == 0xFF && (header[1] & 0xE0) == 0xE0)
-            return true;
-
-        return false;
+        return header.Length >= 2 && header[0] == 0xFF && (header[1] & 0xE0) == 0xE0;
     }
 
     private static bool IsFlac(ReadOnlySpan<byte> header)
@@ -142,7 +132,7 @@ public static class AudioFileDetector
         return BitConverter.ToUInt32(header) == 0x43614C66;
     }
 
-    private static bool IsM4a(ReadOnlySpan<byte> header)
+    private static bool IsM4A(ReadOnlySpan<byte> header)
     {
         if (header.Length < 12)
             return false;

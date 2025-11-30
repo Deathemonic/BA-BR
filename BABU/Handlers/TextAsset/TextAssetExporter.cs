@@ -12,7 +12,7 @@ public static class TextAssetExporter
     public static Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting TextAsset assets...");
-        
+
         return Task.FromResult(ProcessExports(context));
     }
 

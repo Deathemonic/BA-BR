@@ -10,7 +10,7 @@ public static class Texture2DExporter
 {
     public static Task<int> Export(ExportContext context)
     {
-        Logger.Info($"Exporting Texture2D assets as {context.ExportType}...");
+        Logger.Info($"Exporting Texture2D assets as {context.ImageFormat}...");
 
         return Task.FromResult(ProcessExports(context));
     }
@@ -41,7 +41,7 @@ public static class Texture2DExporter
             return false;
         }
 
-        var filePath = BuildExportFilePath(match.Name, context.ExportType);
+        var filePath = BuildExportFilePath(match.Name, context.ImageFormat);
 
         Logger.Debug($"Attempting to export texture: {match.Name} (TypeId: {match.TypeId}, PathId: {match.ModdedId})");
 
@@ -92,7 +92,8 @@ public static class Texture2DExporter
             if (!Texture2DProcessor.ValidateTextureDimensions(textureFile))
                 return false;
 
-            return Texture2DProcessor.ExportTextureData(textureFile, context.AssetsFileInstance, filePath, context.ExportType);
+            return Texture2DProcessor.ExportTextureData(textureFile, context.AssetsFileInstance, filePath,
+                context.ImageFormat);
         }
         catch (Exception ex)
         {

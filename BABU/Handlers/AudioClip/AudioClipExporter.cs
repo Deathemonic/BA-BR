@@ -107,7 +107,7 @@ public static class AudioClipExporter
                 return false;
             }
 
-            Logger.Debug($"Decoding FSB to WAV...");
+            Logger.Debug("Decoding FSB to WAV...");
             var wavData = decoder.DecodeToWav(fsbData);
 
             File.WriteAllBytes(filePath, wavData);

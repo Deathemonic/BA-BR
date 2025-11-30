@@ -33,8 +33,8 @@ public static class Parser
             ModdedPath = modded,
             PatchPath = patch,
             Options = options,
-            ExportType = imageFormat,
-            CompressionType = compress,
+            ImageFormat = imageFormat,
+            CompressionFormat = compress,
             TextFormat = textFormat
         };
 
