@@ -24,12 +24,9 @@ public static class BundleProcessorService
         var matches = AssetComparerService.FindMatches(moddedPath, config.PatchPath, config.Options);
 
         if (skipExport)
-        {
-            if (singleFile != null)
-                matches = AssetDumpsScannerService.FilterMatchesBySingleFile(matches, singleFile);
-            else
-                matches = AssetDumpsScannerService.FilterMatchesByAvailableFiles(matches, FileManager.GetDumpPath());
-        }
+            matches = singleFile != null
+                ? AssetDumpsScannerService.FilterMatchesBySingleFile(matches, singleFile)
+                : AssetDumpsScannerService.FilterMatchesByAvailableFiles(matches, FileManager.GetDumpPath());
 
         if (matches.Count == 0)
         {
@@ -61,28 +58,24 @@ public static class BundleProcessorService
         {
             Logger.Info($"Using custom Dumps folder: {moddedPath}");
             Logger.Info("Skipping export, proceeding directly to import...");
-            
+
             FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
             return (true, null);
         }
 
-        if (File.Exists(moddedPath) && !IsBundleFile(moddedPath))
-        {
-            Logger.Info($"Using single file: {moddedPath}");
-            Logger.Info("Skipping export, proceeding directly to import...");
-            
-            var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
-            FileManager.SetCustomDumpPath(directory);
-            return (true, Path.GetFullPath(moddedPath));
-        }
+        if (!File.Exists(moddedPath) || IsBundleFile(moddedPath)) return (false, null);
+        Logger.Info($"Using single file: {moddedPath}");
+        Logger.Info("Skipping export, proceeding directly to import...");
 
-        return (false, null);
+        var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
+        FileManager.SetCustomDumpPath(directory);
+        return (true, Path.GetFullPath(moddedPath));
     }
 
     private static bool IsBundleFile(string filePath)
     {
         var extension = Path.GetExtension(filePath).ToLowerInvariant();
-        return extension == ".bundle" || extension == string.Empty;
+        return extension is ".bundle" or "";
     }
 
     private static void PrepareDirectories()

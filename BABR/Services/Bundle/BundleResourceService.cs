@@ -5,12 +5,13 @@ namespace BABR.Services.Bundle;
 
 public class BundleResourceService
 {
-    private readonly List<byte> _newResourceData = [];
     private readonly Dictionary<string, (long offset, long size)> _assetOffsets = [];
+    private readonly List<byte> _newResourceData = [];
     private string? _cachedArchivePath;
     private long _existingResourceSize;
 
-    public (string resourcePath, long offset, long size) AddAsset(string assetName, byte[] data, BundleFileInstance bundleInst)
+    public (string resourcePath, long offset, long size) AddAsset(string assetName, byte[] data,
+        BundleFileInstance bundleInst)
     {
         if (_cachedArchivePath == null)
         {
@@ -32,14 +33,11 @@ public class BundleResourceService
         var existingResource = bundleInst.file.BlockAndDirInfo.DirectoryInfos
             .FirstOrDefault(d => d.Name.EndsWith(".resource"));
 
-        if (existingResource != null)
-        {
-            var existingName = existingResource.Name;
-            var cabHash = existingName.Replace(".resource", "");
-            return $"archive:/{cabHash}/{existingName}";
-        }
-
-        return "archive:/CAB-unknown/CAB-unknown.resource";
+        if (existingResource == null) return "archive:/CAB-unknown/CAB-unknown.resource";
+        
+        var existingName = existingResource.Name;
+        var cabHash = existingName.Replace(".resource", "");
+        return $"archive:/{cabHash}/{existingName}";
     }
 
     private static long GetExistingResourceSize(BundleFileInstance bundleInst)
@@ -64,7 +62,7 @@ public class BundleResourceService
 
         var existingData = ReadExistingResourceData(bundleInst, existingResource);
         var combinedData = new byte[existingData.Length + _newResourceData.Count];
-        
+
         Array.Copy(existingData, 0, combinedData, 0, existingData.Length);
         _newResourceData.CopyTo(combinedData, existingData.Length);
 

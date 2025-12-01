@@ -152,7 +152,8 @@ public static class AudioClipImporter
             var audioInfo = context.Decoder!.GetFsbInfo(fsbData);
             Logger.Debug($"Audio Info: {audioInfo.Frequency}Hz, {audioInfo.Channels}ch, {audioInfo.Length:F3}s");
 
-            var (resourcePath, resourceOffset, resourceSize) = context.ResourceService!.AddAsset(audioName, fsbData, context.AssetsFileInstance.parentBundle!);
+            var (resourcePath, resourceOffset, resourceSize) =
+                context.ResourceService!.AddAsset(audioName, fsbData, context.AssetsFileInstance.parentBundle!);
 
             baseField["m_Frequency"].AsInt = audioInfo.Frequency;
             baseField["m_Channels"].AsInt = audioInfo.Channels;

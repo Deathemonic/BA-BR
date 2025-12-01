@@ -1,4 +1,5 @@
 using AssetsTools.NET.Extra;
+using ZLinq;
 
 namespace BABR.Services.Bundle;
 
@@ -22,7 +23,7 @@ public class BundleLoaderService
 
     public AssetsFileInstance? GetAssetsFileInstance()
     {
-        var cabFile = _bundleInstance?.file.BlockAndDirInfo.DirectoryInfos
+        var cabFile = _bundleInstance?.file.BlockAndDirInfo.DirectoryInfos.AsValueEnumerable()
             .FirstOrDefault(d => !d.Name.EndsWith(".resS"));
 
         return cabFile == null ? null : _assetsManager.LoadAssetsFileFromBundle(_bundleInstance, cabFile.Name);

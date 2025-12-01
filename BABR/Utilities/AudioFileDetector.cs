@@ -6,7 +6,7 @@ namespace BABR.Utilities;
 
 public static class AudioFileDetector
 {
-    private static readonly FrozenSet<string> PriorityExtensions =
+    public static readonly FrozenSet<string> AudioExtensions =
         FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
 
     public static AudioFileInfo? FindAndDetectAudioFile(string directory, string baseName)
@@ -14,7 +14,7 @@ public static class AudioFileDetector
         if (!Directory.Exists(directory))
             return null;
 
-        foreach (var extension in PriorityExtensions)
+        foreach (var extension in AudioExtensions)
         {
             var candidatePath = Path.Combine(directory, $"{baseName}{extension}");
 
@@ -136,11 +136,11 @@ public static class AudioFileDetector
         if (header.Length < 12)
             return false;
 
-        if (BitConverter.ToUInt32(header.Slice(4)) != 0x70797466)
+        if (BitConverter.ToUInt32(header[4..]) != 0x70797466)
             return false;
 
-        var brand = BitConverter.ToUInt32(header.Slice(8));
-        return brand == 0x2041344D || brand == 0x2042344D || brand == 0x3234706D || brand == 0x6D6F7369;
+        var brand = BitConverter.ToUInt32(header[8..]);
+        return brand is 0x2041344D or 0x2042344D or 0x3234706D or 0x6D6F7369;
     }
 
     public readonly record struct AudioFileInfo(string FilePath, FSBANK_FORMAT Format);

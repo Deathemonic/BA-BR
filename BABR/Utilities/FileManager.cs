@@ -41,7 +41,8 @@ public static class FileManager
         return File.Exists(filePath);
     }
 
-    private static string GetPath(string path) => Path.Combine(_outputDirectory ?? Directory.GetCurrentDirectory(), path);
+    private static string GetPath(string path) =>
+        Path.Combine(_outputDirectory ?? Directory.GetCurrentDirectory(), path);
 
     public static string GetDumpPath() => _customDumpPath ?? GetPath("Dumps");
 
@@ -49,11 +50,9 @@ public static class FileManager
 
     public static void SetOutputDirectory(string? path)
     {
-        if (!string.IsNullOrEmpty(path))
-        {
-            _outputDirectory = Path.GetFullPath(path);
-            Logger.Info($"Output directory set to: {_outputDirectory}");
-        }
+        if (string.IsNullOrEmpty(path)) return;
+        _outputDirectory = Path.GetFullPath(path);
+        Logger.Info($"Output directory set to: {_outputDirectory}");
     }
 
     public static string GetModdedPath() => GetPath("Modded");

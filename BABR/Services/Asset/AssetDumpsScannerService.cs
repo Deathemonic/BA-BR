@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using BABR.Models;
+using BABR.Models.Types;
 using BABR.Utilities;
 using ZLinq;
 
@@ -7,14 +8,6 @@ namespace BABR.Services.Asset;
 
 public static class AssetDumpsScannerService
 {
-    private static readonly FrozenSet<string> TextureExtensions =
-        FrozenSet.ToFrozenSet([".png", ".tga", ".bmp", ".jpg"]);
-
-    private static readonly FrozenSet<string> TextAssetExtensions = FrozenSet.ToFrozenSet([".txt", ".bytes"]);
-
-    private static readonly FrozenSet<string> AudioExtensions =
-        FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
-
     public static List<AssetMatch> FilterMatchesByAvailableFiles(List<AssetMatch> allMatches, string dumpsPath)
     {
         var availableMatches =
@@ -37,9 +30,9 @@ public static class AssetDumpsScannerService
 
             return m.Type.ToLowerInvariant() switch
             {
-                "texture2d" => TextureExtensions.Contains(extension),
-                "textasset" => TextAssetExtensions.Contains(extension),
-                "audioclip" => AudioExtensions.Contains(extension),
+                "texture2d" => Extensions.TextureExtensions.Contains(extension),
+                "textasset" => Extensions.TextAssetExtensions.Contains(extension),
+                "audioclip" => Extensions.AudioExtensions.Contains(extension),
                 _ => extension == ".json"
             };
         });
@@ -60,9 +53,9 @@ public static class AssetDumpsScannerService
 
         return match.Type.ToLowerInvariant() switch
         {
-            "texture2d" => HasFileWithExtensions(dumpsPath, cleanName, TextureExtensions),
-            "textasset" => HasFileWithExtensions(dumpsPath, cleanName, TextAssetExtensions),
-            "audioclip" => HasFileWithExtensions(dumpsPath, cleanName, AudioExtensions),
+            "texture2d" => HasFileWithExtensions(dumpsPath, cleanName, Extensions.TextureExtensions),
+            "textasset" => HasFileWithExtensions(dumpsPath, cleanName, Extensions.TextAssetExtensions),
+            "audioclip" => HasFileWithExtensions(dumpsPath, cleanName, Extensions.AudioExtensions),
             _ => HasJsonFile(dumpsPath, match.JsonFileName)
         };
     }

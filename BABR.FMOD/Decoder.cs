@@ -7,11 +7,10 @@ namespace BABR.FMOD;
 public class Decoder : IDisposable
 {
     private readonly Lock _lock = new();
-    private API.System _system;
-    private bool _initialized;
     private bool _disposed;
+    private FmodSystem _system;
 
-    public bool IsInitialized => _initialized;
+    public bool IsInitialized { get; private set; }
 
     public void Dispose()
     {
@@ -19,24 +18,25 @@ public class Decoder : IDisposable
         {
             if (_disposed) return;
 
-            if (_initialized)
+            if (IsInitialized)
             {
                 _system.close();
                 _system.release();
-                _initialized = false;
+                IsInitialized = false;
             }
 
             _disposed = true;
         }
+
         GC.SuppressFinalize(this);
     }
 
-    public bool Initialize()
+    public void Initialize()
     {
         lock (_lock)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            if (_initialized) return true;
+            if (IsInitialized) return;
 
             var result = Factory.System_Create(out _system);
             if (result != RESULT.OK)
@@ -44,10 +44,10 @@ public class Decoder : IDisposable
 
             result = _system.init(32, INITFLAGS.NORMAL, IntPtr.Zero);
             if (result != RESULT.OK)
-                throw new InvalidOperationException($"FMOD System initialization failed: {FMODErrors.ErrorString(result)}");
+                throw new InvalidOperationException(
+                    $"FMOD System initialization failed: {FMODErrors.ErrorString(result)}");
 
-            _initialized = true;
-            return true;
+            IsInitialized = true;
         }
     }
 
@@ -55,7 +55,7 @@ public class Decoder : IDisposable
     {
         lock (_lock)
         {
-            if (!_initialized) Initialize();
+            if (!IsInitialized) Initialize();
         }
 
         Sound sound = default;
@@ -103,7 +103,7 @@ public class Decoder : IDisposable
     {
         lock (_lock)
         {
-            if (!_initialized) Initialize();
+            if (!IsInitialized) Initialize();
         }
 
         Sound sound = default;
@@ -140,7 +140,7 @@ public class Decoder : IDisposable
                 throw new InvalidOperationException($"Failed to lock sound buffer: {FMODErrors.ErrorString(result)}");
 
             var isFloat = format == SOUND_FORMAT.PCMFLOAT;
-            var finalLen = isFloat ? (len1 + len2) / 2 : (len1 + len2);
+            var finalLen = isFloat ? (len1 + len2) / 2 : len1 + len2;
             var finalBits = isFloat ? 16 : bits;
 
             var wavData = new byte[44 + finalLen];
@@ -161,6 +161,7 @@ public class Decoder : IDisposable
                     Marshal.Copy(ptr1, wavData, offset, (int)len1);
                     offset += (int)len1;
                 }
+
                 if (ptr2 != IntPtr.Zero && len2 > 0)
                     Marshal.Copy(ptr2, wavData, offset, (int)len2);
             }
@@ -187,17 +188,24 @@ public class Decoder : IDisposable
             var floatPtr = (float*)srcPtr;
             for (var i = 0; i < floatCount; i++)
             {
+                if (floatPtr == null) continue;
                 var sample = floatPtr[i];
-                if (sample > 1.0f) sample = 1.0f;
-                else if (sample < -1.0f) sample = -1.0f;
+                sample = sample switch
+                {
+                    > 1.0f => 1.0f,
+                    < -1.0f => -1.0f,
+                    _ => sample
+                };
 
                 destShorts[i] = (short)(sample * 32767f);
             }
         }
+
         return floatCount * 2;
     }
 
-    private static void WriteWavHeader(Span<byte> buffer, int pcmDataLength, int sampleRate, int channels, int bitsPerSample)
+    private static void WriteWavHeader(Span<byte> buffer, int pcmDataLength, int sampleRate, int channels,
+        int bitsPerSample)
     {
         var header = new WavHeader
         {

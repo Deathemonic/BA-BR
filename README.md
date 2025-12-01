@@ -1,6 +1,6 @@
 ﻿# Blue Archive - Bundle Repacker
 
-A tool that repacks AssetBundle for Blue Archive.
+A tool that repacks AssetBundle for **Blue Archive**.
 
 ## Install
 

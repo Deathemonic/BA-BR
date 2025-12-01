@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.Utilities;
@@ -85,6 +84,7 @@ public static class BundleSaverService
                 }
                 catch
                 {
+                    // ignored
                 }
             }
 
