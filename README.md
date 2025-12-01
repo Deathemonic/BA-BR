@@ -1,6 +1,6 @@
 ﻿# Blue Archive - Bundle Repacker
 
-A tool that re-dump AssetBundle for Blue Archive.
+A tool that repacks AssetBundle for Blue Archive.
 
 ## Install
 
@@ -8,7 +8,7 @@ A tool that re-dump AssetBundle for Blue Archive.
 
 You can download the latest [releases](https://github.com/Deathemonic/BA-BR/releases)
 
-[Windows](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-win-x64.zip) | [Linux](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-linux-x64.zip) | [MacOS](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-MU-osx-arm64.zip)
+[Windows](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-BR-win-x64.zip) | [Linux](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-BR-linux-x64.zip) | [MacOS](https://github.com/Deathemonic/BA-BR/releases/latest/download/BA-BR-osx-arm64.zip)
 
 ## Usage
 
@@ -21,7 +21,8 @@ The process works as follows:
    names and types.
 2. **Export:** Matched assets from the `--modded` bundle are exported to a `Dumps` folder.
     - `Texture2D` assets are saved as images (`.tga` or `.png`).
-    - `TextAsset` assets are saved as data files (`.txt` or `.bytes`).
+    - `TextAsset` assets are saved as text files or binary files (`.txt` or `.bytes`).
+    - `AudioClip` assets are saved as raw PCM files (`.wav`)
     - All other asset types are saved as structured `.json` files.
 3. **Import:** The exported files are then read, and their data is used to overwrite the corresponding assets in the
    `--patch` bundle.
@@ -46,13 +47,16 @@ This command will find matching assets, export the modified ones from `your_modd
 
 | Argument                 | Alias       | Description                                                                   | Default |
 |--------------------------|-------------|-------------------------------------------------------------------------------|---------|
-| `--modded <path>`        | `-m`        | **(Required)** Path to the modded asset bundle.                               |         |
-| `--patch <path>`         | `-p`        | **(Required)** Path to the original/patch asset bundle.                       |         |
-| `--imageFormat <format>` | `--image`   | Sets the export format for textures.                                          | `tga`   |
-| `--textFormat <format>`  | `--text`    | Sets the export format for text assets.                                       | `txt`   |
-| `--includeTypes <types>` | `--include` | Comma-separated list of asset types to include (e.g., "texture2d,textasset"). |         |
-| `--excludeTypes <types>` | `--exclude` | Comma-separated list of asset types to exclude.                               |         |
-| `--onlyTypes <types>`    | `--only`    | Only process assets of these specific types.                                  |         |
+| `--modded <path>`        | `-m`        | **(Required)** Path to the modded asset bundle, directory, or single file.    |         |
+| `--patch <path...>`      | `-p`        | **(Required)** Path(s) to the patch asset bundle(s). Supports multiple files. |         |
+| `--output <path>`        | `-o`        | Output directory for Dumps and Modded folders.                                |         |
+| `--export`               | `-e`        | Export assets only without importing.                                         | `false` |
+| `--image-format <format>` | `--image`   | Sets the export format for textures (Tga, Png, Bmp, Jpg).                    | `tga`   |
+| `--text-format <format>`  | `--text`    | Sets the export format for text assets (Txt, Bytes).                          | `txt`   |
+| `--compress <type>`      | `-c`        | Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).                | `lz4`   |
+| `--include <types...>`   | `--include` | Asset types to include (e.g., texture2d audioclip).                           |         |
+| `--exclude <types...>`   | `--exclude` | Asset types to exclude.                                                       |         |
+| `--only <types...>`      | `--only`    | Only process assets of these specific types.                                  |         |
 | `--verbose`              | `-v`        | Enables detailed debug logging.                                               | `false` |
 | `--types`                | `-t`        | Lists all available asset types and exits.                                    | `false` |
 
@@ -91,6 +95,8 @@ by submitting a pull request or issue. Always appreciate the help.
 
 - [nesrak1/UABEA](https://github.com/nesrak1/UABEA)
 - [nesrak1/AssetsTools.NET](https://github.com/nesrak1/AssetsTools.NET)
+- [FMOD](https://www.fmod.com)
+- [Perfare/AssetStudio](https://github.com/Perfare/AssetStudio)
 
 ---
 
