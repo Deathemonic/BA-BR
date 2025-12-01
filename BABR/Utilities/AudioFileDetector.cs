@@ -1,20 +1,17 @@
-using System.Collections.Frozen;
 using BABR.FMOD.API;
+using BABR.Models.Types;
 using ZLinq;
 
 namespace BABR.Utilities;
 
 public static class AudioFileDetector
 {
-    public static readonly FrozenSet<string> AudioExtensions =
-        FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
-
     public static AudioFileInfo? FindAndDetectAudioFile(string directory, string baseName)
     {
         if (!Directory.Exists(directory))
             return null;
 
-        foreach (var extension in AudioExtensions)
+        foreach (var extension in Extensions.AudioExtensions)
         {
             var candidatePath = Path.Combine(directory, $"{baseName}{extension}");
 
