@@ -24,7 +24,7 @@ public static class Arguments
     /// <param name="types">-t, List all available asset types.</param>
     public static void Run(
         string modded = "",
-        string patch = "",
+        string[]? patch = null,
         string[]? include = null,
         string[]? exclude = null,
         string[]? only = null,

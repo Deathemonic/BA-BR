@@ -1,6 +1,8 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABU.Utilities;
+using ZLinq;
 
 namespace BABU.Services.Bundle;
 
@@ -24,7 +26,7 @@ public static class BundleSaverService
             Directory.CreateDirectory(moddedFolderPath);
 
             var originalFileName = Path.GetFileName(originalPatchPath);
-            var outputPath = Path.Combine(moddedFolderPath, originalFileName);
+            var outputPath = GetUniqueOutputPath(moddedFolderPath, originalFileName);
 
             var replacerCount = CountReplacers(assetsFileInstance);
 
@@ -56,9 +58,6 @@ public static class BundleSaverService
             {
                 using var finalWriter = new AssetsFileWriter(outputPath);
                 bundleFileInstance.file.Write(finalWriter);
-
-                Logger.Success($"Successfully saved modded bundle to: {outputPath}");
-                Logger.Info($"Applied {replacerCount} asset modifications (uncompressed)");
             }
             else
             {
@@ -86,12 +85,15 @@ public static class BundleSaverService
                 }
                 catch
                 {
-                    // Ignore cleanup errors
                 }
-
-                Logger.Success($"Successfully saved modded bundle to: {outputPath}");
-                Logger.Info($"Applied {replacerCount} asset modifications (compressed with {compressionType})");
             }
+
+            var compressionInfo = compressionType == AssetBundleCompressionType.None
+                ? "uncompressed"
+                : $"compressed with {compressionType}";
+
+            Logger.Success($"Successfully saved modded bundle to: {outputPath}");
+            Logger.Info($"Applied {replacerCount} asset modifications ({compressionInfo})");
         }
         catch (Exception ex)
         {
@@ -103,10 +105,31 @@ public static class BundleSaverService
     {
         var count = 0;
 
-        foreach (var assetInfo in assetsFileInstance.file.AssetInfos)
+        foreach (var assetInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable())
             if (assetInfo.Replacer != null)
                 count++;
 
         return count;
+    }
+
+    private static string GetUniqueOutputPath(string directory, string fileName)
+    {
+        var existingFiles = Directory.GetFiles(directory, "*.*")
+            .AsValueEnumerable()
+            .Select(Path.GetFileName)
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+        if (!existingFiles.Contains(fileName))
+            return Path.Combine(directory, fileName);
+
+        var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+        var extension = Path.GetExtension(fileName);
+        var counter = 2;
+
+        string newFileName;
+        while (existingFiles.Contains(newFileName = $"{nameWithoutExt}_{counter}{extension}"))
+            counter++;
+
+        return Path.Combine(directory, newFileName);
     }
 }
