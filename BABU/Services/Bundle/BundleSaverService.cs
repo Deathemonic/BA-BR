@@ -38,7 +38,7 @@ public static class BundleSaverService
 
             Logger.Info($"Saving {replacerCount} modified assets...");
 
-            var dirInfo = bundleFileInstance.file.BlockAndDirInfo.DirectoryInfos
+            var dirInfo = bundleFileInstance.file.BlockAndDirInfo.DirectoryInfos.AsValueEnumerable()
                 .FirstOrDefault(d => !d.Name.EndsWith(".resS"));
 
             if (dirInfo == null)

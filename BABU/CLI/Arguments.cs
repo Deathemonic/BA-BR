@@ -11,7 +11,7 @@ public static class Arguments
     ///     Blue Archive - Bundle Updater
     /// </summary>
     /// <param name="modded">-m, Path to the modded asset bundle, a directory of assets, or a single asset file.</param>
-    /// <param name="patch">-p, Path to the patch assetbundle.</param>
+    /// <param name="patch">-p, Path(s) to the patch assetbundle.</param>
     /// <param name="include">Asset types to include (e.g., --include texture2d audioclip).</param>
     /// <param name="exclude">Asset types to exclude (e.g., --exclude gameobject transform).</param>
     /// <param name="only">Only allow these asset types to match (e.g., --only mesh texture2d).</param>
