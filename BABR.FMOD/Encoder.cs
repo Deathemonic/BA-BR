@@ -40,12 +40,13 @@ public sealed class Encoder : IDisposable
                 return true;
 
             var threads = numThreads == 0 ? (uint)Environment.ProcessorCount : numThreads;
+            var cache = cacheDirectory ?? Path.Combine(Path.GetTempPath(), ".fsbcache");
 
             var result = FSBank.FSBank_Init(
                 FSBANK_FSBVERSION.FSB5,
                 FSBANK_INITFLAGS.NORMAL,
                 threads,
-                cacheDirectory);
+                cache);
 
             if (result != FSBANK_RESULT.OK)
                 throw new InvalidOperationException(
