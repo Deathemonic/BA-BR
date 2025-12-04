@@ -75,7 +75,7 @@ public static class AudioClipImporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error importing audio clip {match.PatchId}", ex);
+                Logger.Error("Error importing audio clip", ex);
             }
 
         return Task.FromResult(importedCount);
@@ -89,14 +89,14 @@ public static class AudioClipImporter
     {
         if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
+            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
         if (baseField == null)
         {
-            Logger.Error($"Failed to get base field for AudioClip {match.PatchId}");
+            Logger.Error("Failed to get base field for AudioClip", match.PatchId.ToString());
             return false;
         }
 
@@ -105,22 +105,22 @@ public static class AudioClipImporter
 
         if (!audioFileInfo.HasValue)
         {
-            Logger.Error($"Audio file not found for: {cleanAssetName}");
+            Logger.Error("Audio file not found", cleanAssetName);
             return false;
         }
 
-        Logger.Debug($"Processing audio clip: {match.Name}");
+        Logger.Debug("Processing audio clip", match.Name);
 
         var success = ImportAudioClip(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
             audioFileInfo.Value.Format);
 
         if (!success)
         {
-            Logger.Error($"Failed to import audio clip for {match.Name}");
+            Logger.Error("Failed to import audio clip", match.Name);
             return false;
         }
 
-        Logger.Debug($"Imported audio clip: {match.Name}");
+        Logger.Debug("Imported audio clip", match.Name);
         return true;
     }
 
@@ -129,17 +129,21 @@ public static class AudioClipImporter
     {
         try
         {
-            Logger.Debug($"Starting AudioClip import for asset {assetInfo.PathId}");
+            Logger.Debug("Starting AudioClip import", assetInfo.PathId.ToString());
 
             if (!File.Exists(filePath))
             {
-                Logger.Error($"Import file not found: {filePath}");
+                Logger.Error("Import file not found", filePath);
                 return false;
             }
 
             var audioName = baseField["m_Name"].AsString;
 
-            Logger.Debug($"Encoding {filePath} to FSB ({format})...");
+            Logger.Debug("Encoding to FSB", new Dictionary<string, string>
+            {
+                ["path"] = filePath,
+                ["format"] = format.ToString()
+            });
 
             var fsbData = context.Encoder!.EncodeToFsb(filePath, format);
 
@@ -150,7 +154,12 @@ public static class AudioClipImporter
             }
 
             var audioInfo = context.Decoder!.GetFsbInfo(fsbData);
-            Logger.Debug($"Audio Info: {audioInfo.Frequency}Hz, {audioInfo.Channels}ch, {audioInfo.Length:F3}s");
+            Logger.Debug("Audio info", new Dictionary<string, string>
+            {
+                ["frequency"] = $"{audioInfo.Frequency}Hz",
+                ["channels"] = audioInfo.Channels.ToString(),
+                ["length"] = $"{audioInfo.Length:F3}s"
+            });
 
             var (resourcePath, resourceOffset, resourceSize) =
                 context.ResourceService!.AddAsset(audioName, fsbData, context.AssetsFileInstance.parentBundle!);
@@ -173,8 +182,8 @@ public static class AudioClipImporter
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during AudioClip import: {ex.Message}");
-            Logger.Debug($"Stack trace: {ex.StackTrace}");
+            Logger.Error("Exception during AudioClip import", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

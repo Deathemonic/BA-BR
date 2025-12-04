@@ -48,7 +48,7 @@ public static class AudioClipExporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error exporting audio clip {match.ModdedId}", ex);
+                Logger.Error("Error exporting audio clip", ex);
             }
 
         return exportedCount;
@@ -59,30 +59,34 @@ public static class AudioClipExporter
     {
         if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error($"AudioClip with PathId {match.ModdedId} not found in modded bundle");
+            Logger.Error("AudioClip not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error($"Failed to read AudioClip {match.ModdedId}");
+            Logger.Error("Failed to read AudioClip", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = BuildExportFilePath(match.Name, "wav", usedPaths);
 
-        Logger.Debug($"Attempting to export audio clip: {match.Name}");
+        Logger.Debug("Attempting to export audio clip", match.Name);
 
         var success = ExportAudioClip(context, baseField, assetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error($"Failed to export audio clip: {match.Name}");
+            Logger.Error("Failed to export audio clip", match.Name);
             return false;
         }
 
-        Logger.Debug($"Exported audio clip: {match.Name} -> {Path.GetFileName(filePath)}");
+        Logger.Debug("Exported audio clip", new Dictionary<string, string>
+        {
+            ["name"] = match.Name,
+            ["file"] = Path.GetFileName(filePath)
+        });
         return true;
     }
 
@@ -98,7 +102,7 @@ public static class AudioClipExporter
     {
         try
         {
-            Logger.Debug($"Starting AudioClip export for asset {assetInfo.PathId}");
+            Logger.Debug("Starting AudioClip export", assetInfo.PathId.ToString());
 
             var resourceSource = baseField["m_Resource.m_Source"].AsString;
             var resourceOffset = baseField["m_Resource.m_Offset"].AsULong;
@@ -107,13 +111,13 @@ public static class AudioClipExporter
             if (!GetAudioBytes(context.AssetsFileInstance, resourceSource, resourceOffset, resourceSize,
                     out var fsbData))
             {
-                Logger.Error($"Failed to get audio bytes for asset {assetInfo.PathId}");
+                Logger.Error("Failed to get audio bytes", assetInfo.PathId.ToString());
                 return false;
             }
 
             if (fsbData.Length == 0)
             {
-                Logger.Error($"FSB data is empty for asset {assetInfo.PathId}");
+                Logger.Error("FSB data is empty", assetInfo.PathId.ToString());
                 return false;
             }
 
@@ -121,13 +125,17 @@ public static class AudioClipExporter
             var wavData = context.Decoder!.DecodeToWav(fsbData);
 
             File.WriteAllBytes(filePath, wavData);
-            Logger.Debug($"Successfully wrote {wavData.Length} bytes to {filePath}");
+            Logger.Debug("Successfully wrote audio file", new Dictionary<string, string>
+            {
+                ["bytes"] = wavData.Length.ToString(),
+                ["path"] = filePath
+            });
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during AudioClip export: {ex.Message}");
-            Logger.Debug($"Stack trace: {ex.StackTrace}");
+            Logger.Error("Exception during AudioClip export", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }
