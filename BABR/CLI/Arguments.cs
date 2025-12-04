@@ -36,6 +36,8 @@ public static class Arguments
         AssetBundleCompressionType compress = AssetBundleCompressionType.LZ4,
         bool types = false)
     {
+        Logger.Initialize(verbose);
+
         if (types)
         {
             Logger.Info("Available asset types:");
@@ -43,7 +45,6 @@ public static class Arguments
             return;
         }
 
-        Logger.SetVerbose(verbose);
         Parser.Execute(modded, patch, include, exclude, only, output, export, imageFormat, textFormat, compress).Wait();
     }
 }
