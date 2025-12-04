@@ -30,6 +30,7 @@ internal struct RustBuffer {
     public ulong len;
     public IntPtr data;
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static RustBuffer Alloc(int size) {
         return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
             var buffer = _UniFFILib.ffi_baad_core_rustbuffer_alloc(Convert.ToUInt64(size), ref status);
@@ -40,6 +41,7 @@ internal struct RustBuffer {
         });
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void Free(RustBuffer buffer) {
         _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
             _UniFFILib.ffi_baad_core_rustbuffer_free(buffer, ref status);
@@ -87,9 +89,9 @@ internal struct RustBuffer {
 // completeness.
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct ForeignBytes {
-    public int length;
-    public IntPtr data;
+internal readonly struct ForeignBytes {
+    public readonly int length;
+    public readonly IntPtr data;
 }
 
 
@@ -172,9 +174,9 @@ internal abstract class FfiConverterRustBuffer<CsType>: FfiConverter<CsType, Rus
 // This would be a good candidate for isolating in its own ffi-support lib.
 // Error runtime.
 [StructLayout(LayoutKind.Sequential)]
-struct UniffiRustCallStatus {
-    public sbyte code;
-    public RustBuffer error_buf;
+readonly struct UniffiRustCallStatus {
+    public readonly sbyte code;
+    public readonly RustBuffer error_buf;
 
     public bool IsSuccess() {
         return code == 0;
@@ -363,6 +365,7 @@ class StreamUnderflowException: System.Exception {
 
 static class BigEndianStreamExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void WriteInt32(this Stream stream, int value, int bytesToWrite = 4)
     {
 #if DOTNET_8_0_OR_GREATER
@@ -385,6 +388,7 @@ static class BigEndianStreamExtensions
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void WriteInt64(this Stream stream, long value)
     {
         int bytesToWrite = 8;
@@ -408,6 +412,7 @@ static class BigEndianStreamExtensions
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static uint ReadUint32(this Stream stream, int bytesToRead = 4) {
         CheckRemaining(stream, bytesToRead);
 #if DOTNET_8_0_OR_GREATER
@@ -430,6 +435,7 @@ static class BigEndianStreamExtensions
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static ulong ReadUInt64(this Stream stream) {
         int bytesToRead = 8;
         CheckRemaining(stream, bytesToRead);
@@ -453,6 +459,7 @@ static class BigEndianStreamExtensions
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void CheckRemaining(this Stream stream, int length) {
         if (stream.Length - stream.Position < length) {
             throw new StreamUnderflowException();
@@ -481,6 +488,7 @@ class BigEndianStream {
         set => stream.Position = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteBytes(byte[] buffer) {
 #if DOTNET_8_0_OR_GREATER
         stream.Write(buffer);
@@ -489,16 +497,24 @@ class BigEndianStream {
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteByte(byte value) => stream.WriteInt32(value, bytesToWrite: 1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteSByte(sbyte value) => stream.WriteInt32(value, bytesToWrite: 1);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteUShort(ushort value) => stream.WriteInt32(value, bytesToWrite: 2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteShort(short value) => stream.WriteInt32(value, bytesToWrite: 2);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteUInt(uint value) => stream.WriteInt32((int)value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteInt(int value) => stream.WriteInt32(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteULong(ulong value) => stream.WriteInt64((long)value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteLong(long value) => stream.WriteInt64(value);
 
     public void WriteFloat(float value) {
@@ -515,13 +531,20 @@ class BigEndianStream {
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public byte ReadByte() => (byte)stream.ReadUint32(bytesToRead: 1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public ushort ReadUShort() => (ushort)stream.ReadUint32(bytesToRead: 2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public uint ReadUInt() => (uint)stream.ReadUint32(bytesToRead: 4);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public ulong ReadULong() => stream.ReadUInt64();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public sbyte ReadSByte() => (sbyte)ReadByte();
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public short ReadShort() => (short)ReadUShort();
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public int ReadInt() => (int)ReadUInt();
 
     public float ReadFloat() {
@@ -554,16 +577,16 @@ static partial class _UniFFILib {
         ulong @handle
     );
     [StructLayout(LayoutKind.Sequential)]
-    public struct UniffiForeignFuture
+    public readonly struct UniffiForeignFuture
     {
-        public ulong @handle;
-        public IntPtr @free;
+        public readonly ulong @handle;
+        public readonly IntPtr @free;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct UniffiForeignFutureStructU8
+    public readonly struct UniffiForeignFutureStructU8
     {
-        public byte @returnValue;
-        public UniffiRustCallStatus @callStatus;
+        public readonly byte @returnValue;
+        public readonly UniffiRustCallStatus @callStatus;
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteU8(
@@ -1402,189 +1425,189 @@ static partial class _UniFFILib {
     static void uniffiCheckContractApiVersion() {
         var scaffolding_contract_version = _UniFFILib.ffi_baad_core_uniffi_contract_version();
         if (29 != scaffolding_contract_version) {
-            throw new UniffiContractVersionException($"BAADCore: uniffi bindings expected version `29`, library returned `{scaffolding_contract_version}`");
+            throw new UniffiContractVersionException($"BAAD.Core: uniffi bindings expected version `29`, library returned `{scaffolding_contract_version}`");
         }
     }
 
     static void uniffiCheckApiChecksums() {
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_clear_all();
-            if (checksum != 3738) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_clear_all` checksum `3738`, library returned `{checksum}`");
+            if (checksum != 15061) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_clear_all` checksum `15061`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_create_parent_dir();
-            if (checksum != 52756) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_create_parent_dir` checksum `52756`, library returned `{checksum}`");
+            if (checksum != 14323) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_create_parent_dir` checksum `14323`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_data_dir();
             if (checksum != 19717) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_data_dir` checksum `19717`, library returned `{checksum}`");
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_data_dir` checksum `19717`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_get_data_path();
-            if (checksum != 22654) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_data_path` checksum `22654`, library returned `{checksum}`");
+            if (checksum != 40862) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_data_path` checksum `40862`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_get_feature_config();
             if (checksum != 15996) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_feature_config` checksum `15996`, library returned `{checksum}`");
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_feature_config` checksum `15996`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_get_output_dir();
             if (checksum != 39411) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_output_dir` checksum `39411`, library returned `{checksum}`");
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_get_output_dir` checksum `39411`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_init_logging();
             if (checksum != 58565) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_init_logging` checksum `58565`, library returned `{checksum}`");
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_init_logging` checksum `58565`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_init_logging_default();
             if (checksum != 42340) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_init_logging_default` checksum `42340`, library returned `{checksum}`");
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_init_logging_default` checksum `42340`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_is_dir_empty();
-            if (checksum != 34433) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_is_dir_empty` checksum `34433`, library returned `{checksum}`");
+            if (checksum != 7894) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_is_dir_empty` checksum `7894`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_load_file();
-            if (checksum != 14605) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_load_file` checksum `14605`, library returned `{checksum}`");
+            if (checksum != 46993) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_load_file` checksum `46993`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_debug();
-            if (checksum != 57349) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug` checksum `57349`, library returned `{checksum}`");
+            if (checksum != 47482) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug` checksum `47482`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_debug_with_field();
-            if (checksum != 29403) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_field` checksum `29403`, library returned `{checksum}`");
+            if (checksum != 38053) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_field` checksum `38053`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_debug_with_fields();
-            if (checksum != 45317) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_fields` checksum `45317`, library returned `{checksum}`");
+            if (checksum != 20532) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_fields` checksum `20532`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_error();
-            if (checksum != 6284) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error` checksum `6284`, library returned `{checksum}`");
+            if (checksum != 9641) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error` checksum `9641`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_error_from_string();
-            if (checksum != 6942) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_from_string` checksum `6942`, library returned `{checksum}`");
+            if (checksum != 36304) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_from_string` checksum `36304`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_error_with_field();
-            if (checksum != 45353) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_field` checksum `45353`, library returned `{checksum}`");
+            if (checksum != 30155) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_field` checksum `30155`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_error_with_fields();
-            if (checksum != 64124) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_fields` checksum `64124`, library returned `{checksum}`");
+            if (checksum != 2115) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_fields` checksum `2115`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_info();
-            if (checksum != 7152) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info` checksum `7152`, library returned `{checksum}`");
+            if (checksum != 16433) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info` checksum `16433`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_info_with_field();
-            if (checksum != 8500) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_field` checksum `8500`, library returned `{checksum}`");
+            if (checksum != 29677) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_field` checksum `29677`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_info_with_fields();
-            if (checksum != 2166) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_fields` checksum `2166`, library returned `{checksum}`");
+            if (checksum != 15995) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_fields` checksum `15995`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_recoverable_error_from_string();
-            if (checksum != 65090) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_recoverable_error_from_string` checksum `65090`, library returned `{checksum}`");
+            if (checksum != 47568) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_recoverable_error_from_string` checksum `47568`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_trace();
-            if (checksum != 25040) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace` checksum `25040`, library returned `{checksum}`");
+            if (checksum != 57627) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace` checksum `57627`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_trace_with_field();
-            if (checksum != 49472) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_field` checksum `49472`, library returned `{checksum}`");
+            if (checksum != 54973) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_field` checksum `54973`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_trace_with_fields();
-            if (checksum != 50270) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_fields` checksum `50270`, library returned `{checksum}`");
+            if (checksum != 54329) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_fields` checksum `54329`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_warn();
-            if (checksum != 27846) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn` checksum `27846`, library returned `{checksum}`");
+            if (checksum != 112) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn` checksum `112`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_warn_with_field();
-            if (checksum != 39338) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_field` checksum `39338`, library returned `{checksum}`");
+            if (checksum != 57212) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_field` checksum `57212`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_warn_with_fields();
-            if (checksum != 63807) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_fields` checksum `63807`, library returned `{checksum}`");
+            if (checksum != 50564) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_fields` checksum `50564`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_save_file();
-            if (checksum != 21264) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_save_file` checksum `21264`, library returned `{checksum}`");
+            if (checksum != 64848) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_save_file` checksum `64848`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_set_app_name();
-            if (checksum != 6953) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_set_app_name` checksum `6953`, library returned `{checksum}`");
+            if (checksum != 53234) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_set_app_name` checksum `53234`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_set_data_dir();
-            if (checksum != 17024) {
-                throw new UniffiContractChecksumException($"BAADCore: uniffi bindings expected function `uniffi_baad_core_checksum_func_set_data_dir` checksum `17024`, library returned `{checksum}`");
+            if (checksum != 10189) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_set_data_dir` checksum `10189`, library returned `{checksum}`");
             }
         }
     }
@@ -1600,22 +1623,27 @@ static partial class _UniFFILib {
 class FfiConverterBoolean: FfiConverter<bool, sbyte> {
     public static FfiConverterBoolean INSTANCE = new FfiConverterBoolean();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override bool Lift(sbyte value) {
         return value != 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override bool Read(BigEndianStream stream) {
         return Lift(stream.ReadSByte());
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override sbyte Lower(bool value) {
         return value ? (sbyte)1 : (sbyte)0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(bool value) {
         return (sbyte)1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(bool value, BigEndianStream stream) {
         stream.WriteSByte(Lower(value));
     }
@@ -1629,6 +1657,7 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
     // Note: we don't inherit from FfiConverterRustBuffer, because we use a
     // special encoding when lowering/lifting.  We can use `RustBuffer.len` to
     // store our length and avoid writing it out to the buffer.
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override string Lift(RustBuffer value) {
         try {
             var bytes = value.AsStream().ReadBytes(Convert.ToInt32(value.len));
@@ -1638,12 +1667,14 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override string Read(BigEndianStream stream) {
         var length = stream.ReadInt();
         var bytes = stream.ReadBytes(length);
         return System.Text.Encoding.UTF8.GetString(bytes);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override RustBuffer Lower(string value) {
         var bytes = System.Text.Encoding.UTF8.GetBytes(value);
         var rbuf = RustBuffer.Alloc(bytes.Length);
@@ -1655,12 +1686,14 @@ class FfiConverterString: FfiConverter<string, RustBuffer> {
     // We aren't sure exactly how many bytes our string will be once it's UTF-8
     // encoded.  Allocate 3 bytes per unicode codepoint which will always be
     // enough.
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(string value) {
         const int sizeForLength = 4;
         var sizeForString = System.Text.Encoding.UTF8.GetByteCount(value);
         return sizeForLength + sizeForString;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Write(string value, BigEndianStream stream) {
         var bytes = System.Text.Encoding.UTF8.GetBytes(value);
         stream.WriteInt(bytes.Length);
@@ -1730,7 +1763,8 @@ public record LoggingConfig (
     bool @enableJson, 
     bool @enableDebug, 
     bool @verboseMode, 
-    bool @includeTimestamps
+    bool @includeTimestamps, 
+    bool @enableAsyncWriter
 ) {
 }
 
@@ -1743,7 +1777,8 @@ class FfiConverterTypeLoggingConfig: FfiConverterRustBuffer<LoggingConfig> {
             @enableJson: FfiConverterBoolean.INSTANCE.Read(stream),
             @enableDebug: FfiConverterBoolean.INSTANCE.Read(stream),
             @verboseMode: FfiConverterBoolean.INSTANCE.Read(stream),
-            @includeTimestamps: FfiConverterBoolean.INSTANCE.Read(stream)
+            @includeTimestamps: FfiConverterBoolean.INSTANCE.Read(stream),
+            @enableAsyncWriter: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
 
@@ -1753,7 +1788,8 @@ class FfiConverterTypeLoggingConfig: FfiConverterRustBuffer<LoggingConfig> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.@enableJson)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.@enableDebug)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.@verboseMode)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.@includeTimestamps);
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.@includeTimestamps)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.@enableAsyncWriter);
     }
 
     public override void Write(LoggingConfig value, BigEndianStream stream) {
@@ -1762,6 +1798,7 @@ class FfiConverterTypeLoggingConfig: FfiConverterRustBuffer<LoggingConfig> {
             FfiConverterBoolean.INSTANCE.Write(value.@enableDebug, stream);
             FfiConverterBoolean.INSTANCE.Write(value.@verboseMode, stream);
             FfiConverterBoolean.INSTANCE.Write(value.@includeTimestamps, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.@enableAsyncWriter, stream);
     }
 }
 
@@ -2264,6 +2301,7 @@ public static class BaadCoreMethods {
         FfiConverterTypeFileError.INSTANCE
     );
    }
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogDebug(string @message) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2272,6 +2310,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogDebugWithField(string @message, string @fieldName, string @fieldValue) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2280,6 +2319,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogDebugWithFields(string @message, Dictionary<string, string> @fields) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2288,6 +2328,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogError(string @message) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2320,6 +2361,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogInfo(string @message) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2328,6 +2370,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogInfoWithField(string @message, string @fieldName, string @fieldValue) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2336,6 +2379,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogInfoWithFields(string @message, Dictionary<string, string> @fields) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2376,6 +2420,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogWarn(string @message) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2384,6 +2429,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogWarnWithField(string @message, string @fieldName, string @fieldValue) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2392,6 +2438,7 @@ public static class BaadCoreMethods {
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogWarnWithFields(string @message, Dictionary<string, string> @fields) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
