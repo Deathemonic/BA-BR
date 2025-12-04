@@ -54,7 +54,7 @@ public static class Parser
 
         if (!moddedIsDirectory && !moddedIsFile)
         {
-            Logger.Error($"Modded path not found: {modded}");
+            Logger.Error("Modded path not found", modded);
             return;
         }
 
@@ -62,7 +62,7 @@ public static class Parser
         {
             if (!File.Exists(patchPath))
             {
-                Logger.Error($"Patch bundle not found: {patchPath}");
+                Logger.Error("Patch bundle not found", patchPath);
                 continue;
             }
 
@@ -75,7 +75,7 @@ public static class Parser
 
                 if (!File.Exists(moddedPath))
                 {
-                    Logger.Error($"Corresponding modded bundle not found: {moddedPath}");
+                    Logger.Error("Corresponding modded bundle not found", moddedPath);
                     continue;
                 }
             }
@@ -84,7 +84,7 @@ public static class Parser
                 moddedPath = modded;
             }
 
-            Logger.Info($"Processing: {Path.GetFileName(patchPath)}");
+            Logger.Info("Processing", Path.GetFileName(patchPath));
 
             var config = new BundleProcessingConfig
             {

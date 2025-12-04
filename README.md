@@ -83,8 +83,7 @@ dotnet build
 - [BA-AD](https://github.com/Deathemonic/BA-AD): A tool and library that downloads the latest **Blue Archive** assets.
 - [BA-AX](https://github.com/Deathemonic/BA-AX): A tool and library that extracts **Blue Archive** assets.
 - [BA-FB](https://github.com/Deathemonic/BA-FB): A tool for dumping and generating **Blue Archive** flatbuffers.
-- [BA-CY](https://github.com/Deathemonic/BA-CY): Library for handling **Blue Archive** catalogs, tables,
-  serialization/deserialization, encryption, and hashing.
+- [BA-CY](https://github.com/Deathemonic/BA-CY): A library for handling **Blue Archive** Cryptography.
 
 ### Contributing
 
