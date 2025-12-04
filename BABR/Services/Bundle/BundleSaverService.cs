@@ -35,7 +35,7 @@ public static class BundleSaverService
                 return;
             }
 
-            Logger.Info($"Saving {replacerCount} modified assets...");
+            Logger.Info("Saving modified assets", replacerCount.ToString());
 
             var dirInfo = bundleFileInstance.file.BlockAndDirInfo.DirectoryInfos.AsValueEnumerable()
                 .FirstOrDefault(d => !d.Name.EndsWith(".resS"));
@@ -66,7 +66,7 @@ public static class BundleSaverService
                     bundleFileInstance.file.Write(tempUncompressedWriter);
                 }
 
-                Logger.Info($"Compressing bundle with {compressionType}...");
+                Logger.Info("Compressing bundle", compressionType.ToString());
 
                 var uncompressedBundle = new AssetBundleFile();
                 uncompressedBundle.Read(new AssetsFileReader(File.OpenRead(tempUncompressedPath)));
@@ -92,12 +92,17 @@ public static class BundleSaverService
                 ? "uncompressed"
                 : $"compressed with {compressionType}";
 
-            Logger.Success($"Successfully saved modded bundle to: {outputPath}");
-            Logger.Info($"Applied {replacerCount} asset modifications ({compressionInfo})");
+            Logger.Success("Saved modded bundle", outputPath);
+            Logger.Info("Applied asset modifications", new Dictionary<string, string>
+            {
+                ["count"] = replacerCount.ToString(),
+                ["compression"] = compressionInfo
+            });
         }
         catch (Exception ex)
         {
             Logger.Error("Error saving modded bundle", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
         }
     }
 

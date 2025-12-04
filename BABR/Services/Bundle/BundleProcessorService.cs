@@ -56,7 +56,7 @@ public static class BundleProcessorService
     {
         if (Directory.Exists(moddedPath))
         {
-            Logger.Info($"Using custom Dumps folder: {moddedPath}");
+            Logger.Info("Using custom Dumps folder", moddedPath);
             Logger.Info("Skipping export, proceeding directly to import...");
 
             FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
@@ -64,7 +64,7 @@ public static class BundleProcessorService
         }
 
         if (!File.Exists(moddedPath) || IsBundleFile(moddedPath)) return (false, null);
-        Logger.Info($"Using single file: {moddedPath}");
+        Logger.Info("Using single file", moddedPath);
         Logger.Info("Skipping export, proceeding directly to import...");
 
         var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
@@ -90,6 +90,11 @@ public static class BundleProcessorService
         Logger.Success($"Found {matches.Count} matching assets");
         Logger.Info("Matching Assets:");
 
-        foreach (var match in matches) Logger.Info($"{match.DisplayName} - PathID: {match.ModdedId}");
+        foreach (var match in matches)
+            Logger.Info("Asset match", new Dictionary<string, string>
+            {
+                ["name"] = match.DisplayName,
+                ["pathId"] = match.ModdedId.ToString()
+            });
     }
 }

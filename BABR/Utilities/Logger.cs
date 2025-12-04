@@ -54,4 +54,15 @@ public static class Logger
         BaadCoreMethods.LogTraceWithFields(message, fields);
 
     public static void Success(string message) => BaadCoreMethods.LogInfoWithField(message, "success", "true");
+    public static void Success(string message, string value) =>
+        BaadCoreMethods.LogInfoWithFields(message, new Dictionary<string, string>
+        {
+            ["success"] = "true",
+            ["value"] = value
+        });
+    public static void Success(string message, Dictionary<string, string> fields)
+    {
+        fields["success"] = "true";
+        BaadCoreMethods.LogInfoWithFields(message, fields);
+    }
 }
