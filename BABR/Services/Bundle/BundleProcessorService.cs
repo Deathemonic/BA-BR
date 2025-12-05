@@ -17,8 +17,7 @@ public static class BundleProcessorService
             return;
         }
 
-        if (!skipExport)
-            PrepareDirectories();
+        PrepareDirectories(skipExport);
 
         var moddedPath = skipExport ? config.PatchPath : config.ModdedPath;
         var matches = AssetComparerService.FindMatches(moddedPath, config.PatchPath, config.Options);
@@ -56,7 +55,7 @@ public static class BundleProcessorService
     {
         if (Directory.Exists(moddedPath))
         {
-            Logger.Info("Using custom Dumps folder", moddedPath);
+            Logger.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
             Logger.Info("Skipping export, proceeding directly to import...");
 
             FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
@@ -64,7 +63,7 @@ public static class BundleProcessorService
         }
 
         if (!File.Exists(moddedPath) || IsBundleFile(moddedPath)) return (false, null);
-        Logger.Info("Using single file", moddedPath);
+        Logger.Info("Using single file", Path.GetFullPath(moddedPath));
         Logger.Info("Skipping export, proceeding directly to import...");
 
         var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
@@ -78,10 +77,12 @@ public static class BundleProcessorService
         return extension is ".bundle" or "";
     }
 
-    private static void PrepareDirectories()
+    private static void PrepareDirectories(bool isDump)
     {
         Logger.Info("Preparing directories...");
-        FileManager.CleanupDirectories();
+
+        FileManager.CleanupDirectories(isDump);
+
         Logger.Debug("Cleaned up existing Dumps and Modded directories");
     }
 

@@ -63,10 +63,11 @@ public static class FileManager
         Directory.CreateDirectory(dumpsDir);
     }
 
-    public static void CleanupDirectories()
+    public static void CleanupDirectories(bool isDump = false)
     {
-        CleanupDirectory(GetDumpPath());
-        CleanupDirectory(GetModdedPath());
+        if (!isDump)
+            CleanupDirectory(GetDumpPath());
+        CleanupDirectory(GetModdedPath());            
     }
 
     private static void CleanupDirectory(string directoryPath)
