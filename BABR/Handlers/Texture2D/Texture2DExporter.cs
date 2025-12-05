@@ -12,7 +12,7 @@ public static class Texture2DExporter
 {
     public static Task<int> Export(ExportContext context)
     {
-        Logger.Info($"Exporting Texture2D assets as {context.ImageFormat}...");
+        Logger.Info("Exporting Texture2D assets", context.ImageFormat.ToString());
 
         return Task.FromResult(ProcessExports(context));
     }
@@ -33,7 +33,7 @@ public static class Texture2DExporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error exporting texture {match.ModdedId}", ex);
+                Logger.Error("Error exporting texture", ex);
             }
 
         return exportedCount;
@@ -44,24 +44,32 @@ public static class Texture2DExporter
     {
         if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error($"Texture2D asset with PathId {match.ModdedId} not found in modded bundle");
+            Logger.Error("Texture2D asset not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = BuildExportFilePath(match.Name, context.ImageFormat);
 
-        Logger.Debug($"Attempting to export texture: {match.Name} (TypeId: {match.TypeId}, PathId: {match.ModdedId})");
+        Logger.Debug("Attempting to export texture", new Dictionary<string, string>
+        {
+            ["name"] = match.Name,
+            ["typeId"] = match.TypeId.ToString(),
+            ["pathId"] = match.ModdedId.ToString()
+        });
 
         var success = ExportTextureToFile(context, assetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error($"Failed to export texture: {match.Name}");
+            Logger.Error("Failed to export texture", match.Name);
             return false;
         }
 
-        var fileName = Path.GetFileName(filePath);
-        Logger.Debug($"Exported texture: {match.Name} -> {fileName}");
+        Logger.Debug("Exported texture", new Dictionary<string, string>
+        {
+            ["name"] = match.Name,
+            ["file"] = Path.GetFileName(filePath)
+        });
         return true;
     }
 
@@ -77,7 +85,7 @@ public static class Texture2DExporter
     {
         try
         {
-            Logger.Debug($"Starting export for asset {assetInfo.PathId}");
+            Logger.Debug("Starting export for asset", assetInfo.PathId.ToString());
 
             var textureTemplate =
                 Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
@@ -104,8 +112,8 @@ public static class Texture2DExporter
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during export: {ex.Message}");
-            Logger.Debug($"Stack trace: {ex.StackTrace}");
+            Logger.Error("Exception during export", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

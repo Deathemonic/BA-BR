@@ -45,7 +45,7 @@ public static class Texture2DImporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error importing texture {match.PatchId}", ex);
+                Logger.Error("Error importing texture", ex);
             }
 
         return importedCount;
@@ -56,28 +56,28 @@ public static class Texture2DImporter
     {
         if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
+            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var filePath = FindTextureFile(match.Name);
         if (filePath == null)
         {
-            Logger.Error($"Texture file not found for: {FileManager.Clean(match.Name)}");
+            Logger.Error("Texture file not found", FileManager.Clean(match.Name));
             return false;
         }
 
-        Logger.Debug($"Processing texture: {match.Name}");
+        Logger.Debug("Processing texture", match.Name);
 
         var success = await ImportTextureFromFile(context, targetAssetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error($"Failed to import texture for {match.Name}");
+            Logger.Error("Failed to import texture", match.Name);
             return false;
         }
 
-        Logger.Debug($"Imported texture: {match.Name}");
+        Logger.Debug("Imported texture", match.Name);
         return true;
     }
 
@@ -100,7 +100,7 @@ public static class Texture2DImporter
     {
         try
         {
-            Logger.Debug($"Starting import for asset {assetInfo.PathId}");
+            Logger.Debug("Starting import for asset", assetInfo.PathId.ToString());
 
             var textureTemplate =
                 Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
@@ -122,8 +122,8 @@ public static class Texture2DImporter
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during import: {ex.Message}");
-            Logger.Error($"Stack trace: {ex.StackTrace}");
+            Logger.Error("Exception during import", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
             return Task.FromResult(false);
         }
     }
