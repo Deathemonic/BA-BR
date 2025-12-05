@@ -34,7 +34,7 @@ public static class TextAssetExporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error exporting text asset {match.ModdedId}", ex);
+                Logger.Error("Error exporting text asset", ex);
             }
 
         return exportedCount;
@@ -45,25 +45,32 @@ public static class TextAssetExporter
     {
         if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error($"TextAsset with PathId {match.ModdedId} not found in modded bundle");
+            Logger.Error("TextAsset not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = BuildExportFilePath(match.Name, context.TextFormat);
 
-        Logger.Debug(
-            $"Attempting to export text asset: {match.Name} (TypeId: {match.TypeId}, PathId: {match.ModdedId})");
+        Logger.Debug("Attempting to export text asset", new Dictionary<string, string>
+        {
+            ["name"] = match.Name,
+            ["typeId"] = match.TypeId.ToString(),
+            ["pathId"] = match.ModdedId.ToString()
+        });
 
         var success = ExportTextAssetToFile(context, assetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error($"Failed to export text asset: {match.Name}");
+            Logger.Error("Failed to export text asset", match.Name);
             return false;
         }
 
-        var fileName = Path.GetFileName(filePath);
-        Logger.Debug($"Exported text asset: {match.Name} -> {fileName}");
+        Logger.Debug("Exported text asset", new Dictionary<string, string>
+        {
+            ["name"] = match.Name,
+            ["file"] = Path.GetFileName(filePath)
+        });
         return true;
     }
 
@@ -78,7 +85,7 @@ public static class TextAssetExporter
     {
         try
         {
-            Logger.Debug($"Starting TextAsset export for asset {assetInfo.PathId}");
+            Logger.Debug("Starting TextAsset export", assetInfo.PathId.ToString());
 
             var textAssetBaseField =
                 GetTextAssetBaseField(context.AssetsManager, context.AssetsFileInstance, assetInfo);
@@ -90,8 +97,8 @@ public static class TextAssetExporter
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during TextAsset export: {ex.Message}");
-            Logger.Debug($"Stack trace: {ex.StackTrace}");
+            Logger.Error("Exception during TextAsset export", ex);
+            Logger.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }
@@ -103,7 +110,7 @@ public static class TextAssetExporter
         if (baseField != null)
             return baseField;
 
-        Logger.Error($"Failed to get base field for TextAsset {assetInfo.PathId}");
+        Logger.Error("Failed to get base field for TextAsset", assetInfo.PathId.ToString());
         return null;
     }
 
@@ -114,23 +121,23 @@ public static class TextAssetExporter
             var scriptField = textAssetBaseField["m_Script"];
             if (scriptField == null)
             {
-                Logger.Error($"No m_Script field found for asset {assetId}");
+                Logger.Error("No m_Script field found for asset", assetId.ToString());
                 return null;
             }
 
             var textData = scriptField.AsByteArray;
             if (textData == null || textData.Length == 0)
             {
-                Logger.Warn($"Empty text data for asset {assetId}");
+                Logger.Warn("Empty text data for asset", assetId.ToString());
                 return [];
             }
 
-            Logger.Debug($"Extracted text data of size: {textData.Length} bytes");
+            Logger.Debug("Extracted text data", $"{textData.Length} bytes");
             return textData;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Failed to extract text data for asset {assetId}: {ex.Message}");
+            Logger.Error("Failed to extract text data for asset", ex);
             return null;
         }
     }
@@ -143,12 +150,16 @@ public static class TextAssetExporter
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
             File.WriteAllBytes(filePath, textData);
-            Logger.Debug($"Successfully wrote {textData.Length} bytes to {filePath}");
+            Logger.Debug("Successfully wrote text file", new Dictionary<string, string>
+            {
+                ["bytes"] = textData.Length.ToString(),
+                ["path"] = filePath
+            });
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Failed to write file {filePath}: {ex.Message}");
+            Logger.Error("Failed to write file", ex);
             return false;
         }
     }
