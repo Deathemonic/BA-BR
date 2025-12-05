@@ -48,7 +48,7 @@ public static class DumpAssetImporter
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error importing asset {match.PatchId}", ex);
+                Logger.Error("Error importing asset", ex);
             }
 
         return importedCount;
@@ -59,28 +59,28 @@ public static class DumpAssetImporter
     {
         if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error($"Asset with PathID {match.PatchId} not found in target bundle");
+            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var filePath = Path.Combine(FileManager.GetDumpPath(), match.JsonFileName);
         if (!File.Exists(filePath))
         {
-            Logger.Error($"JSON file not found: {filePath}");
+            Logger.Error("JSON file not found", filePath);
             return false;
         }
 
-        Logger.Debug($"Processing asset: {match.Name}");
+        Logger.Debug("Processing asset", match.Name);
 
         var success = await ImportAssetFromJson(context.LoaderService, targetAssetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error($"Failed to import asset for {match.Name}");
+            Logger.Error("Failed to import asset", match.Name);
             return false;
         }
 
-        Logger.Debug($"Imported asset: {match.Name}");
+        Logger.Debug("Imported asset", match.Name);
         return true;
     }
 
@@ -102,7 +102,7 @@ public static class DumpAssetImporter
             var tempField = assetsManager.GetTemplateBaseField(assetsFileInstance, targetAssetInfo);
             if (tempField == null)
             {
-                Logger.Error($"Failed to get template field for asset {targetAssetInfo.PathId}");
+                Logger.Error("Failed to get template field for asset", targetAssetInfo.PathId.ToString());
                 return false;
             }
 
@@ -116,12 +116,12 @@ public static class DumpAssetImporter
             var replacer = new ContentReplacerFromBuffer(jsonData);
             targetAssetInfo.Replacer = replacer;
 
-            Logger.Debug($"Asset replacer set successfully for {targetAssetInfo.PathId}");
+            Logger.Debug("Asset replacer set successfully", targetAssetInfo.PathId.ToString());
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error($"Exception during asset import: {ex.Message}");
+            Logger.Error("Exception during asset import", ex);
             return false;
         }
     }
@@ -151,7 +151,7 @@ public static class DumpAssetImporter
         }
         catch (Exception ex)
         {
-            Logger.Error($"Failed to import JSON: {ex.Message}");
+            Logger.Error("Failed to import JSON", ex);
             return null;
         }
 

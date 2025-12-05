@@ -173,7 +173,7 @@ public static class DumpAssetSerializer
                 foreach (var child in tempField.Children.Where(child => !fieldDict.ContainsKey(child.Name)))
                 {
                     WriteDefaultValue(writer, child);
-                    Logger.Warn($"Missing field {child.Name} in JSON, using default value");
+                    Logger.Warn("Missing field in JSON, using default value", child.Name);
                 }
 
                 if (align) writer.Align();
