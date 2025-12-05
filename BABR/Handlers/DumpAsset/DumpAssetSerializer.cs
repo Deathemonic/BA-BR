@@ -65,10 +65,10 @@ public static class DumpAssetSerializer
                     writer.WriteStringValue(field.AsString);
                     break;
                 case AssetValueType.Float:
-                    writer.WriteNumberValue(field.AsFloat);
+                    WriteFloatValue(writer, field.AsFloat);
                     break;
                 case AssetValueType.Double:
-                    writer.WriteNumberValue(field.AsDouble);
+                    WriteDoubleValue(writer, field.AsDouble);
                     break;
                 default:
                     writer.WriteStringValue("invalid value");
@@ -86,6 +86,30 @@ public static class DumpAssetSerializer
         }
 
         writer.WriteEndObject();
+    }
+
+    private static void WriteFloatValue(Utf8JsonWriter writer, float value)
+    {
+        if (float.IsPositiveInfinity(value))
+            writer.WriteStringValue("Infinity");
+        else if (float.IsNegativeInfinity(value))
+            writer.WriteStringValue("-Infinity");
+        else if (float.IsNaN(value))
+            writer.WriteStringValue("NaN");
+        else
+            writer.WriteNumberValue(value);
+    }
+
+    private static void WriteDoubleValue(Utf8JsonWriter writer, double value)
+    {
+        if (double.IsPositiveInfinity(value))
+            writer.WriteStringValue("Infinity");
+        else if (double.IsNegativeInfinity(value))
+            writer.WriteStringValue("-Infinity");
+        else if (double.IsNaN(value))
+            writer.WriteStringValue("NaN");
+        else
+            writer.WriteNumberValue(value);
     }
 
     private static void JsonDumpRefRegistry(Utf8JsonWriter writer, AssetTypeValueField field, bool flavor = false)
@@ -261,10 +285,10 @@ public static class DumpAssetSerializer
                 writer.Write(reader.GetInt64());
                 break;
             case AssetValueType.Float:
-                writer.Write(reader.GetSingle());
+                writer.Write(ReadFloatValue(ref reader));
                 break;
             case AssetValueType.Double:
-                writer.Write(reader.GetDouble());
+                writer.Write(ReadDoubleValue(ref reader));
                 break;
             case AssetValueType.String:
                 writer.WriteCountStringInt32(reader.GetString() ?? "");
@@ -272,6 +296,38 @@ public static class DumpAssetSerializer
             default:
                 throw new NotSupportedException($"Unsupported value type: {valueType}");
         }
+    }
+
+    private static float ReadFloatValue(ref Utf8JsonReader reader)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var str = reader.GetString();
+            return str switch
+            {
+                "Infinity" => float.PositiveInfinity,
+                "-Infinity" => float.NegativeInfinity,
+                "NaN" => float.NaN,
+                _ => float.Parse(str!)
+            };
+        }
+        return reader.GetSingle();
+    }
+
+    private static double ReadDoubleValue(ref Utf8JsonReader reader)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            var str = reader.GetString();
+            return str switch
+            {
+                "Infinity" => double.PositiveInfinity,
+                "-Infinity" => double.NegativeInfinity,
+                "NaN" => double.NaN,
+                _ => double.Parse(str!)
+            };
+        }
+        return reader.GetDouble();
     }
 
     private static void SkipJsonValue(ref Utf8JsonReader reader)
