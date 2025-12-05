@@ -93,7 +93,8 @@ public static class BundleSaverService
                 : $"compressed with {compressionType}";
 
             Logger.Success("Saved modded bundle", outputPath);
-            Logger.Info("Applied asset modifications", new Dictionary<string, string>
+
+            Logger.Debug("Applied asset modifications", new Dictionary<string, string>
             {
                 ["count"] = replacerCount.ToString(),
                 ["compression"] = compressionInfo

@@ -892,7 +892,7 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_baad_core_fn_func_log_debug_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    public static partial void uniffi_baad_core_fn_func_log_debug_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
@@ -912,7 +912,7 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_baad_core_fn_func_log_error_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    public static partial void uniffi_baad_core_fn_func_log_error_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
@@ -927,7 +927,7 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_baad_core_fn_func_log_info_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    public static partial void uniffi_baad_core_fn_func_log_info_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
@@ -942,12 +942,27 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_success(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_success_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial void uniffi_baad_core_fn_func_log_success_with_fields(RustBuffer @message,RustBuffer @fields,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static partial void uniffi_baad_core_fn_func_log_trace(RustBuffer @message,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_baad_core_fn_func_log_trace_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    public static partial void uniffi_baad_core_fn_func_log_trace_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
@@ -962,7 +977,7 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_baad_core_fn_func_log_warn_with_field(RustBuffer @message,RustBuffer @fieldName,RustBuffer @fieldValue,ref UniffiRustCallStatus _uniffi_out_err
+    public static partial void uniffi_baad_core_fn_func_log_warn_with_field(RustBuffer @message,RustBuffer @value,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [LibraryImport("baad_core")]
@@ -1372,6 +1387,21 @@ static partial class _UniFFILib {
 
     [LibraryImport("baad_core")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_success(
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_success_with_field(
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial ushort uniffi_baad_core_checksum_func_log_success_with_fields(
+    );
+
+    [LibraryImport("baad_core")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static partial ushort uniffi_baad_core_checksum_func_log_trace(
     );
 
@@ -1498,8 +1528,8 @@ static partial class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_debug_with_field();
-            if (checksum != 38053) {
-                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_field` checksum `38053`, library returned `{checksum}`");
+            if (checksum != 10131) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_debug_with_field` checksum `10131`, library returned `{checksum}`");
             }
         }
         {
@@ -1522,8 +1552,8 @@ static partial class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_error_with_field();
-            if (checksum != 30155) {
-                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_field` checksum `30155`, library returned `{checksum}`");
+            if (checksum != 18473) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_error_with_field` checksum `18473`, library returned `{checksum}`");
             }
         }
         {
@@ -1540,8 +1570,8 @@ static partial class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_info_with_field();
-            if (checksum != 29677) {
-                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_field` checksum `29677`, library returned `{checksum}`");
+            if (checksum != 11276) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_info_with_field` checksum `11276`, library returned `{checksum}`");
             }
         }
         {
@@ -1557,6 +1587,24 @@ static partial class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_success();
+            if (checksum != 61428) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_success` checksum `61428`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_success_with_field();
+            if (checksum != 65447) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_success_with_field` checksum `65447`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_success_with_fields();
+            if (checksum != 63610) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_success_with_fields` checksum `63610`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_trace();
             if (checksum != 57627) {
                 throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace` checksum `57627`, library returned `{checksum}`");
@@ -1564,8 +1612,8 @@ static partial class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_trace_with_field();
-            if (checksum != 54973) {
-                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_field` checksum `54973`, library returned `{checksum}`");
+            if (checksum != 48276) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_trace_with_field` checksum `48276`, library returned `{checksum}`");
             }
         }
         {
@@ -1582,8 +1630,8 @@ static partial class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_baad_core_checksum_func_log_warn_with_field();
-            if (checksum != 57212) {
-                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_field` checksum `57212`, library returned `{checksum}`");
+            if (checksum != 60396) {
+                throw new UniffiContractChecksumException($"BAAD.Core: uniffi bindings expected function `uniffi_baad_core_checksum_func_log_warn_with_field` checksum `60396`, library returned `{checksum}`");
             }
         }
         {
@@ -1612,6 +1660,7 @@ static partial class _UniFFILib {
         }
     }
 }
+
 
 // Public interface members begin here.
 
@@ -2311,10 +2360,10 @@ public static class BaadCoreMethods {
 
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void LogDebugWithField(string @message, string @fieldName, string @fieldValue) {
+    public static void LogDebugWithField(string @message, string @value) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_baad_core_fn_func_log_debug_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@fieldName), FfiConverterString.INSTANCE.Lower(@fieldValue), ref _status)
+    _UniFFILib.uniffi_baad_core_fn_func_log_debug_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
 );
     }
 
@@ -2345,16 +2394,17 @@ public static class BaadCoreMethods {
     }
 
 
-    public static void LogErrorWithField(string @message, string @fieldName, string @fieldValue) {
+    public static void LogErrorWithField(string @message, string @value) {
+
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_baad_core_fn_func_log_error_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@fieldName), FfiConverterString.INSTANCE.Lower(@fieldValue), ref _status)
+    _UniFFILib.uniffi_baad_core_fn_func_log_error_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
 );
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogErrorWithFields(string @message, Dictionary<string, string> @fields) {
-        
+
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_baad_core_fn_func_log_error_with_fields(FfiConverterString.INSTANCE.Lower(@message), FfiConverterDictionaryStringString.INSTANCE.Lower(@fields), ref _status)
 );
@@ -2371,10 +2421,10 @@ public static class BaadCoreMethods {
 
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void LogInfoWithField(string @message, string @fieldName, string @fieldValue) {
+    public static void LogInfoWithField(string @message, string @value) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_baad_core_fn_func_log_info_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@fieldName), FfiConverterString.INSTANCE.Lower(@fieldValue), ref _status)
+    _UniFFILib.uniffi_baad_core_fn_func_log_info_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
 );
     }
 
@@ -2387,6 +2437,7 @@ public static class BaadCoreMethods {
 );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
 
     public static void LogRecoverableErrorFromString(string @errorMessage, string @recoveryAction) {
         
@@ -2395,7 +2446,31 @@ public static class BaadCoreMethods {
 );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void LogSuccess(string @message) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_baad_core_fn_func_log_success(FfiConverterString.INSTANCE.Lower(@message), ref _status)
+);
+    }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void LogSuccessWithField(string @message, string @value) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_baad_core_fn_func_log_success_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
+);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void LogSuccessWithFields(string @message, Dictionary<string, string> @fields) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_baad_core_fn_func_log_success_with_fields(FfiConverterString.INSTANCE.Lower(@message), FfiConverterDictionaryStringString.INSTANCE.Lower(@fields), ref _status)
+);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogTrace(string @message) {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
@@ -2403,17 +2478,17 @@ public static class BaadCoreMethods {
 );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static void LogTraceWithField(string @message, string @value) {
 
-    public static void LogTraceWithField(string @message, string @fieldName, string @fieldValue) {
-        
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_baad_core_fn_func_log_trace_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@fieldName), FfiConverterString.INSTANCE.Lower(@fieldValue), ref _status)
+    _UniFFILib.uniffi_baad_core_fn_func_log_trace_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
 );
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void LogTraceWithFields(string @message, Dictionary<string, string> @fields) {
-        
+    
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_baad_core_fn_func_log_trace_with_fields(FfiConverterString.INSTANCE.Lower(@message), FfiConverterDictionaryStringString.INSTANCE.Lower(@fields), ref _status)
 );
@@ -2430,10 +2505,10 @@ public static class BaadCoreMethods {
 
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void LogWarnWithField(string @message, string @fieldName, string @fieldValue) {
-        
+    public static void LogWarnWithField(string @message, string @value) {
+    
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_baad_core_fn_func_log_warn_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@fieldName), FfiConverterString.INSTANCE.Lower(@fieldValue), ref _status)
+    _UniFFILib.uniffi_baad_core_fn_func_log_warn_with_field(FfiConverterString.INSTANCE.Lower(@message), FfiConverterString.INSTANCE.Lower(@value), ref _status)
 );
     }
 

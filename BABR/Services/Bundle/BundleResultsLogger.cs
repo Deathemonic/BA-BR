@@ -5,47 +5,25 @@ namespace BABR.Services.Bundle;
 
 public static class BundleResultsLogger
 {
-    public static void LogResults(ExportResults exportResults, ImportResults importResults)
-    {
-        LogExportResults(exportResults);
-        LogImportResults(importResults);
-        LogFinalStatus(exportResults, importResults);
-    }
-
-    private static void LogExportResults(ExportResults results)
+    public static void LogExportResults(ExportResults results)
     {
         var dumpPath = FileManager.GetDumpPath();
+        Logger.Info("Exporting assets to", dumpPath);
 
         if (results.ExportedCount > 0)
-            Logger.Success("Exported assets", new Dictionary<string, string>
-            {
-                ["count"] = results.ExportedCount.ToString(),
-                ["path"] = dumpPath
-            });
+            Logger.Success("Exported assets", results.ExportedCount.ToString());
 
         if (results.TextureExportCount > 0)
-            Logger.Success("Exported textures", new Dictionary<string, string>
-            {
-                ["count"] = results.TextureExportCount.ToString(),
-                ["path"] = dumpPath
-            });
+            Logger.Success("Exported textures", results.TextureExportCount.ToString());
 
         if (results.TextAssetExportCount > 0)
-            Logger.Success("Exported text assets", new Dictionary<string, string>
-            {
-                ["count"] = results.TextAssetExportCount.ToString(),
-                ["path"] = dumpPath
-            });
+            Logger.Success("Exported text assets", results.TextAssetExportCount.ToString());
 
         if (results.AudioClipExportCount > 0)
-            Logger.Success("Exported audio clips", new Dictionary<string, string>
-            {
-                ["count"] = results.AudioClipExportCount.ToString(),
-                ["path"] = dumpPath
-            });
+            Logger.Success("Exported audio clips", results.AudioClipExportCount.ToString());
     }
 
-    private static void LogImportResults(ImportResults results)
+    public static void LogImportResults(ImportResults results)
     {
         if (results.ImportedCount > 0)
             Logger.Success("Imported assets", results.ImportedCount.ToString());
@@ -63,7 +41,7 @@ public static class BundleResultsLogger
             Logger.Success("Assets marked as modified", results.TotalImported.ToString());
     }
 
-    private static void LogFinalStatus(ExportResults exportResults, ImportResults importResults)
+    public static void LogFinalStatus(ExportResults exportResults, ImportResults importResults)
     {
         if (importResults.TotalImported == 0 && exportResults.TotalExported == 0)
             Logger.Warn("No assets were processed");

@@ -24,7 +24,7 @@ public static class BundleImportService
 
         SaveChanges(loader, config.PatchPath, importResults, config.CompressionFormat);
 
-        BundleResultsLogger.LogResults(exportResults, importResults);
+        BundleResultsLogger.LogFinalStatus(exportResults, importResults);
     }
 
     private static bool SetupLoader(BundleLoaderService loaderService, string patchPath)
@@ -73,7 +73,10 @@ public static class BundleImportService
                 BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager))
             : 0;
 
-        return new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount);
+        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount);
+
+        BundleResultsLogger.LogImportResults(results);
+        return results;
     }
 
     private static void SaveChanges(BundleLoaderService loaderService, string patchPath, ImportResults importResults,

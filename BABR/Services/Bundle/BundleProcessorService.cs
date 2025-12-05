@@ -91,10 +91,6 @@ public static class BundleProcessorService
         Logger.Info("Matching Assets:");
 
         foreach (var match in matches)
-            Logger.Info("Asset match", new Dictionary<string, string>
-            {
-                ["name"] = match.DisplayName,
-                ["pathId"] = match.ModdedId.ToString()
-            });
+            Logger.Info($"Asset match {match.ModdedId}", match.DisplayName);
     }
 }

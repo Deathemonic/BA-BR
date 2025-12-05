@@ -41,7 +41,10 @@ public static class BundleExportService
                 BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat))
             : 0;
 
-        return new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
+        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
+        
+        BundleResultsLogger.LogExportResults(results);
+        return results;
     }
 
     private static (AssetsFileInstance? instance, AssetsManager? manager) LoadBundleForExport(string path)
