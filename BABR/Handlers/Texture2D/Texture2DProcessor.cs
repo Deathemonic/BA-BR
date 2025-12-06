@@ -128,10 +128,7 @@ public static class Texture2DProcessor
         if (!EncodeTextureFromFile(textureFile, filePath))
             return false;
 
-        if (!WriteTextureToAsset(textureFile, textureBaseField))
-            return false;
-
-        return ApplyTextureChanges(textureBaseField, assetInfo);
+        return WriteTextureToAsset(textureFile, textureBaseField) && ApplyTextureChanges(textureBaseField, assetInfo);
     }
 
     private static bool EncodeTextureFromFile(TextureFile textureFile, string filePath)

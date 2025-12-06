@@ -311,6 +311,7 @@ public static class DumpAssetSerializer
                 _ => float.Parse(str!)
             };
         }
+
         return reader.GetSingle();
     }
 
@@ -327,6 +328,7 @@ public static class DumpAssetSerializer
                 _ => double.Parse(str!)
             };
         }
+
         return reader.GetDouble();
     }
 

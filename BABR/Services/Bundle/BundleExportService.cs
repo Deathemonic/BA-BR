@@ -42,7 +42,7 @@ public static class BundleExportService
             : 0;
 
         var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
-        
+
         BundleResultsLogger.LogExportResults(results);
         return results;
     }

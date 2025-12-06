@@ -34,7 +34,7 @@ public class BundleResourceService
             .FirstOrDefault(d => d.Name.EndsWith(".resource"));
 
         if (existingResource == null) return "archive:/CAB-unknown/CAB-unknown.resource";
-        
+
         var existingName = existingResource.Name;
         var cabHash = existingName.Replace(".resource", "");
         return $"archive:/{cabHash}/{existingName}";

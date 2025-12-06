@@ -14,7 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
-namespace BACY;
+namespace BABR.BACY;
 
 
 
@@ -28,6 +28,7 @@ internal struct RustBuffer {
     public ulong len;
     public IntPtr data;
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static RustBuffer Alloc(int size) {
         return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
             var buffer = _UniFFILib.ffi_bacy_rustbuffer_alloc(Convert.ToUInt64(size), ref status);
@@ -38,6 +39,7 @@ internal struct RustBuffer {
         });
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void Free(RustBuffer buffer) {
         _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
             _UniFFILib.ffi_bacy_rustbuffer_free(buffer, ref status);
@@ -85,9 +87,9 @@ internal struct RustBuffer {
 // completeness.
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct ForeignBytes {
-    public int length;
-    public IntPtr data;
+internal readonly struct ForeignBytes {
+    public readonly int length;
+    public readonly IntPtr data;
 }
 
 
@@ -170,9 +172,9 @@ internal abstract class FfiConverterRustBuffer<CsType>: FfiConverter<CsType, Rus
 // This would be a good candidate for isolating in its own ffi-support lib.
 // Error runtime.
 [StructLayout(LayoutKind.Sequential)]
-struct UniffiRustCallStatus {
-    public sbyte code;
-    public RustBuffer error_buf;
+readonly struct UniffiRustCallStatus {
+    public readonly sbyte code;
+    public readonly RustBuffer error_buf;
 
     public bool IsSuccess() {
         return code == 0;
@@ -361,6 +363,7 @@ class StreamUnderflowException: System.Exception {
 
 static class BigEndianStreamExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void WriteInt32(this Stream stream, int value, int bytesToWrite = 4)
     {
 #if DOTNET_8_0_OR_GREATER
@@ -383,6 +386,7 @@ static class BigEndianStreamExtensions
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void WriteInt64(this Stream stream, long value)
     {
         int bytesToWrite = 8;
@@ -406,6 +410,7 @@ static class BigEndianStreamExtensions
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static uint ReadUint32(this Stream stream, int bytesToRead = 4) {
         CheckRemaining(stream, bytesToRead);
 #if DOTNET_8_0_OR_GREATER
@@ -428,6 +433,7 @@ static class BigEndianStreamExtensions
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static ulong ReadUInt64(this Stream stream) {
         int bytesToRead = 8;
         CheckRemaining(stream, bytesToRead);
@@ -451,6 +457,7 @@ static class BigEndianStreamExtensions
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void CheckRemaining(this Stream stream, int length) {
         if (stream.Length - stream.Position < length) {
             throw new StreamUnderflowException();
@@ -479,6 +486,7 @@ class BigEndianStream {
         set => stream.Position = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteBytes(byte[] buffer) {
 #if DOTNET_8_0_OR_GREATER
         stream.Write(buffer);
@@ -487,16 +495,24 @@ class BigEndianStream {
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteByte(byte value) => stream.WriteInt32(value, bytesToWrite: 1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteSByte(sbyte value) => stream.WriteInt32(value, bytesToWrite: 1);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteUShort(ushort value) => stream.WriteInt32(value, bytesToWrite: 2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteShort(short value) => stream.WriteInt32(value, bytesToWrite: 2);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteUInt(uint value) => stream.WriteInt32((int)value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteInt(int value) => stream.WriteInt32(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteULong(ulong value) => stream.WriteInt64((long)value);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void WriteLong(long value) => stream.WriteInt64(value);
 
     public void WriteFloat(float value) {
@@ -513,13 +529,20 @@ class BigEndianStream {
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public byte ReadByte() => (byte)stream.ReadUint32(bytesToRead: 1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public ushort ReadUShort() => (ushort)stream.ReadUint32(bytesToRead: 2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public uint ReadUInt() => (uint)stream.ReadUint32(bytesToRead: 4);
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public ulong ReadULong() => stream.ReadUInt64();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public sbyte ReadSByte() => (sbyte)ReadByte();
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public short ReadShort() => (short)ReadUShort();
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public int ReadInt() => (int)ReadUInt();
 
     public float ReadFloat() {
@@ -541,28 +564,32 @@ class BigEndianStream {
 static partial class _UniFFILib {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiRustFutureContinuationCallback(
-        ulong @data,sbyte @pollResult);
+        ulong @data,sbyte @pollResult
+    );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureFree(
-        ulong @handle);
+        ulong @handle
+    );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceFree(
-        ulong @handle);
+        ulong @handle
+    );
     [StructLayout(LayoutKind.Sequential)]
-    public struct UniffiForeignFuture
+    public readonly struct UniffiForeignFuture
     {
-        public ulong @handle;
-        public IntPtr @free;
+        public readonly ulong @handle;
+        public readonly IntPtr @free;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct UniffiForeignFutureStructU8
+    public readonly struct UniffiForeignFutureStructU8
     {
-        public byte @returnValue;
-        public UniffiRustCallStatus @callStatus;
+        public readonly byte @returnValue;
+        public readonly UniffiRustCallStatus @callStatus;
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteU8(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU8 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU8 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructI8
     {
@@ -571,7 +598,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteI8(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI8 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI8 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructU16
     {
@@ -580,7 +608,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteU16(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU16 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU16 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructI16
     {
@@ -589,7 +618,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteI16(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI16 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI16 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructU32
     {
@@ -598,7 +628,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteU32(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU32 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU32 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructI32
     {
@@ -607,7 +638,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteI32(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI32 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI32 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructU64
     {
@@ -616,7 +648,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteU64(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU64 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructU64 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructI64
     {
@@ -625,7 +658,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteI64(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI64 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructI64 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructF32
     {
@@ -634,7 +668,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteF32(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructF32 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructF32 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructF64
     {
@@ -643,7 +678,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteF64(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructF64 @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructF64 @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructPointer
     {
@@ -652,7 +688,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompletePointer(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructPointer @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructPointer @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructRustBuffer
     {
@@ -661,7 +698,8 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteRustBuffer(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructRustBuffer @result);
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructRustBuffer @result
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiForeignFutureStructVoid
     {
@@ -669,686 +707,838 @@ static partial class _UniFFILib {
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiForeignFutureCompleteVoid(
-        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructVoid @result);
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        ulong @callbackData,_UniFFILib.UniffiForeignFutureStructVoid @result
+    );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
         _UniFFILib.uniffiCheckApiChecksums();
-        
+
         }
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_bacy_fn_func_crc_compare(RustBuffer @path,uint @expectedCrc,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void uniffi_bacy_fn_func_crc_compare(RustBuffer @path,uint @expectedCrc,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_crc_compute_bytes(RustBuffer @buffer,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_crc_compute_bytes(RustBuffer @buffer,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_crc_compute_streaming(RustBuffer @path,ulong @bufferSize,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_crc_compute_streaming(RustBuffer @path,ulong @bufferSize,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_crc_evaluate(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_crc_evaluate(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_bacy_fn_func_crc_forge(RustBuffer @filePath,uint @targetCrc,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void uniffi_bacy_fn_func_crc_forge(RustBuffer @filePath,uint @targetCrc,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_bacy_fn_func_crc_match_file(RustBuffer @filePath,RustBuffer @targetFilePath,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void uniffi_bacy_fn_func_crc_match_file(RustBuffer @filePath,RustBuffer @targetFilePath,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_get_file_path(RustBuffer @path,RustBuffer @crc,sbyte @noHash,sbyte @toLower,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_get_file_path(RustBuffer @path,RustBuffer @crc,sbyte @noHash,sbyte @toLower,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_md5_compute_digest(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_md5_compute_digest(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong uniffi_bacy_fn_func_md5_compute_digest64(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong uniffi_bacy_fn_func_md5_compute_digest64(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong uniffi_bacy_fn_func_md5_compute_digest64_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong uniffi_bacy_fn_func_md5_compute_digest64_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_md5_compute_digest_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_md5_compute_digest_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_str(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_str(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_str_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_hash_str_hmac(RustBuffer @source,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_head(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_compute_head(RustBuffer @source,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_md5_to_hex_string(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_md5_to_hex_string(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_table_create_key(RustBuffer @name,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_table_create_key(RustBuffer @name,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_table_create_password(RustBuffer @key,ulong @length,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_table_create_password(RustBuffer @key,ulong @length,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial float uniffi_bacy_fn_func_table_decrypt_f32(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial float uniffi_bacy_fn_func_table_decrypt_f32(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial double uniffi_bacy_fn_func_table_decrypt_f64(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial double uniffi_bacy_fn_func_table_decrypt_f64(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial int uniffi_bacy_fn_func_table_decrypt_i32(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial int uniffi_bacy_fn_func_table_decrypt_i32(int @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial long uniffi_bacy_fn_func_table_decrypt_i64(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial long uniffi_bacy_fn_func_table_decrypt_i64(long @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_table_decrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_table_decrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_table_decrypt_u32(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_table_decrypt_u32(uint @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong uniffi_bacy_fn_func_table_decrypt_u64(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong uniffi_bacy_fn_func_table_decrypt_u64(ulong @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial float uniffi_bacy_fn_func_table_encrypt_f32(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial float uniffi_bacy_fn_func_table_encrypt_f32(float @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial double uniffi_bacy_fn_func_table_encrypt_f64(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial double uniffi_bacy_fn_func_table_encrypt_f64(double @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_table_encrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_table_encrypt_string(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_table_xor(RustBuffer @name,RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_table_xor(RustBuffer @name,RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_bacy_fn_func_xor_encrypt(RustBuffer @data,ulong @offset,ulong @length,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_encrypt(RustBuffer @data,ulong @offset,ulong @length,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_xor_encrypt_with_key(RustBuffer @data,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_encrypt_with_key(RustBuffer @data,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_xor_exact(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_exact(RustBuffer @value,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer uniffi_bacy_fn_func_xor_inplace_bytes(RustBuffer @data,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer uniffi_bacy_fn_func_xor_inplace_bytes(RustBuffer @data,RustBuffer @key,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_xxhash_calculate_hash(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_xxhash_calculate_hash(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong uniffi_bacy_fn_func_xxhash_calculate_hash64(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong uniffi_bacy_fn_func_xxhash_calculate_hash64(RustBuffer @data,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong uniffi_bacy_fn_func_xxhash_calculate_hash64_str(RustBuffer @s,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong uniffi_bacy_fn_func_xxhash_calculate_hash64_str(RustBuffer @s,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint uniffi_bacy_fn_func_xxhash_calculate_hash_str(RustBuffer @s,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint uniffi_bacy_fn_func_xxhash_calculate_hash_str(RustBuffer @s,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial sbyte uniffi_bacy_fn_func_xxhash_get_use_big_endian(ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial sbyte uniffi_bacy_fn_func_xxhash_get_use_big_endian(ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void uniffi_bacy_fn_func_xxhash_set_use_big_endian(sbyte @value,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void uniffi_bacy_fn_func_xxhash_set_use_big_endian(sbyte @value,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer ffi_bacy_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer ffi_bacy_rustbuffer_alloc(ulong @size,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer ffi_bacy_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer ffi_bacy_rustbuffer_from_bytes(ForeignBytes @bytes,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void ffi_bacy_rustbuffer_free(RustBuffer @buf,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer ffi_bacy_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer ffi_bacy_rustbuffer_reserve(RustBuffer @buf,ulong @additional,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_u8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_u8(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_u8(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_u8(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_u8(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial byte ffi_bacy_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial byte ffi_bacy_rust_future_complete_u8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_i8(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_i8(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_i8(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_i8(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_i8(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial sbyte ffi_bacy_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial sbyte ffi_bacy_rust_future_complete_i8(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_u16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_u16(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_u16(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_u16(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_u16(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort ffi_bacy_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ushort ffi_bacy_rust_future_complete_u16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_i16(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_i16(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_i16(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_i16(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_i16(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial short ffi_bacy_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial short ffi_bacy_rust_future_complete_i16(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_u32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_u32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_u32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_u32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_u32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint ffi_bacy_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial uint ffi_bacy_rust_future_complete_u32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_i32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_i32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_i32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_i32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_i32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial int ffi_bacy_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial int ffi_bacy_rust_future_complete_i32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_u64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_u64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_u64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_u64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_u64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ulong ffi_bacy_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial ulong ffi_bacy_rust_future_complete_u64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_i64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_i64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_i64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_i64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_i64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial long ffi_bacy_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial long ffi_bacy_rust_future_complete_i64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_f32(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_f32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_f32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_f32(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_f32(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial float ffi_bacy_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial float ffi_bacy_rust_future_complete_f32(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_f64(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_f64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_f64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_f64(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_f64(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial double ffi_bacy_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial double ffi_bacy_rust_future_complete_f64(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_pointer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_pointer(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_pointer(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_pointer(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_pointer(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial IntPtr ffi_bacy_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial IntPtr ffi_bacy_rust_future_complete_pointer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_rust_buffer(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_rust_buffer(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_rust_buffer(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_rust_buffer(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_rust_buffer(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial RustBuffer ffi_bacy_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial RustBuffer ffi_bacy_rust_future_complete_rust_buffer(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData);
+    public static partial void ffi_bacy_rust_future_poll_void(IntPtr @handle,IntPtr @callback,IntPtr @callbackData
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_cancel_void(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_cancel_void(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_free_void(IntPtr @handle);
+    public static partial void ffi_bacy_rust_future_free_void(IntPtr @handle
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial void ffi_bacy_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err);
+    public static partial void ffi_bacy_rust_future_complete_void(IntPtr @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_compare();
+    public static partial ushort uniffi_bacy_checksum_func_crc_compare(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_compute_bytes();
+    public static partial ushort uniffi_bacy_checksum_func_crc_compute_bytes(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_compute_streaming();
+    public static partial ushort uniffi_bacy_checksum_func_crc_compute_streaming(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_evaluate();
+    public static partial ushort uniffi_bacy_checksum_func_crc_evaluate(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_forge();
+    public static partial ushort uniffi_bacy_checksum_func_crc_forge(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_crc_match_file();
+    public static partial ushort uniffi_bacy_checksum_func_crc_match_file(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_get_file_path();
+    public static partial ushort uniffi_bacy_checksum_func_get_file_path(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest64();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest64_hmac();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest64_hmac(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest_hmac();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_digest_hmac(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_hmac();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_hmac(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_str();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_str(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_str_hmac();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_hash_str_hmac(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_compute_head();
+    public static partial ushort uniffi_bacy_checksum_func_md5_compute_head(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_md5_to_hex_string();
+    public static partial ushort uniffi_bacy_checksum_func_md5_to_hex_string(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_create_key();
+    public static partial ushort uniffi_bacy_checksum_func_table_create_key(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_create_password();
+    public static partial ushort uniffi_bacy_checksum_func_table_create_password(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_f32();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_f32(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_f64();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_f64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_i32();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_i32(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_i64();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_i64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_string();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_string(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_u32();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_u32(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_u64();
+    public static partial ushort uniffi_bacy_checksum_func_table_decrypt_u64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_f32();
+    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_f32(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_f64();
+    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_f64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_string();
+    public static partial ushort uniffi_bacy_checksum_func_table_encrypt_string(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_table_xor();
+    public static partial ushort uniffi_bacy_checksum_func_table_xor(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xor_encrypt();
+    public static partial ushort uniffi_bacy_checksum_func_xor_encrypt(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xor_encrypt_with_key();
+    public static partial ushort uniffi_bacy_checksum_func_xor_encrypt_with_key(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xor_exact();
+    public static partial ushort uniffi_bacy_checksum_func_xor_exact(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xor_inplace_bytes();
+    public static partial ushort uniffi_bacy_checksum_func_xor_inplace_bytes(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash64();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash64(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash64_str();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash64_str(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash_str();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_calculate_hash_str(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_get_use_big_endian();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_get_use_big_endian(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial ushort uniffi_bacy_checksum_func_xxhash_set_use_big_endian();
+    public static partial ushort uniffi_bacy_checksum_func_xxhash_set_use_big_endian(
+    );
 
     [LibraryImport("bacy")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static partial uint ffi_bacy_uniffi_contract_version();
+    public static partial uint ffi_bacy_uniffi_contract_version(
+    );
 
-    
+
 
     static void uniffiCheckContractApiVersion() {
         var scaffolding_contract_version = _UniFFILib.ffi_bacy_uniffi_contract_version();
@@ -1360,230 +1550,230 @@ static partial class _UniFFILib {
     static void uniffiCheckApiChecksums() {
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_compare();
-            if (checksum != 48539) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compare` checksum `48539`, library returned `{checksum}`");
+            if (checksum != 44870) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compare` checksum `44870`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_compute_bytes();
-            if (checksum != 19871) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compute_bytes` checksum `19871`, library returned `{checksum}`");
+            if (checksum != 49463) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compute_bytes` checksum `49463`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_compute_streaming();
-            if (checksum != 20281) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compute_streaming` checksum `20281`, library returned `{checksum}`");
+            if (checksum != 25854) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_compute_streaming` checksum `25854`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_evaluate();
-            if (checksum != 46481) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_evaluate` checksum `46481`, library returned `{checksum}`");
+            if (checksum != 63571) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_evaluate` checksum `63571`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_forge();
-            if (checksum != 41273) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_forge` checksum `41273`, library returned `{checksum}`");
+            if (checksum != 18991) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_forge` checksum `18991`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_crc_match_file();
-            if (checksum != 63876) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_match_file` checksum `63876`, library returned `{checksum}`");
+            if (checksum != 47090) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_crc_match_file` checksum `47090`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_get_file_path();
-            if (checksum != 24895) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_get_file_path` checksum `24895`, library returned `{checksum}`");
+            if (checksum != 62508) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_get_file_path` checksum `62508`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_digest();
-            if (checksum != 48339) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest` checksum `48339`, library returned `{checksum}`");
+            if (checksum != 18222) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest` checksum `18222`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_digest64();
-            if (checksum != 63207) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest64` checksum `63207`, library returned `{checksum}`");
+            if (checksum != 4724) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest64` checksum `4724`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_digest64_hmac();
-            if (checksum != 14787) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest64_hmac` checksum `14787`, library returned `{checksum}`");
+            if (checksum != 40619) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest64_hmac` checksum `40619`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_digest_hmac();
-            if (checksum != 17263) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest_hmac` checksum `17263`, library returned `{checksum}`");
+            if (checksum != 25152) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_digest_hmac` checksum `25152`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_hash();
-            if (checksum != 12351) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash` checksum `12351`, library returned `{checksum}`");
+            if (checksum != 44001) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash` checksum `44001`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_hash_hmac();
-            if (checksum != 61647) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_hmac` checksum `61647`, library returned `{checksum}`");
+            if (checksum != 40560) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_hmac` checksum `40560`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_hash_str();
-            if (checksum != 64105) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_str` checksum `64105`, library returned `{checksum}`");
+            if (checksum != 30646) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_str` checksum `30646`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_hash_str_hmac();
-            if (checksum != 37393) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_str_hmac` checksum `37393`, library returned `{checksum}`");
+            if (checksum != 41336) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_hash_str_hmac` checksum `41336`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_compute_head();
-            if (checksum != 35122) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_head` checksum `35122`, library returned `{checksum}`");
+            if (checksum != 59270) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_compute_head` checksum `59270`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_md5_to_hex_string();
-            if (checksum != 49421) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_to_hex_string` checksum `49421`, library returned `{checksum}`");
+            if (checksum != 27889) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_md5_to_hex_string` checksum `27889`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_create_key();
-            if (checksum != 10325) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_create_key` checksum `10325`, library returned `{checksum}`");
+            if (checksum != 43658) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_create_key` checksum `43658`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_create_password();
-            if (checksum != 38087) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_create_password` checksum `38087`, library returned `{checksum}`");
+            if (checksum != 3702) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_create_password` checksum `3702`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_f32();
-            if (checksum != 41660) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_f32` checksum `41660`, library returned `{checksum}`");
+            if (checksum != 1285) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_f32` checksum `1285`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_f64();
-            if (checksum != 17354) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_f64` checksum `17354`, library returned `{checksum}`");
+            if (checksum != 23488) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_f64` checksum `23488`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_i32();
-            if (checksum != 61628) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_i32` checksum `61628`, library returned `{checksum}`");
+            if (checksum != 64525) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_i32` checksum `64525`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_i64();
-            if (checksum != 11899) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_i64` checksum `11899`, library returned `{checksum}`");
+            if (checksum != 27158) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_i64` checksum `27158`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_string();
-            if (checksum != 47602) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_string` checksum `47602`, library returned `{checksum}`");
+            if (checksum != 21308) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_string` checksum `21308`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_u32();
-            if (checksum != 17528) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_u32` checksum `17528`, library returned `{checksum}`");
+            if (checksum != 22816) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_u32` checksum `22816`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_decrypt_u64();
-            if (checksum != 56765) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_u64` checksum `56765`, library returned `{checksum}`");
+            if (checksum != 21478) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_decrypt_u64` checksum `21478`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_encrypt_f32();
-            if (checksum != 59810) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_f32` checksum `59810`, library returned `{checksum}`");
+            if (checksum != 39482) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_f32` checksum `39482`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_encrypt_f64();
-            if (checksum != 48949) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_f64` checksum `48949`, library returned `{checksum}`");
+            if (checksum != 6128) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_f64` checksum `6128`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_encrypt_string();
-            if (checksum != 1940) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_string` checksum `1940`, library returned `{checksum}`");
+            if (checksum != 46277) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_encrypt_string` checksum `46277`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_table_xor();
-            if (checksum != 65248) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_xor` checksum `65248`, library returned `{checksum}`");
+            if (checksum != 11335) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_table_xor` checksum `11335`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xor_encrypt();
-            if (checksum != 21892) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_encrypt` checksum `21892`, library returned `{checksum}`");
+            if (checksum != 52074) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_encrypt` checksum `52074`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xor_encrypt_with_key();
-            if (checksum != 25030) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_encrypt_with_key` checksum `25030`, library returned `{checksum}`");
+            if (checksum != 28120) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_encrypt_with_key` checksum `28120`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xor_exact();
-            if (checksum != 37730) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_exact` checksum `37730`, library returned `{checksum}`");
+            if (checksum != 57851) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_exact` checksum `57851`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xor_inplace_bytes();
-            if (checksum != 15831) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_inplace_bytes` checksum `15831`, library returned `{checksum}`");
+            if (checksum != 10506) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xor_inplace_bytes` checksum `10506`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xxhash_calculate_hash();
-            if (checksum != 44025) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash` checksum `44025`, library returned `{checksum}`");
+            if (checksum != 16841) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash` checksum `16841`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xxhash_calculate_hash64();
-            if (checksum != 64653) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash64` checksum `64653`, library returned `{checksum}`");
+            if (checksum != 65288) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash64` checksum `65288`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xxhash_calculate_hash64_str();
-            if (checksum != 39744) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash64_str` checksum `39744`, library returned `{checksum}`");
+            if (checksum != 50001) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash64_str` checksum `50001`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_bacy_checksum_func_xxhash_calculate_hash_str();
-            if (checksum != 38167) {
-                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash_str` checksum `38167`, library returned `{checksum}`");
+            if (checksum != 15363) {
+                throw new UniffiContractChecksumException($"BACY: uniffi bindings expected function `uniffi_bacy_checksum_func_xxhash_calculate_hash_str` checksum `15363`, library returned `{checksum}`");
             }
         }
         {
@@ -1611,22 +1801,27 @@ static partial class _UniFFILib {
 class FfiConverterUInt32: FfiConverter<uint, uint> {
     public static FfiConverterUInt32 INSTANCE = new FfiConverterUInt32();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override uint Lift(uint value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override uint Read(BigEndianStream stream) {
         return stream.ReadUInt();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override uint Lower(uint value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(uint value) {
         return 4;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(uint value, BigEndianStream stream) {
         stream.WriteUInt(value);
     }
@@ -1637,22 +1832,27 @@ class FfiConverterUInt32: FfiConverter<uint, uint> {
 class FfiConverterInt32: FfiConverter<int, int> {
     public static FfiConverterInt32 INSTANCE = new FfiConverterInt32();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int Lift(int value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int Read(BigEndianStream stream) {
         return stream.ReadInt();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int Lower(int value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(int value) {
         return 4;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(int value, BigEndianStream stream) {
         stream.WriteInt(value);
     }
@@ -1663,22 +1863,27 @@ class FfiConverterInt32: FfiConverter<int, int> {
 class FfiConverterUInt64: FfiConverter<ulong, ulong> {
     public static FfiConverterUInt64 INSTANCE = new FfiConverterUInt64();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override ulong Lift(ulong value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override ulong Read(BigEndianStream stream) {
         return stream.ReadULong();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override ulong Lower(ulong value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(ulong value) {
         return 8;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(ulong value, BigEndianStream stream) {
         stream.WriteULong(value);
     }
@@ -1689,22 +1894,27 @@ class FfiConverterUInt64: FfiConverter<ulong, ulong> {
 class FfiConverterInt64: FfiConverter<long, long> {
     public static FfiConverterInt64 INSTANCE = new FfiConverterInt64();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override long Lift(long value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override long Read(BigEndianStream stream) {
         return stream.ReadLong();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override long Lower(long value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(long value) {
         return 8;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(long value, BigEndianStream stream) {
         stream.WriteLong(value);
     }
@@ -1715,22 +1925,27 @@ class FfiConverterInt64: FfiConverter<long, long> {
 class FfiConverterFloat: FfiConverter<float, float> {
     public static FfiConverterFloat INSTANCE = new FfiConverterFloat();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override float Lift(float value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override float Read(BigEndianStream stream) {
         return stream.ReadFloat();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override float Lower(float value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(float value) {
         return 4;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(float value, BigEndianStream stream) {
         stream.WriteFloat(value);
     }
@@ -1741,22 +1956,27 @@ class FfiConverterFloat: FfiConverter<float, float> {
 class FfiConverterDouble: FfiConverter<double, double> {
     public static FfiConverterDouble INSTANCE = new FfiConverterDouble();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override double Lift(double value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override double Read(BigEndianStream stream) {
         return stream.ReadDouble();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override double Lower(double value) {
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(double value) {
         return 8;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(double value, BigEndianStream stream) {
         stream.WriteDouble(value);
     }
@@ -1767,22 +1987,27 @@ class FfiConverterDouble: FfiConverter<double, double> {
 class FfiConverterBoolean: FfiConverter<bool, sbyte> {
     public static FfiConverterBoolean INSTANCE = new FfiConverterBoolean();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override bool Lift(sbyte value) {
         return value != 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override bool Read(BigEndianStream stream) {
         return Lift(stream.ReadSByte());
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override sbyte Lower(bool value) {
         return value ? (sbyte)1 : (sbyte)0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override int AllocationSize(bool value) {
         return (sbyte)1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public override void Write(bool value, BigEndianStream stream) {
         stream.WriteSByte(Lower(value));
     }
@@ -1859,7 +2084,7 @@ class FfiConverterByteArray: FfiConverterRustBuffer<byte[]> {
 
 
 public record CrcResult (
-    uint @value, 
+    uint @value,
     string @hex
 ) {
 }
@@ -1895,19 +2120,19 @@ public class HashException: UniffiException {
 
     // Each variant is a nested class
     // Flat enums carries a string error message, so no special implementation is necessary.
-    
+
     public class Io: HashException {
         public Io(string message): base(message) {}
     }
-    
+
     public class InvalidPath: HashException {
         public InvalidPath(string message): base(message) {}
     }
-    
+
     public class Mismatch: HashException {
         public Mismatch(string message): base(message) {}
     }
-    
+
 }
 
 class FfiConverterTypeHashError : FfiConverterRustBuffer<HashException>, CallStatusErrorHandler<HashException> {
@@ -1954,15 +2179,15 @@ public class TableEncryptionException: UniffiException {
 
     // Each variant is a nested class
     // Flat enums carries a string error message, so no special implementation is necessary.
-    
+
     public class Base64Decode: TableEncryptionException {
         public Base64Decode(string message): base(message) {}
     }
-    
+
     public class StringConversionFailed: TableEncryptionException {
         public StringConversionFailed(string message): base(message) {}
     }
-    
+
 }
 
 class FfiConverterTypeTableEncryptionError : FfiConverterRustBuffer<TableEncryptionException>, CallStatusErrorHandler<TableEncryptionException> {
@@ -2061,7 +2286,7 @@ class FfiConverterOptionalByteArray: FfiConverterRustBuffer<byte[]?> {
 public static class BacyMethods {
     /// <exception cref="HashException"></exception>
     public static void CrcCompare(string @path, uint @expectedCrc) {
-        
+
     _UniffiHelpers.RustCallWithError(FfiConverterTypeHashError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_bacy_fn_func_crc_compare(FfiConverterString.INSTANCE.Lower(@path), FfiConverterUInt32.INSTANCE.Lower(@expectedCrc), ref _status)
 );
@@ -2095,7 +2320,7 @@ public static class BacyMethods {
 
     /// <exception cref="HashException"></exception>
     public static void CrcForge(string @filePath, uint @targetCrc) {
-        
+
     _UniffiHelpers.RustCallWithError(FfiConverterTypeHashError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_bacy_fn_func_crc_forge(FfiConverterString.INSTANCE.Lower(@filePath), FfiConverterUInt32.INSTANCE.Lower(@targetCrc), ref _status)
 );
@@ -2104,7 +2329,7 @@ public static class BacyMethods {
 
     /// <exception cref="HashException"></exception>
     public static void CrcMatchFile(string @filePath, string @targetFilePath) {
-        
+
     _UniffiHelpers.RustCallWithError(FfiConverterTypeHashError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_bacy_fn_func_crc_match_file(FfiConverterString.INSTANCE.Lower(@filePath), FfiConverterString.INSTANCE.Lower(@targetFilePath), ref _status)
 );
@@ -2304,11 +2529,11 @@ public static class BacyMethods {
     }
 
 
-    public static void XorEncrypt(byte[] @data, ulong @offset, ulong @length) {
-        
+    public static byte[] XorEncrypt(byte[] @data, ulong @offset, ulong @length) {
+        return FfiConverterByteArray.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_bacy_fn_func_xor_encrypt(FfiConverterByteArray.INSTANCE.Lower(@data), FfiConverterUInt64.INSTANCE.Lower(@offset), FfiConverterUInt64.INSTANCE.Lower(@length), ref _status)
-);
+));
     }
 
 
@@ -2377,7 +2602,7 @@ public static class BacyMethods {
 
 
     public static void XxhashSetUseBigEndian(bool @value) {
-        
+
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_bacy_fn_func_xxhash_set_use_big_endian(FfiConverterBoolean.INSTANCE.Lower(@value), ref _status)
 );
@@ -2385,4 +2610,3 @@ public static class BacyMethods {
 
 
 }
-

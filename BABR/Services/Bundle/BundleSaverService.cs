@@ -82,9 +82,9 @@ public static class BundleSaverService
                 {
                     File.Delete(tempUncompressedPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignored
+                    Logger.Trace("Stack trace", ex.StackTrace ?? "");
                 }
             }
 

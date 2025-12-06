@@ -84,7 +84,8 @@ public static class DumpAssetImporter
         return true;
     }
 
-    private static async Task<bool> ImportAssetFromJson(BundleLoaderService loaderService, AssetFileInfo targetAssetInfo,
+    private static async Task<bool> ImportAssetFromJson(BundleLoaderService loaderService,
+        AssetFileInfo targetAssetInfo,
         string filePath)
     {
         try

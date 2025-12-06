@@ -67,7 +67,7 @@ public static class FileManager
     {
         if (!isDump)
             CleanupDirectory(GetDumpPath());
-        CleanupDirectory(GetModdedPath());            
+        CleanupDirectory(GetModdedPath());
     }
 
     private static void CleanupDirectory(string directoryPath)
