@@ -10,6 +10,7 @@ public static class AssetCategorizationService
         var textureMatches = new List<AssetMatch>();
         var textAssetMatches = new List<AssetMatch>();
         var audioClipMatches = new List<AssetMatch>();
+        var transformMatches = new List<AssetMatch>();
         var otherMatches = new List<AssetMatch>();
 
         foreach (var match in matches)
@@ -24,6 +25,9 @@ public static class AssetCategorizationService
                 case "audioclip":
                     audioClipMatches.Add(match);
                     break;
+                case "transform":
+                    transformMatches.Add(match);
+                    break;
                 default:
                     otherMatches.Add(match);
                     break;
@@ -34,6 +38,7 @@ public static class AssetCategorizationService
             TextureMatches = textureMatches,
             TextAssetMatches = textAssetMatches,
             AudioClipMatches = audioClipMatches,
+            TransformMatches = transformMatches,
             OtherMatches = otherMatches
         };
     }

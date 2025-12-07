@@ -4,6 +4,7 @@ using BABR.Handlers.AudioClip;
 using BABR.Handlers.DumpAsset;
 using BABR.Handlers.TextAsset;
 using BABR.Handlers.Texture2D;
+using BABR.Handlers.Transforms;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Models.Types;
@@ -19,7 +20,7 @@ public static class BundleExportService
 
         var (instance, manager) = LoadBundleForExport(config.ModdedPath);
         if (instance == null || manager == null)
-            return new ExportResults(0, 0, 0, 0);
+            return new ExportResults(0, 0, 0, 0, 0);
 
         var exportedCount = assets.OtherMatches.Count > 0
             ? await DumpAssetExporter.Export(
@@ -41,7 +42,12 @@ public static class BundleExportService
                 BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat))
             : 0;
 
-        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount);
+        var transformExportCount = assets.TransformMatches.Count > 0
+            ? await TransformsExporter.Export(
+                BuildExportContext(assets.TransformMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
+
+        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount, transformExportCount);
 
         BundleResultsLogger.LogExportResults(results);
         return results;

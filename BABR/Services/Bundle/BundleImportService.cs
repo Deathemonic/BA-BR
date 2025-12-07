@@ -4,6 +4,7 @@ using BABR.Handlers.AudioClip;
 using BABR.Handlers.DumpAsset;
 using BABR.Handlers.TextAsset;
 using BABR.Handlers.Texture2D;
+using BABR.Handlers.Transforms;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Utilities;
@@ -48,7 +49,7 @@ public static class BundleImportService
         if (assetsFileInstance == null)
         {
             Logger.Error("Failed to get assets file instance for import");
-            return new ImportResults(0, 0, 0, 0);
+            return new ImportResults(0, 0, 0, 0, 0);
         }
 
         var assetsManager = loaderService.GetAssetsManager();
@@ -73,7 +74,12 @@ public static class BundleImportService
                 BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager))
             : 0;
 
-        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount);
+        var transformImportCount = assets.TransformMatches.Count > 0
+            ? await TransformsImporter.Import(
+                BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager))
+            : 0;
+
+        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount, transformImportCount);
 
         BundleResultsLogger.LogImportResults(results);
         return results;

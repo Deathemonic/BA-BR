@@ -21,6 +21,9 @@ public static class BundleResultsLogger
 
         if (results.AudioClipExportCount > 0)
             Logger.Success("Exported audio clips", results.AudioClipExportCount.ToString());
+
+        if (results.TransformExportCount > 0)
+            Logger.Success("Exported transforms", results.TransformExportCount.ToString());
     }
 
     public static void LogImportResults(ImportResults results)
@@ -36,6 +39,9 @@ public static class BundleResultsLogger
 
         if (results.ImportedAudioClipCount > 0)
             Logger.Success("Imported audio clips", results.ImportedAudioClipCount.ToString());
+
+        if (results.ImportedTransformCount > 0)
+            Logger.Success("Imported transforms", results.ImportedTransformCount.ToString());
 
         if (results.TotalImported > 0)
             Logger.Success("Assets marked as modified", results.TotalImported.ToString());
