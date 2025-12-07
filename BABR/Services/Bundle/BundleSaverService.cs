@@ -8,7 +8,7 @@ namespace BABR.Services.Bundle;
 public static class BundleSaverService
 {
     public static void SaveModdedBundle(BundleLoaderService patchLoaderService, string originalPatchPath,
-        AssetBundleCompressionType compressionType = AssetBundleCompressionType.LZ4)
+        AssetBundleCompressionType compressionType = AssetBundleCompressionType.LZ4, bool skipCrcMatch = false)
     {
         try
         {
@@ -91,6 +91,9 @@ public static class BundleSaverService
             var compressionInfo = compressionType == AssetBundleCompressionType.None
                 ? "uncompressed"
                 : $"compressed with {compressionType}";
+
+            if (!skipCrcMatch)
+                CrcManipulator.MatchCrc(outputPath, originalPatchPath);
 
             Logger.Success("Saved modded bundle", outputPath);
 

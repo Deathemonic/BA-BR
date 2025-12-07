@@ -18,6 +18,7 @@ public static class Arguments
     /// <param name="compress">-c, Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).</param>
     /// <param name="imageFormat">--image, Image format for texture export (Tga, Png, Bmp, Jpg).</param>
     /// <param name="textFormat">--text, Content format for text asset export (Txt or Bytes).</param>
+    /// <param name="noCrc">-nc, Skip CRC matching on output bundles.</param>
     /// <param name="types">-t, List all available asset types.</param>
     /// <param name="verbose">-v, Enable verbose debug output.</param>
     /// <param name="modded">-m, Path to the modded asset bundle, a directory of assets, or a single asset file.</param>
@@ -31,6 +32,7 @@ public static class Arguments
         AssetBundleCompressionType compress = AssetBundleCompressionType.LZ4,
         ImageExportType imageFormat = ImageExportType.Tga,
         TextFormat textFormat = TextFormat.Txt,
+        bool noCrc = false,
         bool types = false,
         bool verbose = false,
         string modded = "",
@@ -45,6 +47,6 @@ public static class Arguments
             return;
         }
 
-        Parser.Execute(modded, patch, include, exclude, only, output, export, imageFormat, textFormat, compress).Wait();
+        Parser.Execute(modded, patch, include, exclude, only, output, export, imageFormat, textFormat, compress, noCrc).Wait();
     }
 }

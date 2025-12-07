@@ -22,7 +22,7 @@ public static class BundleImportService
 
         var importResults = await ExecuteImports(loader, assets);
 
-        SaveChanges(loader, config.PatchPath, importResults, config.CompressionFormat);
+        SaveChanges(loader, config.PatchPath, importResults, config.CompressionFormat, config.SkipCrcMatch);
 
         BundleResultsLogger.LogFinalStatus(exportResults, importResults);
     }
@@ -80,10 +80,10 @@ public static class BundleImportService
     }
 
     private static void SaveChanges(BundleLoaderService loaderService, string patchPath, ImportResults importResults,
-        AssetBundleCompressionType compressionType)
+        AssetBundleCompressionType compressionType, bool skipCrcMatch)
     {
         if (importResults.TotalImported > 0)
-            BundleSaverService.SaveModdedBundle(loaderService, patchPath, compressionType);
+            BundleSaverService.SaveModdedBundle(loaderService, patchPath, compressionType, skipCrcMatch);
     }
 
     private static ImportContext BuildImportContext(

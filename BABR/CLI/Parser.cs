@@ -20,7 +20,8 @@ public static class Parser
         bool exportOnly,
         ImageExportType imageFormat,
         TextFormat textFormat,
-        AssetBundleCompressionType compress)
+        AssetBundleCompressionType compress,
+        bool noCrc = false)
     {
         if (string.IsNullOrEmpty(modded) || patch == null || patch.Length == 0)
         {
@@ -75,7 +76,8 @@ public static class Parser
                 Options = options,
                 ImageFormat = imageFormat,
                 CompressionFormat = compress,
-                TextFormat = textFormat
+                TextFormat = textFormat,
+                SkipCrcMatch = noCrc
             };
 
             await BundleProcessorService.ProcessBundles(config, exportOnly);

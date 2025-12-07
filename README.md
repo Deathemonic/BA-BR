@@ -65,6 +65,7 @@ babr -o ./output --image png -m your_modded.bundle -p game_asset.bundle
 | `--compress <type>`       | `-c`      | Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).                | `lz4`   |
 | `--image-format <format>` | `--image` | Sets the export format for textures (Tga, Png, Bmp, Jpg).                     | `tga`   |
 | `--text-format <format>`  | `--text`  | Sets the export format for text assets (Txt, Bytes).                          | `txt`   |
+| `--no-crc`               | `-nc`      | Skip CRC matching on output bundles.                                          | `false` |
 | `--types`                 | `-t`      | Lists all available asset types and exits.                                    | `false` |
 | `--verbose`               | `-v`      | Enables detailed debug logging.                                               | `false` |
 | `--modded <path>`         | `-m`      | **(Required)** Path to the modded asset bundle, directory, or single file.    |         |
