@@ -84,4 +84,10 @@ public static class FileManager
             Logger.Error("Failed to cleanup directory", ex);
         }
     }
+
+    public static bool IsBundleFile(string filePath)
+    {
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+        return extension is ".bundle" or "";
+    }
 }

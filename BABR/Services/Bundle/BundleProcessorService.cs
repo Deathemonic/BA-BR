@@ -17,8 +17,6 @@ public static class BundleProcessorService
             return;
         }
 
-        PrepareDirectories(skipExport);
-
         var moddedPath = skipExport ? config.PatchPath : config.ModdedPath;
         var matches = AssetComparerService.FindMatches(moddedPath, config.PatchPath, config.Options);
 
@@ -75,15 +73,6 @@ public static class BundleProcessorService
     {
         var extension = Path.GetExtension(filePath).ToLowerInvariant();
         return extension is ".bundle" or "";
-    }
-
-    private static void PrepareDirectories(bool isDump)
-    {
-        Logger.Info("Preparing directories...");
-
-        FileManager.CleanupDirectories(isDump);
-
-        Logger.Debug("Cleaned up existing Dumps and Modded directories");
     }
 
     private static void LogMatchingAssets(List<AssetMatch> matches)

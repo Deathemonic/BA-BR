@@ -33,30 +33,11 @@ public static class Parser
 
         var options = ProcessingOptions.FromStrings(includeTypes, excludeTypes, onlyTypes);
 
-        if (patch.Length == 1)
-        {
-            var config = new BundleProcessingConfig
-            {
-                ModdedPath = modded,
-                PatchPath = patch[0],
-                Options = options,
-                ImageFormat = imageFormat,
-                CompressionFormat = compress,
-                TextFormat = textFormat
-            };
-
-            await BundleProcessorService.ProcessBundles(config, exportOnly);
-            return;
-        }
-
         var moddedIsDirectory = Directory.Exists(modded);
-        var moddedIsFile = File.Exists(modded);
+        var moddedIsBundle = File.Exists(modded) && FileManager.IsBundleFile(modded);
+        var skipExport = moddedIsDirectory || (File.Exists(modded) && !moddedIsBundle);
 
-        if (!moddedIsDirectory && !moddedIsFile)
-        {
-            Logger.Error("Modded path not found", modded);
-            return;
-        }
+        FileManager.CleanupDirectories(skipExport);
 
         foreach (var patchPath in patch)
         {
@@ -84,7 +65,8 @@ public static class Parser
                 moddedPath = modded;
             }
 
-            Logger.Info("Processing", Path.GetFileName(patchPath));
+            if (patch.Length > 1)
+                Logger.Info("Processing", Path.GetFileName(patchPath));
 
             var config = new BundleProcessingConfig
             {

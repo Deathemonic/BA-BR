@@ -23,8 +23,6 @@ public static class Arguments
     /// <param name="verbose">-v, Enable verbose debug output.</param>
     /// <param name="types">-t, List all available asset types.</param>
     public static void Run(
-        string modded = "",
-        string[]? patch = null,
         string[]? include = null,
         string[]? exclude = null,
         string[]? only = null,
@@ -34,7 +32,9 @@ public static class Arguments
         ImageExportType imageFormat = ImageExportType.Tga,
         TextFormat textFormat = TextFormat.Txt,
         AssetBundleCompressionType compress = AssetBundleCompressionType.LZ4,
-        bool types = false)
+        bool types = false,
+        string modded = "",
+        params string[]? patch)
     {
         Logger.Initialize(verbose);
 
