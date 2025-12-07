@@ -34,31 +34,43 @@ The process works as follows:
 ### Basic Example
 
 ```shell
-babr --modded your_modded.bundle --patch game_asset.bundle
-```
+# Basic usage
+babr -m your_modded.bundle -p game_asset.bundle
 
-This command will find matching assets, export the modified ones from `your_modded.bundle`, and import them into
-`game_asset.bundle`, saving the result in a new bundle inside the `Modded` directory.
+# Multiple patch bundles
+babr -m your_modded.bundle -p textures.bundle meshes.bundle audio.bundle
+
+# Export only (no import)
+babr -e -m your_modded.bundle -p game_asset.bundle
+
+# Exclude specific asset types
+babr --exclude texture2d,audioclip -m your_modded.bundle -p game_asset.bundle
+
+# Custom output directory with PNG export
+babr -o ./output --image png -m your_modded.bundle -p game_asset.bundle
+```
 
 <details>
 <summary>Command Line</summary>
 
 ### `babr --help`
 
-| Argument                 | Alias       | Description                                                                   | Default |
-|--------------------------|-------------|-------------------------------------------------------------------------------|---------|
-| `--modded <path>`        | `-m`        | **(Required)** Path to the modded asset bundle, directory, or single file.    |         |
-| `--patch <path...>`      | `-p`        | **(Required)** Path(s) to the patch asset bundle(s). Supports multiple files. |         |
-| `--output <path>`        | `-o`        | Output directory for Dumps and Modded folders.                                |         |
-| `--export`               | `-e`        | Export assets only without importing.                                         | `false` |
-| `--image-format <format>` | `--image`   | Sets the export format for textures (Tga, Png, Bmp, Jpg).                    | `tga`   |
-| `--text-format <format>`  | `--text`    | Sets the export format for text assets (Txt, Bytes).                          | `txt`   |
-| `--compress <type>`      | `-c`        | Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).                | `lz4`   |
-| `--include <types...>`   | `--include` | Asset types to include (e.g., texture2d audioclip).                           |         |
-| `--exclude <types...>`   | `--exclude` | Asset types to exclude.                                                       |         |
-| `--only <types...>`      | `--only`    | Only process assets of these specific types.                                  |         |
-| `--verbose`              | `-v`        | Enables detailed debug logging.                                               | `false` |
-| `--types`                | `-t`        | Lists all available asset types and exits.                                    | `false` |
+| Argument                  | Alias     | Description                                                                   | Default |
+|---------------------------|-----------|-------------------------------------------------------------------------------|---------|
+| `--include <types>`       |           | Asset types to include (e.g., `--include texture2d,audioclip`).               |         |
+| `--exclude <types>`       |           | Asset types to exclude (e.g., `--exclude gameobject,transform`).              |         |
+| `--only <types>`          |           | Only process assets of these specific types.                                  |         |
+| `--output <path>`         | `-o`      | Output directory for Dumps and Modded folders.                                |         |
+| `--export`                | `-e`      | Export assets only without importing.                                         | `false` |
+| `--compress <type>`       | `-c`      | Compression type for output bundle (None, LZMA, LZ4, LZ4Fast).                | `lz4`   |
+| `--image-format <format>` | `--image` | Sets the export format for textures (Tga, Png, Bmp, Jpg).                     | `tga`   |
+| `--text-format <format>`  | `--text`  | Sets the export format for text assets (Txt, Bytes).                          | `txt`   |
+| `--types`                 | `-t`      | Lists all available asset types and exits.                                    | `false` |
+| `--verbose`               | `-v`      | Enables detailed debug logging.                                               | `false` |
+| `--modded <path>`         | `-m`      | **(Required)** Path to the modded asset bundle, directory, or single file.    |         |
+| `--patch <path...>`       | `-p`      | **(Required)** Path(s) to the patch asset bundle(s). Must be last argument.   |         |
+
+> **Note:** The `-p`/`--patch` argument uses `params`, so it captures all remaining arguments. Place all other options **before** `-p`.
 
 </details>
 
