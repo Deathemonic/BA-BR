@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.Utilities;
 using ZLinq;
@@ -13,13 +15,15 @@ public static class TransformLookup
         AssetsFileInstance assetsFileInstance,
         AssetsManager assetsManager)
     {
+        // Pre-build PathId → TypeId lookup (O(n) once, then O(1) lookups)
+        var typeIdLookup = assetsFileInstance.file.AssetInfos
+            .AsValueEnumerable()
+            .ToFrozenDictionary(a => a.PathId, a => a.TypeId);
+
         var goToTransform = new Dictionary<string, long>();
 
-        var gameObjects = assetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .Where(a => a.TypeId == GameObjectTypeId);
-
-        foreach (var goInfo in gameObjects)
+        foreach (var goInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable()
+                     .Where(a => a.TypeId == GameObjectTypeId))
         {
             try
             {
@@ -35,12 +39,7 @@ public static class TransformLookup
                 var componentsField = baseField["m_Component"]["Array"];
                 if (componentsField.IsDummy || componentsField.Children.Count == 0) continue;
 
-                // First component is typically the Transform
-                var firstComponent = componentsField.Children[0];
-                var componentRef = firstComponent["component"];
-                if (componentRef.IsDummy) continue;
-
-                var transformPathId = componentRef["m_PathID"].AsLong;
+                var transformPathId = GetFirstTransformPathId(componentsField, typeIdLookup);
                 if (transformPathId != 0)
                     goToTransform[goName] = transformPathId;
             }
@@ -53,33 +52,24 @@ public static class TransformLookup
         return goToTransform;
     }
 
+    private static long GetFirstTransformPathId(AssetTypeValueField componentsField,
+        FrozenDictionary<long, int> typeIdLookup)
+    {
+        var firstComponent = componentsField.Children[0];
+        var componentRef = firstComponent["component"];
+        if (componentRef.IsDummy) return 0;
+
+        var pathId = componentRef["m_PathID"].AsLong;
+        if (pathId == 0) return 0;
+
+        return typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == TransformTypeId ? pathId : 0;
+    }
+
     public static Dictionary<long, string> BuildTransformToGameObjectMap(
         AssetsFileInstance assetsFileInstance,
         AssetsManager assetsManager)
     {
         var goToTransform = BuildGameObjectToTransformMap(assetsFileInstance, assetsManager);
-        return goToTransform.AsValueEnumerable().ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-    }
-
-    public static string? GetGameObjectNameForTransform(
-        long transformPathId,
-        AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
-    {
-        var transformToGo = BuildTransformToGameObjectMap(assetsFileInstance, assetsManager);
-        return transformToGo.GetValueOrDefault(transformPathId);
-    }
-
-    public static List<(long PathId, string GameObjectName)> GetAllTransformsWithNames(
-        AssetsFileInstance assetsFileInstance,
-        AssetsManager assetsManager)
-    {
-        var transformToGo = BuildTransformToGameObjectMap(assetsFileInstance, assetsManager);
-
-        return assetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .Where(a => a.TypeId == TransformTypeId && transformToGo.ContainsKey(a.PathId))
-            .Select(a => (a.PathId, transformToGo[a.PathId]))
-            .ToList();
+        return goToTransform.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
     }
 }

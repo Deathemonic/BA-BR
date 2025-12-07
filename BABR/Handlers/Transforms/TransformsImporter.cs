@@ -3,7 +3,7 @@ using System.Text.Json;
 using AssetsTools.NET;
 using BABR.Models;
 using BABR.Models.Context;
-using BABR.Services.Bundle;
+using BABR.Models.Types;
 using BABR.Utilities;
 using ZLinq;
 
@@ -89,13 +89,7 @@ public static class TransformsImporter
         try
         {
             var jsonText = await File.ReadAllTextAsync(filePath);
-            var transformData = JsonSerializer.Deserialize<TransformData>(jsonText);
-
-            if (transformData == null)
-            {
-                Logger.Error("Failed to parse transform JSON");
-                return false;
-            }
+            var transformData = JsonSerializer.Deserialize(jsonText, TransformJsonContext.Default.TransformData);
 
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
             if (baseField == null)
@@ -104,15 +98,12 @@ public static class TransformsImporter
                 return false;
             }
 
-            // Update only the transform fields
             UpdateVector4(baseField["m_LocalRotation"], transformData.m_LocalRotation);
             UpdateVector3(baseField["m_LocalPosition"], transformData.m_LocalPosition);
             UpdateVector3(baseField["m_LocalScale"], transformData.m_LocalScale);
 
-            // Write modified data
             var newData = baseField.WriteToByteArray();
-            var replacer = new ContentReplacerFromBuffer(newData);
-            targetAssetInfo.Replacer = replacer;
+            targetAssetInfo.Replacer = new ContentReplacerFromBuffer(newData);
 
             return true;
         }
@@ -138,26 +129,4 @@ public static class TransformsImporter
         field["y"].AsFloat = data.y;
         field["z"].AsFloat = data.z;
     }
-}
-
-internal record TransformData
-{
-    public Vector4Data m_LocalRotation { get; init; } = new();
-    public Vector3Data m_LocalPosition { get; init; } = new();
-    public Vector3Data m_LocalScale { get; init; } = new();
-}
-
-internal record Vector4Data
-{
-    public float x { get; init; }
-    public float y { get; init; }
-    public float z { get; init; }
-    public float w { get; init; }
-}
-
-internal record Vector3Data
-{
-    public float x { get; init; }
-    public float y { get; init; }
-    public float z { get; init; }
 }

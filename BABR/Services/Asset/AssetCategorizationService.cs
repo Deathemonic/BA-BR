@@ -7,39 +7,28 @@ public static class AssetCategorizationService
 {
     public static CategorizedAssets CategorizeMatches(List<AssetMatch> matches)
     {
-        var textureMatches = new List<AssetMatch>();
-        var textAssetMatches = new List<AssetMatch>();
-        var audioClipMatches = new List<AssetMatch>();
-        var transformMatches = new List<AssetMatch>();
-        var otherMatches = new List<AssetMatch>();
+        List<AssetMatch> textures = [], textAssets = [], audioClips = [], transforms = [], others = [];
 
         foreach (var match in matches)
-            switch (match.Type.ToLowerInvariant())
+        {
+            var list = match.Type.ToLowerInvariant() switch
             {
-                case "texture2d":
-                    textureMatches.Add(match);
-                    break;
-                case "textasset":
-                    textAssetMatches.Add(match);
-                    break;
-                case "audioclip":
-                    audioClipMatches.Add(match);
-                    break;
-                case "transform":
-                    transformMatches.Add(match);
-                    break;
-                default:
-                    otherMatches.Add(match);
-                    break;
-            }
+                "texture2d" => textures,
+                "textasset" => textAssets,
+                "audioclip" => audioClips,
+                "transform" => transforms,
+                _ => others
+            };
+            list.Add(match);
+        }
 
         return new CategorizedAssets
         {
-            TextureMatches = textureMatches,
-            TextAssetMatches = textAssetMatches,
-            AudioClipMatches = audioClipMatches,
-            TransformMatches = transformMatches,
-            OtherMatches = otherMatches
+            TextureMatches = textures,
+            TextAssetMatches = textAssets,
+            AudioClipMatches = audioClips,
+            TransformMatches = transforms,
+            OtherMatches = others
         };
     }
 }

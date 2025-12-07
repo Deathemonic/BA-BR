@@ -28,10 +28,7 @@ public static class AssetComparerService
                 Options = options
             };
 
-            var regularMatches = CompareAssets(context);
-            var transformMatches = CompareTransforms(context);
-
-            return [.. regularMatches, .. transformMatches];
+            return [.. CompareAssets(context), .. CompareTransforms(context)];
         }
         finally
         {
@@ -47,29 +44,21 @@ public static class AssetComparerService
             var moddedAssets = GetAssetInfo(context.ModdedLoaderService);
             var patchAssets = GetAssetInfo(context.PatchLoaderService);
 
-            var moddedAssetsLookup = moddedAssets
+            var moddedLookup = moddedAssets
                 .AsValueEnumerable()
-                .GroupBy(m => (m.Value.Name, m.Value.Type))
-                .ToFrozenDictionary(g => g.Key, g => g.First());
+                .ToFrozenDictionary(m => (m.Value.Name, m.Value.Type), m => m.Key);
 
-            var matches = patchAssets
+            return patchAssets
                 .AsValueEnumerable()
-                .GroupBy(p => (p.Value.Name, p.Value.Type))
-                .Where(g => !context.Options.ShouldFilterAsset(g.Key.Type.ToLowerInvariant(), g.Key.Name))
-                .Where(g => moddedAssetsLookup.TryGetValue(g.Key, out var moddedAsset) && moddedAsset.Key != 0)
-                .SelectMany(g =>
-                {
-                    var moddedAsset = moddedAssetsLookup[g.Key];
-                    return g.Select(patchAsset => new AssetMatch(
-                        moddedAsset.Key,
-                        patchAsset.Key,
-                        patchAsset.Value.Name,
-                        patchAsset.Value.Type,
-                        patchAsset.Value.TypeId));
-                })
+                .Where(p => !context.Options.ShouldFilterAsset(p.Value.Type.ToLowerInvariant(), p.Value.Name))
+                .Where(p => moddedLookup.ContainsKey((p.Value.Name, p.Value.Type)))
+                .Select(p => new AssetMatch(
+                    moddedLookup[(p.Value.Name, p.Value.Type)],
+                    p.Key,
+                    p.Value.Name,
+                    p.Value.Type,
+                    p.Value.TypeId))
                 .ToList();
-
-            return matches;
         }
         catch (Exception ex)
         {
@@ -80,26 +69,22 @@ public static class AssetComparerService
 
     private static List<AssetMatch> CompareTransforms(ComparisonContext context)
     {
+        if (context.Options.ShouldFilterAsset("transform", ""))
+            return [];
+
         try
         {
-            if (context.Options.ShouldFilterAsset("transform", ""))
-                return [];
-
             var moddedInstance = context.ModdedLoaderService.GetAssetsFileInstance();
             var patchInstance = context.PatchLoaderService.GetAssetsFileInstance();
-
             if (moddedInstance == null || patchInstance == null)
                 return [];
 
-            var moddedManager = context.ModdedLoaderService.GetAssetsManager();
-            var patchManager = context.PatchLoaderService.GetAssetsManager();
+            var moddedGoToTransform = TransformLookup.BuildGameObjectToTransformMap(
+                moddedInstance, context.ModdedLoaderService.GetAssetsManager());
+            var patchGoToTransform = TransformLookup.BuildGameObjectToTransformMap(
+                patchInstance, context.PatchLoaderService.GetAssetsManager());
 
-            // Build GO name → Transform PathId maps
-            var moddedGoToTransform = TransformLookup.BuildGameObjectToTransformMap(moddedInstance, moddedManager);
-            var patchGoToTransform = TransformLookup.BuildGameObjectToTransformMap(patchInstance, patchManager);
-
-            // Match transforms by GameObject name
-            var matches = moddedGoToTransform
+            return moddedGoToTransform
                 .AsValueEnumerable()
                 .Where(kvp => patchGoToTransform.ContainsKey(kvp.Key))
                 .Select(kvp => new AssetMatch(
@@ -109,8 +94,6 @@ public static class AssetComparerService
                     "Transform",
                     TransformTypeId))
                 .ToList();
-
-            return matches;
         }
         catch (Exception ex)
         {
@@ -122,27 +105,22 @@ public static class AssetComparerService
     private static Dictionary<long, (string Name, string Type, int TypeId)> GetAssetInfo(
         BundleLoaderService loaderService)
     {
+        var instance = loaderService.GetAssetsFileInstance();
+        if (instance == null)
+            return [];
+
+        var manager = loaderService.GetAssetsManager();
         var assets = new Dictionary<long, (string Name, string Type, int TypeId)>();
-        var assetsFileInstance = loaderService.GetAssetsFileInstance();
 
-        if (assetsFileInstance == null)
-            return assets;
-
-        foreach (var assetInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable())
+        foreach (var info in instance.file.AssetInfos.AsValueEnumerable())
         {
-            // Skip transforms - they're handled separately
-            if (assetInfo.TypeId == TransformTypeId)
-                continue;
+            if (info.TypeId == TransformTypeId) continue;
 
-            var baseField = loaderService.GetAssetsManager().GetBaseField(assetsFileInstance, assetInfo);
-            var assetName = "Unknown";
-            var assetType = TypeMapper.GetAssetTypeName(assetInfo.TypeId);
-
+            var baseField = manager.GetBaseField(instance, info);
             var nameField = baseField?["m_Name"];
-            if (nameField is { IsDummy: false })
-                assetName = nameField.AsString;
+            var name = nameField is { IsDummy: false } ? nameField.AsString : "Unknown";
 
-            assets[assetInfo.PathId] = (assetName, assetType, assetInfo.TypeId);
+            assets[info.PathId] = (name, TypeMapper.GetAssetTypeName(info.TypeId), info.TypeId);
         }
 
         return assets;
