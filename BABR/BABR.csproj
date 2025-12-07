@@ -28,6 +28,7 @@
         <ProjectReference Include="..\BABR.BAADCore\BABR.BAADCore.csproj" />
         <ProjectReference Include="..\BABR.BACY\BABR.BACY.csproj" />
         <ProjectReference Include="..\BABR.FMOD\BABR.FMOD.csproj" />
+        <ProjectReference Include="..\BABR.TextureEncoder\BABR.TextureEncoder.csproj" />
     </ItemGroup>
 
     <ItemGroup>
