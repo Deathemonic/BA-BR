@@ -9,7 +9,7 @@ using ZLinq;
 
 namespace BABR.Handlers.Transforms;
 
-public static class TransformsImporter
+public static class TransformImporter
 {
     public static async Task<int> Import(ImportContext context)
     {

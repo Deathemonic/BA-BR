@@ -15,7 +15,6 @@ public static class TransformLookup
         AssetsFileInstance assetsFileInstance,
         AssetsManager assetsManager)
     {
-        // Pre-build PathId → TypeId lookup (O(n) once, then O(1) lookups)
         var typeIdLookup = assetsFileInstance.file.AssetInfos
             .AsValueEnumerable()
             .ToFrozenDictionary(a => a.PathId, a => a.TypeId);

@@ -8,7 +8,7 @@ using ZLinq;
 
 namespace BABR.Handlers.Transforms;
 
-public static class TransformsExporter
+public static class TransformExporter
 {
     private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
 

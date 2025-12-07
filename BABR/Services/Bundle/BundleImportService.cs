@@ -75,11 +75,12 @@ public static class BundleImportService
             : 0;
 
         var transformImportCount = assets.TransformMatches.Count > 0
-            ? await TransformsImporter.Import(
+            ? await TransformImporter.Import(
                 BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager))
             : 0;
 
-        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount, transformImportCount);
+        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount,
+            transformImportCount);
 
         BundleResultsLogger.LogImportResults(results);
         return results;

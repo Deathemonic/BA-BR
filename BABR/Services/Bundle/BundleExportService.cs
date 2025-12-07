@@ -43,11 +43,12 @@ public static class BundleExportService
             : 0;
 
         var transformExportCount = assets.TransformMatches.Count > 0
-            ? await TransformsExporter.Export(
+            ? await TransformExporter.Export(
                 BuildExportContext(assets.TransformMatches, instance, manager, config.TextFormat, config.ImageFormat))
             : 0;
 
-        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount, transformExportCount);
+        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,
+            transformExportCount);
 
         BundleResultsLogger.LogExportResults(results);
         return results;
