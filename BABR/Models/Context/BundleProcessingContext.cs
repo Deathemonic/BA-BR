@@ -12,7 +12,9 @@ public record BundleProcessingConfig
     public required TextFormat TextFormat { get; init; } = TextFormat.Txt;
     public required ImageExportType ImageFormat { get; init; } = ImageExportType.Tga;
     public required AssetBundleCompressionType CompressionFormat { get; init; } = AssetBundleCompressionType.LZ4;
-    public bool SkipCrcMatch { get; init; } = false;
+    public bool SkipCrcMatch { get; init; }
+    public bool SkipExport { get; init; }
+    public bool NeedsCleanup { get; init; }
 }
 
 public record CategorizedAssets

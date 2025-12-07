@@ -38,7 +38,7 @@ public static class Parser
         var moddedIsBundle = File.Exists(modded) && FileManager.IsBundleFile(modded);
         var skipExport = moddedIsDirectory || (File.Exists(modded) && !moddedIsBundle);
 
-        FileManager.CleanupDirectories(skipExport);
+        var cleanedUp = false;
 
         foreach (var patchPath in patch)
         {
@@ -77,10 +77,13 @@ public static class Parser
                 ImageFormat = imageFormat,
                 CompressionFormat = compress,
                 TextFormat = textFormat,
-                SkipCrcMatch = noCrc
+                SkipCrcMatch = noCrc,
+                SkipExport = skipExport,
+                NeedsCleanup = !cleanedUp
             };
 
-            await BundleProcessorService.ProcessBundles(config, exportOnly);
+            if (await BundleProcessorService.ProcessBundles(config, exportOnly))
+                cleanedUp = true;
         }
     }
 }

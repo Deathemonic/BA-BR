@@ -7,14 +7,14 @@ namespace BABR.Services.Bundle;
 
 public static class BundleProcessorService
 {
-    public static async Task ProcessBundles(BundleProcessingConfig config, bool exportOnly = false)
+    public static async Task<bool> ProcessBundles(BundleProcessingConfig config, bool exportOnly = false)
     {
-        var (skipExport, singleFile) = DetectInputMode(config.ModdedPath);
+        var (skipExport, singleFile) = DetectInputMode(config.ModdedPath, config.SkipExport);
 
         if (exportOnly && skipExport)
         {
-            Logger.Error("Export-only mode (--export) only works with bundle files, not directories or single files");
-            return;
+            Logger.Error("Export-only mode only works with bundle files, not directories or single files");
+            return false;
         }
 
         var moddedPath = skipExport ? config.PatchPath : config.ModdedPath;
@@ -28,8 +28,11 @@ public static class BundleProcessorService
         if (matches.Count == 0)
         {
             Logger.Warn("No matching assets found");
-            return;
+            return false;
         }
+
+        if (config.NeedsCleanup)
+            FileManager.CleanupDirectories(skipExport);
 
         LogMatchingAssets(matches);
 
@@ -39,7 +42,7 @@ public static class BundleProcessorService
         {
             Logger.Info("Export-only mode: skipping import");
             await BundleExportService.PerformExports(config, categorizedAssets);
-            return;
+            return true;
         }
 
         var exportResults = skipExport
@@ -47,26 +50,29 @@ public static class BundleProcessorService
             : await BundleExportService.PerformExports(config, categorizedAssets);
 
         await BundleImportService.PerformImports(config, categorizedAssets, exportResults);
+        return true;
     }
 
-    private static (bool skipExport, string? singleFile) DetectInputMode(string moddedPath)
+    private static (bool skipExport, string? singleFile) DetectInputMode(string moddedPath, bool alreadySkipExport)
     {
-        if (Directory.Exists(moddedPath))
+        if (alreadySkipExport && Directory.Exists(moddedPath))
         {
             Logger.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
             Logger.Info("Skipping export, proceeding directly to import...");
-
             FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
             return (true, null);
         }
 
-        if (!File.Exists(moddedPath) || IsBundleFile(moddedPath)) return (false, null);
-        Logger.Info("Using single file", Path.GetFullPath(moddedPath));
-        Logger.Info("Skipping export, proceeding directly to import...");
+        if (alreadySkipExport && File.Exists(moddedPath) && !IsBundleFile(moddedPath))
+        {
+            Logger.Info("Using single file", Path.GetFullPath(moddedPath));
+            Logger.Info("Skipping export, proceeding directly to import...");
+            var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
+            FileManager.SetCustomDumpPath(directory);
+            return (true, Path.GetFullPath(moddedPath));
+        }
 
-        var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
-        FileManager.SetCustomDumpPath(directory);
-        return (true, Path.GetFullPath(moddedPath));
+        return (false, null);
     }
 
     private static bool IsBundleFile(string filePath)
