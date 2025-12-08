@@ -1,11 +1,9 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using AssetsTools.NET;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Models.Types;
 using BABR.Utilities;
-using ZLinq;
 
 namespace BABR.Handlers.Transforms;
 
@@ -21,14 +19,10 @@ public static class TransformImporter
     {
         var importedCount = 0;
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (await ProcessAsset(match, context, assetInfoLookup))
+                if (await ProcessAsset(match, context))
                     importedCount++;
             }
             catch (Exception ex)
@@ -39,10 +33,9 @@ public static class TransformImporter
         return importedCount;
     }
 
-    private static async Task<bool> ProcessAsset(AssetMatch match, ImportContext context,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static async Task<bool> ProcessAsset(AssetMatch match, ImportContext context)
     {
-        if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
             Logger.Error("Transform not found in patch bundle", match.PatchId.ToString());
             return false;

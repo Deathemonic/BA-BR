@@ -1,11 +1,9 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Models.Types;
 using BABR.Utilities;
-using ZLinq;
 
 namespace BABR.Handlers.TextAsset;
 
@@ -22,14 +20,10 @@ public static class TextAssetExporter
     {
         var exportedCount = 0;
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (ProcessTextAsset(match, context, assetInfoLookup))
+                if (ProcessTextAsset(match, context))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -40,10 +34,9 @@ public static class TextAssetExporter
         return exportedCount;
     }
 
-    private static bool ProcessTextAsset(AssetMatch match, ExportContext context,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static bool ProcessTextAsset(AssetMatch match, ExportContext context)
     {
-        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error("TextAsset not found in modded bundle", match.ModdedId.ToString());
             return false;

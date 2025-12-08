@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using BABR.Models;
 using BABR.Models.Context;
@@ -19,14 +18,10 @@ public static class Texture2DImporter
     {
         var importedCount = 0;
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (await ProcessTexture(match, context, assetInfoLookup))
+                if (await ProcessTexture(match, context))
                     importedCount++;
             }
             catch (Exception ex)
@@ -37,10 +32,9 @@ public static class Texture2DImporter
         return importedCount;
     }
 
-    private static async Task<bool> ProcessTexture(AssetMatch match, ImportContext context,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static async Task<bool> ProcessTexture(AssetMatch match, ImportContext context)
     {
-        if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
             Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;

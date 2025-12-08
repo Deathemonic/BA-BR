@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using BABR.FMOD;
 using BABR.FMOD.API;
@@ -6,7 +5,6 @@ using BABR.Models;
 using BABR.Models.Context;
 using BABR.Services.Bundle;
 using BABR.Utilities;
-using ZLinq;
 
 namespace BABR.Handlers.AudioClip;
 
@@ -50,14 +48,10 @@ public static class AudioClipImporter
         var importedCount = 0;
         var dumpsDir = FileManager.GetDumpPath();
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (ProcessAudioClip(match, context, dumpsDir, assetInfoLookup))
+                if (ProcessAudioClip(match, context, dumpsDir))
                     importedCount++;
             }
             catch (Exception ex)
@@ -68,13 +62,9 @@ public static class AudioClipImporter
         return Task.FromResult(importedCount);
     }
 
-    private static bool ProcessAudioClip(
-        AssetMatch match,
-        ImportContext context,
-        string dumpsDir,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static bool ProcessAudioClip(AssetMatch match, ImportContext context, string dumpsDir)
     {
-        if (!assetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
             Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;

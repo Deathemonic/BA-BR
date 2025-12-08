@@ -1,10 +1,8 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Utilities;
-using ZLinq;
 
 namespace BABR.Handlers.Texture2D;
 
@@ -21,14 +19,10 @@ public static class Texture2DExporter
     {
         var exportedCount = 0;
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (ProcessTexture(match, context, assetInfoLookup))
+                if (ProcessTexture(match, context))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -39,10 +33,9 @@ public static class Texture2DExporter
         return exportedCount;
     }
 
-    private static bool ProcessTexture(AssetMatch match, ExportContext context,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static bool ProcessTexture(AssetMatch match, ExportContext context)
     {
-        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error("Texture2D asset not found in modded bundle", match.ModdedId.ToString());
             return false;

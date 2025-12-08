@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.FMOD;
@@ -36,14 +35,10 @@ public static class AudioClipExporter
         var exportedCount = 0;
         var usedPaths = new HashSet<string>();
 
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (ProcessAudioClip(match, context, usedPaths, assetInfoLookup))
+                if (ProcessAudioClip(match, context, usedPaths))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -54,10 +49,9 @@ public static class AudioClipExporter
         return exportedCount;
     }
 
-    private static bool ProcessAudioClip(AssetMatch match, ExportContext context,
-        HashSet<string> usedPaths, FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static bool ProcessAudioClip(AssetMatch match, ExportContext context, HashSet<string> usedPaths)
     {
-        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error("AudioClip not found in modded bundle", match.ModdedId.ToString());
             return false;

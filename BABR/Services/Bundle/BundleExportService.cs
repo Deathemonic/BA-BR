@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using BABR.Handlers.AudioClip;
@@ -23,34 +25,36 @@ public static class BundleExportService
         if (instance == null || manager == null)
             return new ExportResults(0, 0, 0, 0, 0, 0);
 
+        var assetInfoLookup = instance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
+
         var exportedCount = assets.OtherMatches.Count > 0
             ? await DumpAssetExporter.Export(
-                BuildExportContext(assets.OtherMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.OtherMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var textureExportCount = assets.TextureMatches.Count > 0
             ? await Texture2DExporter.Export(
-                BuildExportContext(assets.TextureMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TextureMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var textAssetExportCount = assets.TextAssetMatches.Count > 0
             ? await TextAssetExporter.Export(
-                BuildExportContext(assets.TextAssetMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TextAssetMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var audioClipExportCount = assets.AudioClipMatches.Count > 0
             ? await AudioClipExporter.Export(
-                BuildExportContext(assets.AudioClipMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.AudioClipMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var transformExportCount = assets.TransformMatches.Count > 0
             ? await TransformExporter.Export(
-                BuildExportContext(assets.TransformMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TransformMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var skinnedMeshRendererExportCount = assets.SkinnedMeshRendererMatches.Count > 0
             ? await SkinnedMeshRendererExporter.Export(
-                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
         var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,
@@ -80,6 +84,7 @@ public static class BundleExportService
         List<AssetMatch> matches,
         AssetsFileInstance instance,
         AssetsManager manager,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup,
         TextFormat textFormat = TextFormat.Txt,
         ImageExportType imageFormat = ImageExportType.Tga) =>
         new()
@@ -87,6 +92,7 @@ public static class BundleExportService
             Matches = matches,
             AssetsFileInstance = instance,
             AssetsManager = manager,
+            AssetInfoLookup = assetInfoLookup,
             TextFormat = textFormat,
             ImageFormat = imageFormat
         };

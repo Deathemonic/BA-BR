@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.Handlers.AudioClip;
@@ -60,35 +61,36 @@ public static class BundleImportService
         }
 
         var assetsManager = loaderService.GetAssetsManager();
+        var assetInfoLookup = assetsFileInstance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
 
         var importedCount = assets.OtherMatches.Count > 0
             ? await DumpAssetImporter.Import(
-                BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var textureImportCount = assets.TextureMatches.Count > 0
             ? await Texture2DImporter.Import(
-                BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var textAssetImportCount = assets.TextAssetMatches.Count > 0
             ? await TextAssetImporter.Import(
-                BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var audioClipImportCount = assets.AudioClipMatches.Count > 0
             ? await AudioClipImporter.Import(
-                BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var transformImportCount = assets.TransformMatches.Count > 0
             ? await TransformImporter.Import(
-                BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var skinnedMeshRendererImportCount = assets.SkinnedMeshRendererMatches.Count > 0
             ? await SkinnedMeshRendererImporter.Import(
-                BuildImportContext(loaderService, assets.SkinnedMeshRendererMatches, assetsFileInstance, assetsManager))
+                BuildImportContext(loaderService, assets.SkinnedMeshRendererMatches, assetsFileInstance, assetsManager, assetInfoLookup))
             : 0;
 
         var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount,
@@ -109,12 +111,14 @@ public static class BundleImportService
         BundleLoaderService loaderService,
         List<AssetMatch> matches,
         AssetsFileInstance instance,
-        AssetsManager manager) =>
+        AssetsManager manager,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup) =>
         new()
         {
             LoaderService = loaderService,
             Matches = matches,
             AssetsFileInstance = instance,
-            AssetsManager = manager
+            AssetsManager = manager,
+            AssetInfoLookup = assetInfoLookup
         };
 }

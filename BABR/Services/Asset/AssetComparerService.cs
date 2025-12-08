@@ -1,4 +1,3 @@
-using BABR.Handlers.Transforms;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Services.Bundle;
@@ -10,6 +9,9 @@ namespace BABR.Services.Asset;
 public static class AssetComparerService
 {
     private const int TransformTypeId = 4;
+    private const int SkinnedMeshRendererTypeId = 137;
+
+    private static readonly HashSet<int> ComponentMatchedTypes = [TransformTypeId, SkinnedMeshRendererTypeId];
 
     public static List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {
@@ -28,7 +30,12 @@ public static class AssetComparerService
                 Options = options
             };
 
-            return [.. CompareAssets(context), .. CompareTransforms(context)];
+            return
+            [
+                .. CompareAssets(context),
+                .. CompareComponents(context, TransformTypeId, "Transform", firstOnly: true),
+                .. CompareComponents(context, SkinnedMeshRendererTypeId, "SkinnedMeshRenderer", firstOnly: false)
+            ];
         }
         finally
         {
@@ -67,9 +74,13 @@ public static class AssetComparerService
         }
     }
 
-    private static List<AssetMatch> CompareTransforms(ComparisonContext context)
+    private static List<AssetMatch> CompareComponents(
+        ComparisonContext context,
+        int typeId,
+        string typeName,
+        bool firstOnly)
     {
-        if (context.Options.ShouldFilterAsset("transform", ""))
+        if (context.Options.ShouldFilterAsset(typeName.ToLowerInvariant(), ""))
             return [];
 
         try
@@ -79,25 +90,25 @@ public static class AssetComparerService
             if (moddedInstance == null || patchInstance == null)
                 return [];
 
-            var moddedGoToTransform = TransformLookup.BuildGameObjectToTransformMap(
-                moddedInstance, context.ModdedLoaderService.GetAssetsManager());
-            var patchGoToTransform = TransformLookup.BuildGameObjectToTransformMap(
-                patchInstance, context.PatchLoaderService.GetAssetsManager());
+            var moddedMap = AssetComponentLookupService.BuildGameObjectToComponentMap(
+                moddedInstance, context.ModdedLoaderService.GetAssetsManager(), typeId, firstOnly);
+            var patchMap = AssetComponentLookupService.BuildGameObjectToComponentMap(
+                patchInstance, context.PatchLoaderService.GetAssetsManager(), typeId, firstOnly);
 
-            return moddedGoToTransform
+            return moddedMap
                 .AsValueEnumerable()
-                .Where(kvp => patchGoToTransform.ContainsKey(kvp.Key))
+                .Where(kvp => patchMap.ContainsKey(kvp.Key))
                 .Select(kvp => new AssetMatch(
                     kvp.Value,
-                    patchGoToTransform[kvp.Key],
+                    patchMap[kvp.Key],
                     kvp.Key,
-                    "Transform",
-                    TransformTypeId))
+                    typeName,
+                    typeId))
                 .ToList();
         }
         catch (Exception ex)
         {
-            Logger.Error("Comparing transforms failed", ex);
+            Logger.Error($"Comparing {typeName} failed", ex);
             return [];
         }
     }
@@ -114,7 +125,7 @@ public static class AssetComparerService
 
         foreach (var info in instance.file.AssetInfos.AsValueEnumerable())
         {
-            if (info.TypeId == TransformTypeId) continue;
+            if (ComponentMatchedTypes.Contains(info.TypeId)) continue;
 
             var baseField = manager.GetBaseField(instance, info);
             var nameField = baseField?["m_Name"];

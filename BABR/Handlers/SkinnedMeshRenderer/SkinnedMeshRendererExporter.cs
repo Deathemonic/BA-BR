@@ -1,16 +1,13 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using AssetsTools.NET;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Utilities;
-using ZLinq;
 
 namespace BABR.Handlers.SkinnedMeshRenderer;
 
 public static class SkinnedMeshRendererExporter
 {
-
     public static async Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting SkinnedMeshRenderer assets...");
@@ -20,14 +17,10 @@ public static class SkinnedMeshRendererExporter
     private static async Task<int> ProcessExports(ExportContext context)
     {
         var exportedCount = 0;
-        var assetInfoLookup = context.AssetsFileInstance.file.AssetInfos
-            .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId);
-
         foreach (var match in context.Matches)
             try
             {
-                if (await ProcessAsset(match, context, assetInfoLookup))
+                if (await ProcessAsset(match, context))
                     exportedCount++;
             }
             catch (Exception ex)
@@ -38,10 +31,9 @@ public static class SkinnedMeshRendererExporter
         return exportedCount;
     }
 
-    private static async Task<bool> ProcessAsset(AssetMatch match, ExportContext context,
-        FrozenDictionary<long, AssetFileInfo> assetInfoLookup)
+    private static async Task<bool> ProcessAsset(AssetMatch match, ExportContext context)
     {
-        if (!assetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
+        if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
             Logger.Error("SkinnedMeshRenderer not found in modded bundle", match.ModdedId.ToString());
             return false;
