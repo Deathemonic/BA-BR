@@ -15,8 +15,6 @@ project.lock.json
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-x64/
-x86/
 build/
 bld/
 [Bb]in/
@@ -26,5 +24,11 @@ msbuild.err
 msbuild.wrn
 sample/
 
+BABR.FMOD/Native/
+
 .vs/
 .idea/
+
+sample/
+
+Test/

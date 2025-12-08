@@ -1,0 +1,64 @@
+﻿name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        required: true
+        default: ''
+
+jobs:
+  build:
+    name: Build for ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        config:
+          - { name: win_x64, os: windows-latest, runtime: win-x64 }
+          - { name: win_arm64, os: windows-latest, runtime: win-arm64 }
+          - { name: linux_x64, os: ubuntu-latest, runtime: linux-x64 }
+          - { name: linux_arm64, os: ubuntu-24.04-arm, runtime: linux-arm64 }
+          - { name: mac_x64, os: macos-15, runtime: osx-x64 }
+          - { name: mac_arm64, os: macos-15, runtime: osx-arm64 }
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Download FMOD libraries
+        shell: bash
+        run: |
+          curl -L -o fmod.zip "${{ secrets.FMOD }}"
+          unzip -o fmod.zip -d BABR.FMOD/Native/
+
+      - name: Publish
+        run: dotnet publish BABR/BABR.csproj -c Release -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
+
+      - name: Remove dev files
+        shell: bash
+        run: |
+          find ./publish/${{ matrix.config.runtime }} -name "*.pdb" -type f -delete
+          find ./publish/${{ matrix.config.runtime }} -name "*.dbg" -type f -delete
+          find ./publish/${{ matrix.config.runtime }} -name "*.dsym" -type d -exec rm -rf {} +
+
+      - name: Create Zip Archive
+        uses: vimtor/action-zip@v1.2
+        with:
+          files: ./publish/${{ matrix.config.runtime }}
+          dest: ${{ github.event.repository.name }}-${{ matrix.config.runtime }}.zip
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.event.inputs.release-tag }}
+          tag_name: ${{ github.event.inputs.release-tag }}
+          files: ${{ github.event.repository.name }}-${{ matrix.config.runtime }}.zip

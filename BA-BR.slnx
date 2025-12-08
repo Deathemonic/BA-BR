@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="BABR.BAADCore/BABR.BAADCore.csproj" />
+  <Project Path="BABR.BACY/BABR.BACY.csproj" />
+  <Project Path="BABR.FMOD/BABR.FMOD.csproj" />
+  <Project Path="BABR.TextureEncoder/BABR.TextureEncoder.csproj" />
+  <Project Path="BABR/BABR.csproj" />
+</Solution>

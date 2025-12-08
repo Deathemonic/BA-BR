@@ -1,0 +1,137 @@
+using System.Collections.Frozen;
+using AssetsTools.NET;
+using AssetsTools.NET.Extra;
+using BABR.Handlers.AudioClip;
+using BABR.Handlers.DumpAsset;
+using BABR.Handlers.SkinnedMeshRenderer;
+using BABR.Handlers.TextAsset;
+using BABR.Handlers.Texture2D;
+using BABR.Handlers.Transforms;
+using BABR.Handlers.VideoClip;
+using BABR.Models;
+using BABR.Models.Context;
+using BABR.Utilities;
+
+namespace BABR.Services.Bundle;
+
+public static class BundleImportService
+{
+    public static async Task PerformImports(BundleProcessingConfig config, CategorizedAssets assets,
+        ExportResults exportResults)
+    {
+        if (!Directory.Exists(FileManager.GetDumpPath()))
+        {
+            Logger.Error("Dumps directory not found");
+            return;
+        }
+
+        var loader = new BundleLoaderService();
+
+        if (!SetupLoader(loader, config.PatchPath))
+            return;
+
+        var importResults = await ExecuteImports(loader, assets);
+
+        SaveChanges(loader, config.PatchPath, importResults, config.CompressionFormat, config.SkipCrcMatch);
+
+        BundleResultsLogger.LogFinalStatus(exportResults, importResults);
+    }
+
+    private static bool SetupLoader(BundleLoaderService loaderService, string patchPath)
+    {
+        if (!loaderService.LoadBundle(patchPath))
+        {
+            Logger.Error("Failed to load patch bundle for import");
+            return false;
+        }
+
+        if (ClassDatabaseLoader.LoadClassDatabase(loaderService.GetAssetsManager()))
+            return true;
+
+        Logger.Error("Failed to load class database");
+        return false;
+    }
+
+    private static async Task<ImportResults> ExecuteImports(BundleLoaderService loaderService, CategorizedAssets assets)
+    {
+        var assetsFileInstance = loaderService.GetAssetsFileInstance();
+        if (assetsFileInstance == null)
+        {
+            Logger.Error("Failed to get assets file instance for import");
+            return new ImportResults(0, 0, 0, 0, 0, 0, 0);
+        }
+
+        var assetsManager = loaderService.GetAssetsManager();
+        var assetInfoLookup = assetsFileInstance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
+
+        var importedCount = assets.OtherMatches.Count > 0
+            ? await DumpAssetImporter.Import(
+                BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var textureImportCount = assets.TextureMatches.Count > 0
+            ? await Texture2DImporter.Import(
+                BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var textAssetImportCount = assets.TextAssetMatches.Count > 0
+            ? await TextAssetImporter.Import(
+                BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var audioClipImportCount = assets.AudioClipMatches.Count > 0
+            ? await AudioClipImporter.Import(
+                BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var videoClipImportCount = assets.VideoClipMatches.Count > 0
+            ? await VideoClipImporter.Import(
+                BuildImportContext(loaderService, assets.VideoClipMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var transformImportCount = assets.TransformMatches.Count > 0
+            ? await TransformImporter.Import(
+                BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var skinnedMeshRendererImportCount = assets.SkinnedMeshRendererMatches.Count > 0
+            ? await SkinnedMeshRendererImporter.Import(
+                BuildImportContext(loaderService, assets.SkinnedMeshRendererMatches, assetsFileInstance, assetsManager,
+                    assetInfoLookup))
+            : 0;
+
+        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount,
+            videoClipImportCount, transformImportCount, skinnedMeshRendererImportCount);
+
+        BundleResultsLogger.LogImportResults(results);
+        return results;
+    }
+
+    private static void SaveChanges(BundleLoaderService loaderService, string patchPath, ImportResults importResults,
+        AssetBundleCompressionType compressionType, bool skipCrcMatch)
+    {
+        if (importResults.TotalImported > 0)
+            BundleSaverService.SaveModdedBundle(loaderService, patchPath, compressionType, skipCrcMatch);
+    }
+
+    private static ImportContext BuildImportContext(
+        BundleLoaderService loaderService,
+        List<AssetMatch> matches,
+        AssetsFileInstance instance,
+        AssetsManager manager,
+        FrozenDictionary<long, AssetFileInfo> assetInfoLookup) =>
+        new()
+        {
+            LoaderService = loaderService,
+            Matches = matches,
+            AssetsFileInstance = instance,
+            AssetsManager = manager,
+            AssetInfoLookup = assetInfoLookup
+        };
+}
