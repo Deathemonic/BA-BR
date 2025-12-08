@@ -81,7 +81,7 @@ git clone https://github.com/Deathemonic/BA-BR
 cd BA-BR
 ```
 
-3. Download the [FMOD Engine](https://www.fmod.com/download#fmodengine) and place the native libraries in the appropriate folders:
+3. Download the [FMOD Engine 2.03.11](https://www.fmod.com/download#fmodengine) and place the native libraries in the appropriate folders:
    - Windows (`BABR.FMOD/Native/win/`): `fmod.dll`, `fsbank.dll`, `libfsbvorbis64.dll`, `opus.dll`
    - Linux (`BABR.FMOD/Native/linux/`): `libfmod.so`, `libfsbank.so`, `libfsbvorbis.so`, `libopus.so`
    - macOS (`BABR.FMOD/Native/osx/`): `libfmod.dylib`, `libfsbank.dylib`, `libfsbvorbis.dylib`, `libopus.dylib`
