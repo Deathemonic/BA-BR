@@ -20,10 +20,6 @@ The process works as follows:
 1. **Compare:** The tool identifies assets that exist in both the `--modded` and `--patch` bundles by matching their
    names and types.
 2. **Export:** Matched assets from the `--modded` bundle are exported to a `Dumps` folder.
-    - `Texture2D` assets are saved as images (`.tga` or `.png`).
-    - `TextAsset` assets are saved as text files or binary files (`.txt` or `.bytes`).
-    - `AudioClip` assets are saved as raw PCM files (`.wav`)
-    - All other asset types are saved as structured `.json` files.
 3. **Import:** The exported files are then read, and their data is used to overwrite the corresponding assets in the
    `--patch` bundle.
 4. **Save:** A new, modified AssetBundle is saved in the `Modded` folder, containing the original patch content updated
@@ -85,7 +81,12 @@ git clone https://github.com/Deathemonic/BA-BR
 cd BA-BR
 ```
 
-3. Build using `dotnet`
+3. Download the [FMOD Engine](https://www.fmod.com/download#fmodengine) and place the native libraries in the appropriate folders:
+   - Windows (`BABR.FMOD/Native/win/`): `fmod.dll`, `fsbank.dll`, `libfsbvorbis64.dll`, `opus.dll`
+   - Linux (`BABR.FMOD/Native/linux/`): `libfmod.so`, `libfsbank.so`, `libfsbvorbis.so`, `libopus.so`
+   - macOS (`BABR.FMOD/Native/osx/`): `libfmod.dylib`, `libfsbank.dylib`, `libfsbvorbis.dylib`, `libopus.dylib`
+
+4. Build using `dotnet`
 
 ```sh
 dotnet build

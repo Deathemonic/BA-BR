@@ -18,7 +18,7 @@
       <Link>%(FileName)%(Extension)</Link>
     </None>
     
-    <None Include="Native\mac\*.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64' OR ('$(RuntimeIdentifier)' == '' AND $([MSBuild]::IsOSPlatform('OSX')) AND '$(Platform)' != 'ARM64')">
+    <None Include="Native\osx\*.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64' OR ('$(RuntimeIdentifier)' == '' AND $([MSBuild]::IsOSPlatform('OSX')) AND '$(Platform)' != 'ARM64')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>%(FileName)%(Extension)</Link>
     </None>
