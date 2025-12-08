@@ -46,8 +46,7 @@ public static class SkinnedMeshRendererExporter
             return false;
         }
 
-        var fileName = $"{match.CleanName}_SkinnedMeshRenderer.json";
-        var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
+        var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
 
         await ExportData(baseField, filePath);
         Logger.Debug("Exported SkinnedMeshRenderer", match.Name);

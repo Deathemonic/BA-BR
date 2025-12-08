@@ -48,8 +48,7 @@ public static class TransformExporter
             return false;
         }
 
-        var fileName = $"{match.CleanName}_Transform.json";
-        var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), fileName);
+        var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
 
         await ExportTransformData(baseField, filePath);
 
