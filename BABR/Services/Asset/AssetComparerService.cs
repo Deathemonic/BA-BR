@@ -53,12 +53,16 @@ public static class AssetComparerService
             var moddedAssets = GetAssetInfo(context.ModdedLoaderService);
             var patchAssets = GetAssetInfo(context.PatchLoaderService);
 
-            var moddedLookup = moddedAssets
-                .AsValueEnumerable()
-                .ToFrozenDictionary(m => (m.Value.Name, m.Value.Type), m => m.Key);
+            var moddedLookup = new Dictionary<(string Name, string Type), long>();
+            foreach (var (pathId, (name, type, _)) in moddedAssets)
+            {
+                if (string.IsNullOrEmpty(name)) continue;
+                moddedLookup.TryAdd((name, type), pathId);
+            }
 
             return patchAssets
                 .AsValueEnumerable()
+                .Where(p => !string.IsNullOrEmpty(p.Value.Name))
                 .Where(p => !context.Options.ShouldFilterAsset(p.Value.Type.ToLowerInvariant(), p.Value.Name))
                 .Where(p => moddedLookup.ContainsKey((p.Value.Name, p.Value.Type)))
                 .Select(p => new AssetMatch(

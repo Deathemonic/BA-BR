@@ -11,4 +11,6 @@ public static class Extensions
 
     public static readonly FrozenSet<string> AudioExtensions =
         FrozenSet.ToFrozenSet([".wav", ".ogg", ".mp3", ".flac", ".aiff", ".m4a"]);
+
+    public static readonly FrozenSet<string> VideoExtensions = FrozenSet.ToFrozenSet([".mp4", ".webm"]);
 }

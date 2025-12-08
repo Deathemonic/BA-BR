@@ -8,6 +8,7 @@ using BABR.Handlers.SkinnedMeshRenderer;
 using BABR.Handlers.TextAsset;
 using BABR.Handlers.Texture2D;
 using BABR.Handlers.Transforms;
+using BABR.Handlers.VideoClip;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Models.Types;
@@ -23,7 +24,7 @@ public static class BundleExportService
 
         var (instance, manager) = LoadBundleForExport(config.ModdedPath);
         if (instance == null || manager == null)
-            return new ExportResults(0, 0, 0, 0, 0, 0);
+            return new ExportResults(0, 0, 0, 0, 0, 0, 0);
 
         var assetInfoLookup = instance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
 
@@ -47,6 +48,11 @@ public static class BundleExportService
                 BuildExportContext(assets.AudioClipMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
             : 0;
 
+        var videoClipExportCount = assets.VideoClipMatches.Count > 0
+            ? await VideoClipExporter.Export(
+                BuildExportContext(assets.VideoClipMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+            : 0;
+
         var transformExportCount = assets.TransformMatches.Count > 0
             ? await TransformExporter.Export(
                 BuildExportContext(assets.TransformMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
@@ -58,7 +64,7 @@ public static class BundleExportService
             : 0;
 
         var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,
-            transformExportCount, skinnedMeshRendererExportCount);
+            videoClipExportCount, transformExportCount, skinnedMeshRendererExportCount);
 
         BundleResultsLogger.LogExportResults(results);
         return results;

@@ -13,6 +13,7 @@ public static class BundleResultsLogger
         LogIfPositive("Exported Texture2D", results.TextureExportCount);
         LogIfPositive("Exported TextAsset", results.TextAssetExportCount);
         LogIfPositive("Exported AudioClip", results.AudioClipExportCount);
+        LogIfPositive("Exported VideoClip", results.VideoClipExportCount);
         LogIfPositive("Exported Transform", results.TransformExportCount);
         LogIfPositive("Exported SkinnedMeshRenderer", results.SkinnedMeshRendererExportCount);
     }
@@ -23,6 +24,7 @@ public static class BundleResultsLogger
         LogIfPositive("Imported Texture2D", results.ImportedTextureCount);
         LogIfPositive("Imported TextAsset", results.ImportedTextAssetCount);
         LogIfPositive("Imported AudioClip", results.ImportedAudioClipCount);
+        LogIfPositive("Imported VideoClip", results.ImportedVideoClipCount);
         LogIfPositive("Imported Transform", results.ImportedTransformCount);
         LogIfPositive("Imported SkinnedMeshRenderer", results.ImportedSkinnedMeshRendererCount);
         LogIfPositive("Assets marked as modified", results.TotalImported);

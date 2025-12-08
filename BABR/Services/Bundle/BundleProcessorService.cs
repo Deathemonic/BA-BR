@@ -46,7 +46,7 @@ public static class BundleProcessorService
         }
 
         var exportResults = skipExport
-            ? new ExportResults(0, 0, 0, 0, 0, 0)
+            ? new ExportResults(0, 0, 0, 0, 0, 0, 0)
             : await BundleExportService.PerformExports(config, categorizedAssets);
 
         await BundleImportService.PerformImports(config, categorizedAssets, exportResults);
