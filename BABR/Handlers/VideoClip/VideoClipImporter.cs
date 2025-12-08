@@ -4,6 +4,7 @@ using BABR.Models.Context;
 using BABR.Models.Types;
 using BABR.Services.Bundle;
 using BABR.Utilities;
+using ZLinq;
 
 namespace BABR.Handlers.VideoClip;
 
@@ -81,17 +82,9 @@ public static class VideoClipImporter
         return true;
     }
 
-    private static string? FindVideoFile(string directory, string baseName)
-    {
-        foreach (var ext in Extensions.VideoExtensions)
-        {
-            var filePath = Path.Combine(directory, baseName + ext);
-            if (File.Exists(filePath))
-                return filePath;
-        }
-
-        return null;
-    }
+    private static string? FindVideoFile(string directory, string baseName) => Extensions.VideoExtensions
+        .AsValueEnumerable()
+        .Select(ext => Path.Combine(directory, baseName + ext)).FirstOrDefault(File.Exists);
 
     private static bool ImportVideoClip(ImportContext context, AssetFileInfo assetInfo,
         AssetTypeValueField baseField, string filePath)

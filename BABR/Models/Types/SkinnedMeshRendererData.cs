@@ -20,7 +20,7 @@ public readonly record struct SkinnedMeshRendererData(
     bool m_UpdateWhenOffscreen,
     bool m_SkinnedMotionVectors,
     float[] m_BlendShapeWeights,
-    AABB m_AABB,
+    Aabb m_AABB,
     bool m_DirtyAABB);
 
-public readonly record struct AABB(Vector3Data m_Center, Vector3Data m_Extent);
+public readonly record struct Aabb(Vector3Data m_Center, Vector3Data m_Extent);

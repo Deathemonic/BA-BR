@@ -60,12 +60,14 @@ public static class SkinnedMeshRendererImporter
         return true;
     }
 
-    private static async Task<bool> ImportFromJson(ImportContext context, AssetFileInfo targetAssetInfo, string filePath)
+    private static async Task<bool> ImportFromJson(ImportContext context, AssetFileInfo targetAssetInfo,
+        string filePath)
     {
         try
         {
             var jsonText = await File.ReadAllTextAsync(filePath);
-            var data = JsonSerializer.Deserialize(jsonText, SkinnedMeshRendererJsonContext.Default.SkinnedMeshRendererData);
+            var data = JsonSerializer.Deserialize(jsonText,
+                SkinnedMeshRendererJsonContext.Default.SkinnedMeshRendererData);
 
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
             if (baseField == null)
@@ -95,7 +97,7 @@ public static class SkinnedMeshRendererImporter
 
             UpdateBlendShapeWeights(baseField["m_BlendShapeWeights"]["Array"], data.m_BlendShapeWeights);
 
-            UpdateAABB(baseField["m_AABB"], data.m_AABB);
+            UpdateAabb(baseField["m_AABB"], data.m_AABB);
 
             baseField["m_DirtyAABB"].AsBool = data.m_DirtyAABB;
 
@@ -116,7 +118,8 @@ public static class SkinnedMeshRendererImporter
     {
         if (weights.Length != arrayField.Children.Count)
         {
-            Logger.Warn($"BlendShapeWeights array size mismatch: JSON has {weights.Length}, asset has {arrayField.Children.Count}");
+            Logger.Warn(
+                $"BlendShapeWeights array size mismatch: JSON has {weights.Length}, asset has {arrayField.Children.Count}");
             return;
         }
 
@@ -124,7 +127,7 @@ public static class SkinnedMeshRendererImporter
             arrayField.Children[i].AsFloat = weights[i];
     }
 
-    private static void UpdateAABB(AssetTypeValueField field, AABB aabb)
+    private static void UpdateAabb(AssetTypeValueField field, Aabb aabb)
     {
         field["m_Center"]["x"].AsFloat = aabb.m_Center.x;
         field["m_Center"]["y"].AsFloat = aabb.m_Center.y;

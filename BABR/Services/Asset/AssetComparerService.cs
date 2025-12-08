@@ -35,8 +35,8 @@ public static class AssetComparerService
             return
             [
                 .. CompareAssets(context),
-                .. CompareComponents(context, AssetClassID.Transform, firstOnly: true),
-                .. CompareComponents(context, AssetClassID.SkinnedMeshRenderer, firstOnly: false)
+                .. CompareComponents(context, AssetClassID.Transform, true),
+                .. CompareComponents(context, AssetClassID.SkinnedMeshRenderer, false)
             ];
         }
         finally

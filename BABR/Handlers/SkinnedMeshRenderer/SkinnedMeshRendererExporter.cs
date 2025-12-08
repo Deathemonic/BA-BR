@@ -81,7 +81,7 @@ public static class SkinnedMeshRendererExporter
 
         WriteFloatArray(writer, "m_BlendShapeWeights", baseField["m_BlendShapeWeights"]["Array"]);
 
-        WriteAABB(writer, "m_AABB", baseField["m_AABB"]);
+        WriteAabb(writer, "m_AABB", baseField["m_AABB"]);
 
         writer.WriteBoolean("m_DirtyAABB", baseField["m_DirtyAABB"].AsBool);
 
@@ -97,7 +97,7 @@ public static class SkinnedMeshRendererExporter
         writer.WriteEndArray();
     }
 
-    private static void WriteAABB(Utf8JsonWriter writer, string name, AssetTypeValueField field)
+    private static void WriteAabb(Utf8JsonWriter writer, string name, AssetTypeValueField field)
     {
         writer.WriteStartObject(name);
         WriteVector3(writer, "m_Center", field["m_Center"]);

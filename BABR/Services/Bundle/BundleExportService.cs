@@ -30,37 +30,44 @@ public static class BundleExportService
 
         var exportedCount = assets.OtherMatches.Count > 0
             ? await DumpAssetExporter.Export(
-                BuildExportContext(assets.OtherMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.OtherMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var textureExportCount = assets.TextureMatches.Count > 0
             ? await Texture2DExporter.Export(
-                BuildExportContext(assets.TextureMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TextureMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var textAssetExportCount = assets.TextAssetMatches.Count > 0
             ? await TextAssetExporter.Export(
-                BuildExportContext(assets.TextAssetMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TextAssetMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var audioClipExportCount = assets.AudioClipMatches.Count > 0
             ? await AudioClipExporter.Export(
-                BuildExportContext(assets.AudioClipMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.AudioClipMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var videoClipExportCount = assets.VideoClipMatches.Count > 0
             ? await VideoClipExporter.Export(
-                BuildExportContext(assets.VideoClipMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.VideoClipMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var transformExportCount = assets.TransformMatches.Count > 0
             ? await TransformExporter.Export(
-                BuildExportContext(assets.TransformMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.TransformMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                    config.ImageFormat))
             : 0;
 
         var skinnedMeshRendererExportCount = assets.SkinnedMeshRendererMatches.Count > 0
             ? await SkinnedMeshRendererExporter.Export(
-                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, assetInfoLookup, config.TextFormat, config.ImageFormat))
+                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, assetInfoLookup,
+                    config.TextFormat, config.ImageFormat))
             : 0;
 
         var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,

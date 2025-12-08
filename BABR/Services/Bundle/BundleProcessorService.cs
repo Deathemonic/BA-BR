@@ -55,24 +55,24 @@ public static class BundleProcessorService
 
     private static (bool skipExport, string? singleFile) DetectInputMode(string moddedPath, bool alreadySkipExport)
     {
-        if (alreadySkipExport && Directory.Exists(moddedPath))
+        switch (alreadySkipExport)
         {
-            Logger.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
-            Logger.Info("Skipping export, proceeding directly to import...");
-            FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
-            return (true, null);
+            case true when Directory.Exists(moddedPath):
+                Logger.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
+                Logger.Info("Skipping export, proceeding directly to import...");
+                FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
+                return (true, null);
+            case true when File.Exists(moddedPath) && !IsBundleFile(moddedPath):
+            {
+                Logger.Info("Using single file", Path.GetFullPath(moddedPath));
+                Logger.Info("Skipping export, proceeding directly to import...");
+                var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
+                FileManager.SetCustomDumpPath(directory);
+                return (true, Path.GetFullPath(moddedPath));
+            }
+            default:
+                return (false, null);
         }
-
-        if (alreadySkipExport && File.Exists(moddedPath) && !IsBundleFile(moddedPath))
-        {
-            Logger.Info("Using single file", Path.GetFullPath(moddedPath));
-            Logger.Info("Skipping export, proceeding directly to import...");
-            var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
-            FileManager.SetCustomDumpPath(directory);
-            return (true, Path.GetFullPath(moddedPath));
-        }
-
-        return (false, null);
     }
 
     private static bool IsBundleFile(string filePath)

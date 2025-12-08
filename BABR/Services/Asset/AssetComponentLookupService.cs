@@ -22,7 +22,6 @@ public static class AssetComponentLookupService
 
         foreach (var goInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable()
                      .Where(a => a.TypeId == (int)AssetClassID.GameObject))
-        {
             try
             {
                 var baseField = assetsManager.GetBaseField(assetsFileInstance, goInfo);
@@ -48,7 +47,6 @@ public static class AssetComponentLookupService
             {
                 Logger.Trace($"Failed to process GameObject for {componentType}", ex.Message);
             }
-        }
 
         return goToComponent;
     }
@@ -73,17 +71,15 @@ public static class AssetComponentLookupService
         FrozenDictionary<long, AssetClassID> typeIdLookup,
         AssetClassID targetType)
     {
-        foreach (var component in componentsField.Children)
-        {
-            var componentRef = component["component"];
-            if (componentRef.IsDummy) continue;
+        var pathIds = componentsField.Children.AsValueEnumerable()
+            .Select(c => c["component"])
+            .Where(cr => !cr.IsDummy)
+            .Select(cr => cr["m_PathID"].AsLong)
+            .Where(id => id != 0);
 
-            var pathId = componentRef["m_PathID"].AsLong;
-            if (pathId == 0) continue;
-
+        foreach (var pathId in pathIds)
             if (typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == targetType)
                 return pathId;
-        }
 
         return 0;
     }
