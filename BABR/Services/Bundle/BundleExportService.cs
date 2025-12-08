@@ -2,6 +2,7 @@ using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using BABR.Handlers.AudioClip;
 using BABR.Handlers.DumpAsset;
+using BABR.Handlers.SkinnedMeshRenderer;
 using BABR.Handlers.TextAsset;
 using BABR.Handlers.Texture2D;
 using BABR.Handlers.Transforms;
@@ -20,7 +21,7 @@ public static class BundleExportService
 
         var (instance, manager) = LoadBundleForExport(config.ModdedPath);
         if (instance == null || manager == null)
-            return new ExportResults(0, 0, 0, 0, 0);
+            return new ExportResults(0, 0, 0, 0, 0, 0);
 
         var exportedCount = assets.OtherMatches.Count > 0
             ? await DumpAssetExporter.Export(
@@ -47,8 +48,13 @@ public static class BundleExportService
                 BuildExportContext(assets.TransformMatches, instance, manager, config.TextFormat, config.ImageFormat))
             : 0;
 
+        var skinnedMeshRendererExportCount = assets.SkinnedMeshRendererMatches.Count > 0
+            ? await SkinnedMeshRendererExporter.Export(
+                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, config.TextFormat, config.ImageFormat))
+            : 0;
+
         var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,
-            transformExportCount);
+            transformExportCount, skinnedMeshRendererExportCount);
 
         BundleResultsLogger.LogExportResults(results);
         return results;

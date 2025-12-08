@@ -2,6 +2,7 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using BABR.Handlers.AudioClip;
 using BABR.Handlers.DumpAsset;
+using BABR.Handlers.SkinnedMeshRenderer;
 using BABR.Handlers.TextAsset;
 using BABR.Handlers.Texture2D;
 using BABR.Handlers.Transforms;
@@ -16,6 +17,12 @@ public static class BundleImportService
     public static async Task PerformImports(BundleProcessingConfig config, CategorizedAssets assets,
         ExportResults exportResults)
     {
+        if (!Directory.Exists(FileManager.GetDumpPath()))
+        {
+            Logger.Error("Dumps directory not found");
+            return;
+        }
+
         var loader = new BundleLoaderService();
 
         if (!SetupLoader(loader, config.PatchPath))
@@ -49,7 +56,7 @@ public static class BundleImportService
         if (assetsFileInstance == null)
         {
             Logger.Error("Failed to get assets file instance for import");
-            return new ImportResults(0, 0, 0, 0, 0);
+            return new ImportResults(0, 0, 0, 0, 0, 0);
         }
 
         var assetsManager = loaderService.GetAssetsManager();
@@ -79,8 +86,13 @@ public static class BundleImportService
                 BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager))
             : 0;
 
+        var skinnedMeshRendererImportCount = assets.SkinnedMeshRendererMatches.Count > 0
+            ? await SkinnedMeshRendererImporter.Import(
+                BuildImportContext(loaderService, assets.SkinnedMeshRendererMatches, assetsFileInstance, assetsManager))
+            : 0;
+
         var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount,
-            transformImportCount);
+            transformImportCount, skinnedMeshRendererImportCount);
 
         BundleResultsLogger.LogImportResults(results);
         return results;

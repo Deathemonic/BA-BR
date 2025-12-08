@@ -10,8 +10,6 @@ namespace BABR.Handlers.Transforms;
 
 public static class TransformExporter
 {
-    private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
-
     public static async Task<int> Export(ExportContext context)
     {
         Logger.Info("Exporting Transform assets...");
@@ -69,7 +67,7 @@ public static class TransformExporter
     private static async Task ExportTransformData(AssetTypeValueField baseField, string filePath)
     {
         await using var fileStream = File.Create(filePath);
-        await using var writer = new Utf8JsonWriter(fileStream, WriterOptions);
+        await using var writer = new Utf8JsonWriter(fileStream, JsonOptions.IndentedWriter);
 
         writer.WriteStartObject();
 

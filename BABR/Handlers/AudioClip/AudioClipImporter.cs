@@ -14,9 +14,6 @@ public static class AudioClipImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        if (!ValidateSetup())
-            return 0;
-
         Logger.Info("Importing AudioClip assets...");
 
         using var encoder = new Encoder();
@@ -46,16 +43,6 @@ public static class AudioClipImporter
             resourceService.WriteToBundle(context.AssetsFileInstance.parentBundle);
 
         return result;
-    }
-
-    private static bool ValidateSetup()
-    {
-        var dumpsDir = FileManager.GetDumpPath();
-        if (Directory.Exists(dumpsDir))
-            return true;
-
-        Logger.Error("Dumps directory not found. Please run parse command first");
-        return false;
     }
 
     private static Task<int> ProcessImports(ImportContext context)

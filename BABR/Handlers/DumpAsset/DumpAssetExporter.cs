@@ -10,7 +10,6 @@ namespace BABR.Handlers.DumpAsset;
 
 public static class DumpAssetExporter
 {
-    private static readonly JsonWriterOptions WriterOptions = new() { Indented = true };
 
     public static async Task<int> Export(ExportContext context)
     {
@@ -72,7 +71,7 @@ public static class DumpAssetExporter
     private static async Task ExportJsonData(AssetTypeValueField baseField, string filePath)
     {
         await using var fileStream = File.Create(filePath);
-        await using var writer = new Utf8JsonWriter(fileStream, WriterOptions);
+        await using var writer = new Utf8JsonWriter(fileStream, JsonOptions.IndentedWriter);
         DumpAssetSerializer.RecurseJsonDump(writer, baseField, false);
         await writer.FlushAsync();
     }

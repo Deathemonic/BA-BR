@@ -7,7 +7,7 @@ public static class AssetCategorizationService
 {
     public static CategorizedAssets CategorizeMatches(List<AssetMatch> matches)
     {
-        List<AssetMatch> textures = [], textAssets = [], audioClips = [], transforms = [], others = [];
+        List<AssetMatch> textures = [], textAssets = [], audioClips = [], transforms = [], skinnedMeshRenderers = [], others = [];
 
         foreach (var match in matches)
         {
@@ -17,6 +17,7 @@ public static class AssetCategorizationService
                 "textasset" => textAssets,
                 "audioclip" => audioClips,
                 "transform" => transforms,
+                "skinnedmeshrenderer" => skinnedMeshRenderers,
                 _ => others
             };
             list.Add(match);
@@ -28,6 +29,7 @@ public static class AssetCategorizationService
             TextAssetMatches = textAssets,
             AudioClipMatches = audioClips,
             TransformMatches = transforms,
+            SkinnedMeshRendererMatches = skinnedMeshRenderers,
             OtherMatches = others
         };
     }

@@ -13,22 +13,8 @@ public static class TransformImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        if (!ValidateSetup())
-            return 0;
-
         Logger.Info("Importing Transform assets...");
-
         return await ProcessImports(context);
-    }
-
-    private static bool ValidateSetup()
-    {
-        var dumpsDir = FileManager.GetDumpPath();
-        if (Directory.Exists(dumpsDir))
-            return true;
-
-        Logger.Error("Dumps directory not found");
-        return false;
     }
 
     private static async Task<int> ProcessImports(ImportContext context)

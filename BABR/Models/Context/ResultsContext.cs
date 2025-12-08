@@ -5,9 +5,10 @@ public readonly record struct ExportResults(
     int TextureExportCount,
     int TextAssetExportCount,
     int AudioClipExportCount,
-    int TransformExportCount)
+    int TransformExportCount,
+    int SkinnedMeshRendererExportCount)
 {
-    public int TotalExported => ExportedCount + TextureExportCount + TextAssetExportCount + AudioClipExportCount + TransformExportCount;
+    public int TotalExported => ExportedCount + TextureExportCount + TextAssetExportCount + AudioClipExportCount + TransformExportCount + SkinnedMeshRendererExportCount;
 }
 
 public readonly record struct ImportResults(
@@ -15,7 +16,8 @@ public readonly record struct ImportResults(
     int ImportedTextureCount,
     int ImportedTextAssetCount,
     int ImportedAudioClipCount,
-    int ImportedTransformCount)
+    int ImportedTransformCount,
+    int ImportedSkinnedMeshRendererCount)
 {
-    public int TotalImported => ImportedCount + ImportedTextureCount + ImportedTextAssetCount + ImportedAudioClipCount + ImportedTransformCount;
+    public int TotalImported => ImportedCount + ImportedTextureCount + ImportedTextAssetCount + ImportedAudioClipCount + ImportedTransformCount + ImportedSkinnedMeshRendererCount;
 }

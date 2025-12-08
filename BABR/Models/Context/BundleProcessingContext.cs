@@ -23,5 +23,6 @@ public record CategorizedAssets
     public required List<AssetMatch> TextAssetMatches { get; init; }
     public required List<AssetMatch> AudioClipMatches { get; init; }
     public required List<AssetMatch> TransformMatches { get; init; }
+    public required List<AssetMatch> SkinnedMeshRendererMatches { get; init; }
     public required List<AssetMatch> OtherMatches { get; init; }
 }
