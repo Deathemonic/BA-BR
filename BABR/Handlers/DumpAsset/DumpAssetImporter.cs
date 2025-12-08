@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using AssetsTools.NET;
 using BABR.Models;
@@ -116,18 +115,8 @@ public static class DumpAssetImporter
 
         try
         {
-            using var streamReader = new StreamReader(readStream, leaveOpen: true);
-            var jsonText = await streamReader.ReadToEndAsync();
-            var jsonBytes = Encoding.UTF8.GetBytes(jsonText);
-            var reader = new Utf8JsonReader(jsonBytes);
-
-            if (!reader.Read())
-            {
-                Logger.Error("Failed to read JSON: empty document");
-                return null;
-            }
-
-            DumpAssetSerializer.RecurseJsonImport(ref reader, writer, tempField);
+            using var jsonDoc = await JsonDocument.ParseAsync(readStream);
+            DumpAssetSerializer.RecurseJsonImport(writer, tempField, jsonDoc.RootElement);
         }
         catch (Exception ex)
         {
