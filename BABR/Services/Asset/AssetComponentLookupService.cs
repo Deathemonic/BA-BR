@@ -8,22 +8,20 @@ namespace BABR.Services.Asset;
 
 public static class AssetComponentLookupService
 {
-    private const int GameObjectTypeId = 1;
-
     public static Dictionary<string, long> BuildGameObjectToComponentMap(
         AssetsFileInstance assetsFileInstance,
         AssetsManager assetsManager,
-        int componentTypeId,
+        AssetClassID componentType,
         bool firstOnly = true)
     {
         var typeIdLookup = assetsFileInstance.file.AssetInfos
             .AsValueEnumerable()
-            .ToFrozenDictionary(a => a.PathId, a => a.TypeId);
+            .ToFrozenDictionary(a => a.PathId, a => (AssetClassID)a.TypeId);
 
         var goToComponent = new Dictionary<string, long>();
 
         foreach (var goInfo in assetsFileInstance.file.AssetInfos.AsValueEnumerable()
-                     .Where(a => a.TypeId == GameObjectTypeId))
+                     .Where(a => a.TypeId == (int)AssetClassID.GameObject))
         {
             try
             {
@@ -40,15 +38,15 @@ public static class AssetComponentLookupService
                 if (componentsField.IsDummy || componentsField.Children.Count == 0) continue;
 
                 var componentPathId = firstOnly
-                    ? GetFirstComponentPathId(componentsField, typeIdLookup, componentTypeId)
-                    : GetComponentPathId(componentsField, typeIdLookup, componentTypeId);
+                    ? GetFirstComponentPathId(componentsField, typeIdLookup, componentType)
+                    : GetComponentPathId(componentsField, typeIdLookup, componentType);
 
                 if (componentPathId != 0)
                     goToComponent[goName] = componentPathId;
             }
             catch (Exception ex)
             {
-                Logger.Trace($"Failed to process GameObject for TypeId {componentTypeId}", ex.Message);
+                Logger.Trace($"Failed to process GameObject for {componentType}", ex.Message);
             }
         }
 
@@ -57,8 +55,8 @@ public static class AssetComponentLookupService
 
     private static long GetFirstComponentPathId(
         AssetTypeValueField componentsField,
-        FrozenDictionary<long, int> typeIdLookup,
-        int targetTypeId)
+        FrozenDictionary<long, AssetClassID> typeIdLookup,
+        AssetClassID targetType)
     {
         var firstComponent = componentsField.Children[0];
         var componentRef = firstComponent["component"];
@@ -67,13 +65,13 @@ public static class AssetComponentLookupService
         var pathId = componentRef["m_PathID"].AsLong;
         if (pathId == 0) return 0;
 
-        return typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == targetTypeId ? pathId : 0;
+        return typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == targetType ? pathId : 0;
     }
 
     private static long GetComponentPathId(
         AssetTypeValueField componentsField,
-        FrozenDictionary<long, int> typeIdLookup,
-        int targetTypeId)
+        FrozenDictionary<long, AssetClassID> typeIdLookup,
+        AssetClassID targetType)
     {
         foreach (var component in componentsField.Children)
         {
@@ -83,7 +81,7 @@ public static class AssetComponentLookupService
             var pathId = componentRef["m_PathID"].AsLong;
             if (pathId == 0) continue;
 
-            if (typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == targetTypeId)
+            if (typeIdLookup.TryGetValue(pathId, out var typeId) && typeId == targetType)
                 return pathId;
         }
 

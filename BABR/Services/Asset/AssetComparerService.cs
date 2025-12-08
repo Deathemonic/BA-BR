@@ -1,3 +1,4 @@
+using AssetsTools.NET.Extra;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Services.Bundle;
@@ -8,10 +9,11 @@ namespace BABR.Services.Asset;
 
 public static class AssetComparerService
 {
-    private const int TransformTypeId = 4;
-    private const int SkinnedMeshRendererTypeId = 137;
-
-    private static readonly HashSet<int> ComponentMatchedTypes = [TransformTypeId, SkinnedMeshRendererTypeId];
+    private static readonly HashSet<AssetClassID> ComponentMatchedTypes =
+    [
+        AssetClassID.Transform,
+        AssetClassID.SkinnedMeshRenderer
+    ];
 
     public static List<AssetMatch> FindMatches(string moddedPath, string patchPath, ProcessingOptions options)
     {
@@ -33,8 +35,8 @@ public static class AssetComparerService
             return
             [
                 .. CompareAssets(context),
-                .. CompareComponents(context, TransformTypeId, "Transform", firstOnly: true),
-                .. CompareComponents(context, SkinnedMeshRendererTypeId, "SkinnedMeshRenderer", firstOnly: false)
+                .. CompareComponents(context, AssetClassID.Transform, firstOnly: true),
+                .. CompareComponents(context, AssetClassID.SkinnedMeshRenderer, firstOnly: false)
             ];
         }
         finally
@@ -76,10 +78,11 @@ public static class AssetComparerService
 
     private static List<AssetMatch> CompareComponents(
         ComparisonContext context,
-        int typeId,
-        string typeName,
+        AssetClassID assetClassId,
         bool firstOnly)
     {
+        var typeName = assetClassId.ToString();
+
         if (context.Options.ShouldFilterAsset(typeName.ToLowerInvariant(), ""))
             return [];
 
@@ -91,9 +94,9 @@ public static class AssetComparerService
                 return [];
 
             var moddedMap = AssetComponentLookupService.BuildGameObjectToComponentMap(
-                moddedInstance, context.ModdedLoaderService.GetAssetsManager(), typeId, firstOnly);
+                moddedInstance, context.ModdedLoaderService.GetAssetsManager(), assetClassId, firstOnly);
             var patchMap = AssetComponentLookupService.BuildGameObjectToComponentMap(
-                patchInstance, context.PatchLoaderService.GetAssetsManager(), typeId, firstOnly);
+                patchInstance, context.PatchLoaderService.GetAssetsManager(), assetClassId, firstOnly);
 
             return moddedMap
                 .AsValueEnumerable()
@@ -103,7 +106,7 @@ public static class AssetComparerService
                     patchMap[kvp.Key],
                     kvp.Key,
                     typeName,
-                    typeId))
+                    (int)assetClassId))
                 .ToList();
         }
         catch (Exception ex)
@@ -125,7 +128,7 @@ public static class AssetComparerService
 
         foreach (var info in instance.file.AssetInfos.AsValueEnumerable())
         {
-            if (ComponentMatchedTypes.Contains(info.TypeId)) continue;
+            if (ComponentMatchedTypes.Contains((AssetClassID)info.TypeId)) continue;
 
             var baseField = manager.GetBaseField(instance, info);
             var nameField = baseField?["m_Name"];
