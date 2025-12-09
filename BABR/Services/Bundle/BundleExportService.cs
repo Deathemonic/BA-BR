@@ -2,16 +2,10 @@ using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
-using BABR.Handlers.AudioClip;
-using BABR.Handlers.DumpAsset;
-using BABR.Handlers.SkinnedMeshRenderer;
-using BABR.Handlers.TextAsset;
-using BABR.Handlers.Texture2D;
-using BABR.Handlers.Transforms;
-using BABR.Handlers.VideoClip;
 using BABR.Models;
 using BABR.Models.Context;
 using BABR.Models.Types;
+using BABR.Services.Asset;
 using BABR.Utilities;
 
 namespace BABR.Services.Bundle;
@@ -24,55 +18,29 @@ public static class BundleExportService
 
         var (instance, manager) = LoadBundleForExport(config.ModdedPath);
         if (instance == null || manager == null)
-            return new ExportResults(0, 0, 0, 0, 0, 0, 0);
+            return new ExportResults();
 
         var assetInfoLookup = instance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
+        var counts = new Dictionary<AssetClassID, int>();
 
-        var exportedCount = assets.OtherMatches.Count > 0
-            ? await DumpAssetExporter.Export(
-                BuildExportContext(assets.OtherMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
+        foreach (var (typeId, handler) in AssetHandlerRegistryService.Handlers)
+        {
+            var matches = handler.GetMatches(assets);
+            if (matches.Count <= 0) continue;
+            var context = BuildExportContext(matches, instance, manager, assetInfoLookup, config.TextFormat,
+                config.ImageFormat);
+            counts[typeId] = await handler.Export(context);
+        }
 
-        var textureExportCount = assets.TextureMatches.Count > 0
-            ? await Texture2DExporter.Export(
-                BuildExportContext(assets.TextureMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
+        var otherCount = 0;
+        if (assets.OtherMatches.Count > 0)
+        {
+            var context = BuildExportContext(assets.OtherMatches, instance, manager, assetInfoLookup, config.TextFormat,
+                config.ImageFormat);
+            otherCount = await AssetHandlerRegistryService.FallbackHandler.Export(context);
+        }
 
-        var textAssetExportCount = assets.TextAssetMatches.Count > 0
-            ? await TextAssetExporter.Export(
-                BuildExportContext(assets.TextAssetMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
-
-        var audioClipExportCount = assets.AudioClipMatches.Count > 0
-            ? await AudioClipExporter.Export(
-                BuildExportContext(assets.AudioClipMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
-
-        var videoClipExportCount = assets.VideoClipMatches.Count > 0
-            ? await VideoClipExporter.Export(
-                BuildExportContext(assets.VideoClipMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
-
-        var transformExportCount = assets.TransformMatches.Count > 0
-            ? await TransformExporter.Export(
-                BuildExportContext(assets.TransformMatches, instance, manager, assetInfoLookup, config.TextFormat,
-                    config.ImageFormat))
-            : 0;
-
-        var skinnedMeshRendererExportCount = assets.SkinnedMeshRendererMatches.Count > 0
-            ? await SkinnedMeshRendererExporter.Export(
-                BuildExportContext(assets.SkinnedMeshRendererMatches, instance, manager, assetInfoLookup,
-                    config.TextFormat, config.ImageFormat))
-            : 0;
-
-        var results = new ExportResults(exportedCount, textureExportCount, textAssetExportCount, audioClipExportCount,
-            videoClipExportCount, transformExportCount, skinnedMeshRendererExportCount);
-
+        var results = new ExportResults(counts, otherCount);
         BundleResultsLogger.LogExportResults(results);
         return results;
     }

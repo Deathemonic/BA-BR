@@ -9,24 +9,18 @@ public static class BundleResultsLogger
     {
         Logger.Info("Exporting assets to", FileManager.GetDumpPath());
 
-        LogIfPositive("Exported Assets", results.ExportedCount);
-        LogIfPositive("Exported Texture2D", results.TextureExportCount);
-        LogIfPositive("Exported TextAsset", results.TextAssetExportCount);
-        LogIfPositive("Exported AudioClip", results.AudioClipExportCount);
-        LogIfPositive("Exported VideoClip", results.VideoClipExportCount);
-        LogIfPositive("Exported Transform", results.TransformExportCount);
-        LogIfPositive("Exported SkinnedMeshRenderer", results.SkinnedMeshRendererExportCount);
+        foreach (var (typeId, count) in results.CountsByType)
+            LogIfPositive($"Exported {typeId}", count);
+
+        LogIfPositive("Exported Assets", results.OtherCount);
     }
 
     public static void LogImportResults(ImportResults results)
     {
-        LogIfPositive("Imported Assets", results.ImportedCount);
-        LogIfPositive("Imported Texture2D", results.ImportedTextureCount);
-        LogIfPositive("Imported TextAsset", results.ImportedTextAssetCount);
-        LogIfPositive("Imported AudioClip", results.ImportedAudioClipCount);
-        LogIfPositive("Imported VideoClip", results.ImportedVideoClipCount);
-        LogIfPositive("Imported Transform", results.ImportedTransformCount);
-        LogIfPositive("Imported SkinnedMeshRenderer", results.ImportedSkinnedMeshRendererCount);
+        foreach (var (typeId, count) in results.CountsByType)
+            LogIfPositive($"Imported {typeId}", count);
+
+        LogIfPositive("Imported Assets", results.OtherCount);
         LogIfPositive("Assets marked as modified", results.TotalImported);
     }
 

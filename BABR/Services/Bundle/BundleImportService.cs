@@ -1,15 +1,9 @@
 using System.Collections.Frozen;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using BABR.Handlers.AudioClip;
-using BABR.Handlers.DumpAsset;
-using BABR.Handlers.SkinnedMeshRenderer;
-using BABR.Handlers.TextAsset;
-using BABR.Handlers.Texture2D;
-using BABR.Handlers.Transforms;
-using BABR.Handlers.VideoClip;
 using BABR.Models;
 using BABR.Models.Context;
+using BABR.Services.Asset;
 using BABR.Utilities;
 
 namespace BABR.Services.Bundle;
@@ -58,57 +52,31 @@ public static class BundleImportService
         if (assetsFileInstance == null)
         {
             Logger.Error("Failed to get assets file instance for import");
-            return new ImportResults(0, 0, 0, 0, 0, 0, 0);
+            return new ImportResults();
         }
 
         var assetsManager = loaderService.GetAssetsManager();
         var assetInfoLookup = assetsFileInstance.file.AssetInfos.ToFrozenDictionary(a => a.PathId);
+        var counts = new Dictionary<AssetClassID, int>();
 
-        var importedCount = assets.OtherMatches.Count > 0
-            ? await DumpAssetImporter.Import(
-                BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
+        foreach (var (typeId, handler) in AssetHandlerRegistryService.Handlers)
+        {
+            var matches = handler.GetMatches(assets);
+            if (matches.Count <= 0) continue;
+            var context =
+                BuildImportContext(loaderService, matches, assetsFileInstance, assetsManager, assetInfoLookup);
+            counts[typeId] = await handler.Import(context);
+        }
 
-        var textureImportCount = assets.TextureMatches.Count > 0
-            ? await Texture2DImporter.Import(
-                BuildImportContext(loaderService, assets.TextureMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
+        var otherCount = 0;
+        if (assets.OtherMatches.Count > 0)
+        {
+            var context = BuildImportContext(loaderService, assets.OtherMatches, assetsFileInstance, assetsManager,
+                assetInfoLookup);
+            otherCount = await AssetHandlerRegistryService.FallbackHandler.Import(context);
+        }
 
-        var textAssetImportCount = assets.TextAssetMatches.Count > 0
-            ? await TextAssetImporter.Import(
-                BuildImportContext(loaderService, assets.TextAssetMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
-
-        var audioClipImportCount = assets.AudioClipMatches.Count > 0
-            ? await AudioClipImporter.Import(
-                BuildImportContext(loaderService, assets.AudioClipMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
-
-        var videoClipImportCount = assets.VideoClipMatches.Count > 0
-            ? await VideoClipImporter.Import(
-                BuildImportContext(loaderService, assets.VideoClipMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
-
-        var transformImportCount = assets.TransformMatches.Count > 0
-            ? await TransformImporter.Import(
-                BuildImportContext(loaderService, assets.TransformMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
-
-        var skinnedMeshRendererImportCount = assets.SkinnedMeshRendererMatches.Count > 0
-            ? await SkinnedMeshRendererImporter.Import(
-                BuildImportContext(loaderService, assets.SkinnedMeshRendererMatches, assetsFileInstance, assetsManager,
-                    assetInfoLookup))
-            : 0;
-
-        var results = new ImportResults(importedCount, textureImportCount, textAssetImportCount, audioClipImportCount,
-            videoClipImportCount, transformImportCount, skinnedMeshRendererImportCount);
-
+        var results = new ImportResults(counts, otherCount);
         BundleResultsLogger.LogImportResults(results);
         return results;
     }

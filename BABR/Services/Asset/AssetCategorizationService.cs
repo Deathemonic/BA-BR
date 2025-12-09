@@ -1,3 +1,4 @@
+using AssetsTools.NET.Extra;
 using BABR.Models;
 using BABR.Models.Context;
 
@@ -7,31 +8,32 @@ public static class AssetCategorizationService
 {
     public static CategorizedAssets CategorizeMatches(List<AssetMatch> matches)
     {
-        List<AssetMatch> textures = [], textAssets = [], audioClips = [], videoClips = [], transforms = [], skinnedMeshRenderers = [], others = [];
+        var matchesByType = new Dictionary<AssetClassID, List<AssetMatch>>();
+        var others = new List<AssetMatch>();
 
         foreach (var match in matches)
         {
-            var list = match.Type.ToLowerInvariant() switch
+            var assetClassId = (AssetClassID)match.TypeId;
+
+            if (AssetHandlerRegistryService.Handlers.ContainsKey(assetClassId))
             {
-                "texture2d" => textures,
-                "textasset" => textAssets,
-                "audioclip" => audioClips,
-                "videoclip" => videoClips,
-                "transform" => transforms,
-                "skinnedmeshrenderer" => skinnedMeshRenderers,
-                _ => others
-            };
-            list.Add(match);
+                if (!matchesByType.TryGetValue(assetClassId, out var list))
+                {
+                    list = [];
+                    matchesByType[assetClassId] = list;
+                }
+
+                list.Add(match);
+            }
+            else
+            {
+                others.Add(match);
+            }
         }
 
         return new CategorizedAssets
         {
-            TextureMatches = textures,
-            TextAssetMatches = textAssets,
-            AudioClipMatches = audioClips,
-            VideoClipMatches = videoClips,
-            TransformMatches = transforms,
-            SkinnedMeshRendererMatches = skinnedMeshRenderers,
+            MatchesByType = matchesByType,
             OtherMatches = others
         };
     }

@@ -1,25 +1,17 @@
-﻿namespace BABR.Models.Context;
+﻿using AssetsTools.NET.Extra;
 
-public readonly record struct ExportResults(
-    int ExportedCount,
-    int TextureExportCount,
-    int TextAssetExportCount,
-    int AudioClipExportCount,
-    int VideoClipExportCount,
-    int TransformExportCount,
-    int SkinnedMeshRendererExportCount)
+namespace BABR.Models.Context;
+
+public readonly record struct ExportResults(Dictionary<AssetClassID, int> CountsByType, int OtherCount = 0)
 {
-    public int TotalExported => ExportedCount + TextureExportCount + TextAssetExportCount + AudioClipExportCount + VideoClipExportCount + TransformExportCount + SkinnedMeshRendererExportCount;
+    public ExportResults() : this([]) { }
+    public int TotalExported => CountsByType.Values.Sum() + OtherCount;
+    public int GetCount(AssetClassID type) => CountsByType.GetValueOrDefault(type, 0);
 }
 
-public readonly record struct ImportResults(
-    int ImportedCount,
-    int ImportedTextureCount,
-    int ImportedTextAssetCount,
-    int ImportedAudioClipCount,
-    int ImportedVideoClipCount,
-    int ImportedTransformCount,
-    int ImportedSkinnedMeshRendererCount)
+public readonly record struct ImportResults(Dictionary<AssetClassID, int> CountsByType, int OtherCount = 0)
 {
-    public int TotalImported => ImportedCount + ImportedTextureCount + ImportedTextAssetCount + ImportedAudioClipCount + ImportedVideoClipCount + ImportedTransformCount + ImportedSkinnedMeshRendererCount;
+    public ImportResults() : this([]) { }
+    public int TotalImported => CountsByType.Values.Sum() + OtherCount;
+    public int GetCount(AssetClassID type) => CountsByType.GetValueOrDefault(type, 0);
 }

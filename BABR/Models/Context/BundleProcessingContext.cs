@@ -1,4 +1,5 @@
 using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 using AssetsTools.NET.Texture;
 using BABR.Models.Types;
 
@@ -19,11 +20,6 @@ public record BundleProcessingConfig
 
 public record CategorizedAssets
 {
-    public required List<AssetMatch> TextureMatches { get; init; }
-    public required List<AssetMatch> TextAssetMatches { get; init; }
-    public required List<AssetMatch> AudioClipMatches { get; init; }
-    public required List<AssetMatch> VideoClipMatches { get; init; }
-    public required List<AssetMatch> TransformMatches { get; init; }
-    public required List<AssetMatch> SkinnedMeshRendererMatches { get; init; }
-    public required List<AssetMatch> OtherMatches { get; init; }
+    public required Dictionary<AssetClassID, List<AssetMatch>> MatchesByType { get; init; }
+    public List<AssetMatch> OtherMatches { get; init; } = [];
 }
