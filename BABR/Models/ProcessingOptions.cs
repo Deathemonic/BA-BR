@@ -21,11 +21,11 @@ public record ProcessingOptions(
         if (OnlyTypes is { Count: > 0 })
             return !OnlyTypes.Contains(lowerAssetType);
 
-        if (IncludeTypes is { Count: > 0 })
-            return !IncludeTypes.Contains(lowerAssetType);
+        if (IncludeTypes is { Count: > 0 } && IncludeTypes.Contains(lowerAssetType))
+            return false;
 
-        if (ExcludeTypes is { Count: > 0 })
-            return ExcludeTypes.Contains(lowerAssetType);
+        if (ExcludeTypes is { Count: > 0 } && ExcludeTypes.Contains(lowerAssetType))
+            return true;
 
         return DefaultExclusions.Contains(lowerAssetType);
     }

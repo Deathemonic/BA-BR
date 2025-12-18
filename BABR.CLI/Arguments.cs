@@ -48,5 +48,7 @@ public static class Arguments
         }
 
         Parser.Execute(modded, patch, include, exclude, only, output, export, imageFormat, textFormat, compress, noCrc).Wait();
+
+        Thread.Sleep(100);
     }
 }
