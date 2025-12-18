@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using BABR.Models.Types;
 using BABR.Utilities;
@@ -21,7 +21,7 @@ public static class Arguments
     /// <param name="noCrc">-nc, Skip CRC matching on output bundles.</param>
     /// <param name="types">-t, List all available asset types.</param>
     /// <param name="verbose">-v, Enable verbose debug output.</param>
-    /// <param name="modded">-m, Path to the modded asset bundle, a directory of assets, or a single asset file.</param>
+    /// <param name="modded">-m, Path to the modded assetbundle, a directory of assets, or a single asset file.</param>
     /// <param name="patch">-p, Path(s) to the patch assetbundle.</param>
     public static void Run(
         string[]? include = null,

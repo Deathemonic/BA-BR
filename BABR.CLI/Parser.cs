@@ -1,4 +1,4 @@
-﻿using AssetsTools.NET;
+using AssetsTools.NET;
 using AssetsTools.NET.Texture;
 using BABR.Models;
 using BABR.Models.Context;

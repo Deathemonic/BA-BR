@@ -41,14 +41,16 @@ jobs:
           unzip -o fmod.zip -d BABR.FMOD/Native/
 
       - name: Publish
-        run: dotnet publish BABR/BABR.csproj -c Release -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
+        run: dotnet publish BABR.CLI/BABR.CLI.csproj -c Release -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
 
-      - name: Remove dev files
+      - name: Remove dev files and old executable
         shell: bash
         run: |
           find ./publish/${{ matrix.config.runtime }} -name "*.pdb" -type f -delete
           find ./publish/${{ matrix.config.runtime }} -name "*.dbg" -type f -delete
           find ./publish/${{ matrix.config.runtime }} -name "*.dsym" -type d -exec rm -rf {} +
+          rm -f ./publish/${{ matrix.config.runtime }}/BABR.CLI.exe
+          rm -f ./publish/${{ matrix.config.runtime }}/BABR.CLI
 
       - name: Create Zip Archive
         uses: vimtor/action-zip@v1.2

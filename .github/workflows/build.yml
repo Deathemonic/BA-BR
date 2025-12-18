@@ -33,7 +33,7 @@ jobs:
           unzip -o fmod.zip -d BABR.FMOD/Native/
 
       - name: Publish
-        run: dotnet publish BABR/BABR.csproj -c Debug -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
+        run: dotnet publish BABR.CLI/BABR.CLI.csproj -c Debug -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
