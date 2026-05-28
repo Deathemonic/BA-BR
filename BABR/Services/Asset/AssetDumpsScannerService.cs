@@ -29,9 +29,15 @@ public static class AssetDumpsScannerService
         var match = allMatches.FirstOrDefault(m =>
         {
             var cleanName = FileManager.Clean(m.Name);
-            if (!fileName.Equals(cleanName, StringComparison.OrdinalIgnoreCase))
+
+            if (fileName.Equals(cleanName, StringComparison.OrdinalIgnoreCase))
+                goto checkExtension;
+
+            var withTypeSuffix = $"{cleanName}_{m.Type}";
+            if (!fileName.Equals(withTypeSuffix, StringComparison.OrdinalIgnoreCase))
                 return false;
 
+            checkExtension:
             return m.Type.ToLowerInvariant() switch
             {
                 "texture2d" => Extensions.TextureExtensions.Contains(extension),
