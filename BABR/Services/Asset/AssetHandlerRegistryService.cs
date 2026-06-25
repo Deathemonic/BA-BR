@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using AssetsTools.NET.Extra;
 using BABR.Handlers.AudioClip;
 using BABR.Handlers.DumpAsset;
+using BABR.Handlers.Font;
 using BABR.Handlers.Material;
 using BABR.Handlers.SkinnedMeshRenderer;
 using BABR.Handlers.TextAsset;
@@ -37,6 +38,8 @@ public static class AssetHandlerRegistryService
             TransformExporter.Export, TransformImporter.Import),
         [AssetClassID.Material] = (a => a.MatchesByType.GetValueOrDefault(AssetClassID.Material, []),
             MaterialExporter.Export, MaterialImporter.Import),
+        [AssetClassID.Font] = (a => a.MatchesByType.GetValueOrDefault(AssetClassID.Font, []),
+            FontExporter.Export, FontImporter.Import),
         [AssetClassID.SkinnedMeshRenderer] = (
             a => a.MatchesByType.GetValueOrDefault(AssetClassID.SkinnedMeshRenderer, []),
             SkinnedMeshRendererExporter.Export, SkinnedMeshRendererImporter.Import)
