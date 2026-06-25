@@ -14,3 +14,6 @@ public partial class TransformJsonContext : JsonSerializerContext;
 
 [JsonSerializable(typeof(SkinnedMeshRendererData))]
 public partial class SkinnedMeshRendererJsonContext : JsonSerializerContext;
+
+[JsonSerializable(typeof(MaterialData))]
+public partial class MaterialJsonContext : JsonSerializerContext;
