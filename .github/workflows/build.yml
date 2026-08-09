@@ -1,6 +1,18 @@
-﻿name: Build
+﻿name: Build and Release
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+      prerelease:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -10,12 +22,12 @@ jobs:
     strategy:
       matrix:
         config:
-          - { name: win_x64, os: windows-latest, runtime: win-x64 }
-          - { name: win_arm64, os: windows-latest, runtime: win-arm64 }
-          - { name: linux_x64, os: ubuntu-latest, runtime: linux-x64 }
-          - { name: linux_arm64, os: ubuntu-24.04-arm, runtime: linux-arm64 }
-          - { name: mac_x64, os: macos-15, runtime: osx-x64 }
-          - { name: mac_arm64, os: macos-15, runtime: osx-arm64 }
+          - { name: linux-x86_64, os: ubuntu-latest, rid: linux-x64 }
+          - { name: linux-aarch64, os: ubuntu-24.04-arm, rid: linux-arm64 }
+          - { name: windows-x86_64, os: windows-latest, rid: win-x64 }
+          - { name: windows-aarch64, os: windows-11-vs2026-arm, rid: win-arm64 }
+          - { name: macos-x86_64, os: macos-26-intel, rid: osx-x64 }
+          - { name: macos-aarch64, os: macos-latest, rid: osx-arm64 }
 
     steps:
       - name: Checkout code
@@ -26,6 +38,14 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ matrix.config.rid }}-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-${{ matrix.config.rid }}-
+
       - name: Download FMOD libraries
         shell: bash
         run: |
@@ -33,10 +53,60 @@ jobs:
           unzip -o fmod.zip -d BABR.FMOD/Native/
 
       - name: Publish
-        run: dotnet publish BABR.CLI/BABR.CLI.csproj -c Debug -r ${{ matrix.config.runtime }} -o ./publish/${{ matrix.config.runtime }}
+        run: dotnet publish Source/BABR.CLI/BABR.CLI.csproj -c Release -r ${{ matrix.config.rid }} -o ./publish/${{ matrix.config.rid }}
+
+      - name: Remove dev files
+        shell: bash
+        run: |
+          find ./publish/${{ matrix.config.rid }} -name "*.pdb" -type f -delete
+          find ./publish/${{ matrix.config.rid }} -name "*.dbg" -type f -delete
+          find ./publish/${{ matrix.config.rid }} -name "*.dsym" -type d -exec rm -rf {} +
+
+      - name: Zip build output
+        uses: vimtor/action-zip@v1.3
+        with:
+          files: publish/${{ matrix.config.rid }}
+          dest: ${{ github.event.repository.name }}-${{ matrix.config.rid }}.zip
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.config.runtime }}
-          path: publish/${{ matrix.config.runtime }}
+          name: ${{ github.event.repository.name }}-${{ matrix.config.rid }}
+          path: ${{ github.event.repository.name }}-${{ matrix.config.rid }}.zip
+
+  deploy:
+    name: Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/') || inputs.tag != ''
+
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - name: Checkout
+        if: inputs.tag != ''
+        uses: actions/checkout@v4
+
+      - name: Create tag
+        if: inputs.tag != ''
+        run: |
+          git tag ${{ inputs.tag }}
+          git push origin ${{ inputs.tag }}
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          files: artifacts/*.zip
+          generate_release_notes: true
+          prerelease: ${{ inputs.prerelease || false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
