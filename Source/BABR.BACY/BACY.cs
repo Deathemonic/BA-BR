@@ -34,9 +34,6 @@ public static class CrcManipulator
     public static void MatchFile(string filePath, string targetFilePath)
     {
         var code = (BacyErrorCode)BacyNative.bacy_crc_match_file(filePath, targetFilePath);
-        if (code != BacyErrorCode.Success)
-        {
-            throw new HashException(code);
-        }
+        if (code != BacyErrorCode.Success) throw new HashException(code);
     }
 }
