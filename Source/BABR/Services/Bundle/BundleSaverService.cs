@@ -1,5 +1,6 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using BABR.BACY;
 using BABR.Utilities;
 using ZLinq;
 
@@ -93,7 +94,7 @@ public static class BundleSaverService
                 : $"compressed with {compressionType}";
 
             if (!skipCrcMatch)
-                CrcManipulator.MatchCrc(outputPath, originalPatchPath);
+                CrcManipulator.MatchFile(outputPath, originalPatchPath);
 
             Logger.Success("Saved modded bundle", outputPath);
 
