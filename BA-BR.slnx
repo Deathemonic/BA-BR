@@ -1,8 +1,8 @@
 <Solution>
-  <Project Path="BABR.BAADCore/BABR.BAADCore.csproj" />
-  <Project Path="BABR.BACY/BABR.BACY.csproj" />
-  <Project Path="BABR.CLI/BABR.CLI.csproj" />
-  <Project Path="BABR.FMOD/BABR.FMOD.csproj" />
-  <Project Path="BABR.TextureEncoder/BABR.TextureEncoder.csproj" />
-  <Project Path="BABR/BABR.csproj" />
+  <Project Path="Source/BABR.BAADCore/BABR.BAADCore.csproj" />
+  <Project Path="Source/BABR.BACY/BABR.BACY.csproj" />
+  <Project Path="Source/BABR.CLI/BABR.CLI.csproj" />
+  <Project Path="Source/BABR.FMOD/BABR.FMOD.csproj" />
+  <Project Path="Source/BABR.TextureEncoder/BABR.TextureEncoder.csproj" />
+  <Project Path="Source/BABR/BABR.csproj" />
 </Solution>

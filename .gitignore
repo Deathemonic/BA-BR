@@ -24,7 +24,7 @@ msbuild.err
 msbuild.wrn
 sample/
 
-BABR.FMOD/Native/
+Source/BABR.FMOD/Native/
 
 .vs/
 .idea/
