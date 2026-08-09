@@ -15,7 +15,7 @@ public static class BundleImportService
     {
         if (!Directory.Exists(FileManager.GetDumpPath()))
         {
-            Logger.Error("Dumps directory not found");
+            Log.Error("Dumps directory not found");
             return;
         }
 
@@ -35,14 +35,14 @@ public static class BundleImportService
     {
         if (!loaderService.LoadBundle(patchPath))
         {
-            Logger.Error("Failed to load patch bundle for import");
+            Log.Error("Failed to load patch bundle for import");
             return false;
         }
 
         if (ClassDatabaseLoader.LoadClassDatabase(loaderService.GetAssetsManager()))
             return true;
 
-        Logger.Error("Failed to load class database");
+        Log.Error("Failed to load class database");
         return false;
     }
 
@@ -51,7 +51,7 @@ public static class BundleImportService
         var assetsFileInstance = loaderService.GetAssetsFileInstance();
         if (assetsFileInstance == null)
         {
-            Logger.Error("Failed to get assets file instance for import");
+            Log.Error("Failed to get assets file instance for import");
             return new ImportResults();
         }
 

@@ -177,7 +177,7 @@ public static class DumpAssetSerializer
                 else
                 {
                     WriteDefaultValue(writer, childTempField);
-                    Logger.Warn("Missing field in JSON, using default value", childTempField.Name);
+                    Log.Warn("Missing field in JSON, using default value", childTempField.Name);
                 }
             }
 
@@ -185,7 +185,7 @@ public static class DumpAssetSerializer
         }
         else if (tempField.HasValue && tempField.ValueType == AssetValueType.ManagedReferencesRegistry)
         {
-            Logger.Warn("ManagedReferencesRegistry import not fully supported");
+            Log.Warn("ManagedReferencesRegistry import not fully supported");
         }
         else
         {

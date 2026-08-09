@@ -12,7 +12,7 @@ public static class VideoClipImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing VideoClip assets...");
+        Log.Info("Importing VideoClip assets...");
 
         var resourceService = new BundleResourceService();
         var videoContext = context with { ResourceService = resourceService };
@@ -38,7 +38,7 @@ public static class VideoClipImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing video clip", ex);
+                Log.Error("Error importing video clip", ex);
             }
 
         return Task.FromResult(importedCount);
@@ -48,14 +48,14 @@ public static class VideoClipImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
+            Log.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for VideoClip", match.PatchId.ToString());
+            Log.Error("Failed to get base field for VideoClip", match.PatchId.ToString());
             return false;
         }
 
@@ -64,21 +64,21 @@ public static class VideoClipImporter
 
         if (videoFilePath == null)
         {
-            Logger.Error("Video file not found", cleanAssetName);
+            Log.Error("Video file not found", cleanAssetName);
             return false;
         }
 
-        Logger.Debug("Processing video clip", match.Name);
+        Log.Debug("Processing video clip", match.Name);
 
         var success = ImportVideoClip(context, targetAssetInfo, baseField, videoFilePath);
 
         if (!success)
         {
-            Logger.Error("Failed to import video clip", match.Name);
+            Log.Error("Failed to import video clip", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported video clip", match.Name);
+        Log.Debug("Imported video clip", match.Name);
         return true;
     }
 
@@ -91,11 +91,11 @@ public static class VideoClipImporter
     {
         try
         {
-            Logger.Debug("Starting VideoClip import", assetInfo.PathId.ToString());
+            Log.Debug("Starting VideoClip import", assetInfo.PathId.ToString());
 
             if (!File.Exists(filePath))
             {
-                Logger.Error("Import file not found", filePath);
+                Log.Error("Import file not found", filePath);
                 return false;
             }
 
@@ -104,11 +104,11 @@ public static class VideoClipImporter
 
             if (videoData.Length == 0)
             {
-                Logger.Error("Video file is empty", filePath);
+                Log.Error("Video file is empty", filePath);
                 return false;
             }
 
-            Logger.Debug("Video file loaded", new Dictionary<string, string>
+            Log.Debug("Video file loaded", new Dictionary<string, string>
             {
                 ["path"] = filePath,
                 ["size"] = $"{videoData.Length} bytes"
@@ -130,8 +130,8 @@ public static class VideoClipImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during VideoClip import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during VideoClip import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

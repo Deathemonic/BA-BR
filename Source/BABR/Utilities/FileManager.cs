@@ -52,7 +52,7 @@ public static class FileManager
     {
         if (string.IsNullOrEmpty(path)) return;
         _outputDirectory = Path.GetFullPath(path);
-        Logger.Info("Output directory set", _outputDirectory);
+        Log.Info("Output directory set", _outputDirectory);
     }
 
     public static string GetModdedPath() => GetPath("Modded");
@@ -81,7 +81,7 @@ public static class FileManager
         }
         catch (Exception ex)
         {
-            Logger.Error("Failed to cleanup directory", ex);
+            Log.Error("Failed to cleanup directory", ex);
         }
     }
 

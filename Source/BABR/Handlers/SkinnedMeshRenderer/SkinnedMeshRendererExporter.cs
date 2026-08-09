@@ -10,7 +10,7 @@ public static class SkinnedMeshRendererExporter
 {
     public static async Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting SkinnedMeshRenderer assets...");
+        Log.Info("Exporting SkinnedMeshRenderer assets...");
         return await ProcessExports(context);
     }
 
@@ -25,7 +25,7 @@ public static class SkinnedMeshRendererExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting SkinnedMeshRenderer", ex);
+                Log.Error("Error exporting SkinnedMeshRenderer", ex);
             }
 
         return exportedCount;
@@ -35,21 +35,21 @@ public static class SkinnedMeshRendererExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("SkinnedMeshRenderer not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("SkinnedMeshRenderer not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for SkinnedMeshRenderer", match.ModdedId.ToString());
+            Log.Error("Failed to get base field for SkinnedMeshRenderer", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
 
         await ExportData(baseField, filePath);
-        Logger.Debug("Exported SkinnedMeshRenderer", match.Name);
+        Log.Debug("Exported SkinnedMeshRenderer", match.Name);
         return true;
     }
 

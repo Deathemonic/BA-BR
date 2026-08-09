@@ -11,7 +11,7 @@ public static class MaterialImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing Material assets...");
+        Log.Info("Importing Material assets...");
         return await ProcessImports(context);
     }
 
@@ -26,7 +26,7 @@ public static class MaterialImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing material", ex);
+                Log.Error("Error importing material", ex);
             }
 
         return importedCount;
@@ -36,7 +36,7 @@ public static class MaterialImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Material not found in patch bundle", match.PatchId.ToString());
+            Log.Error("Material not found in patch bundle", match.PatchId.ToString());
             return false;
         }
 
@@ -45,18 +45,18 @@ public static class MaterialImporter
 
         if (!File.Exists(filePath))
         {
-            Logger.Error("Material JSON not found", filePath);
+            Log.Error("Material JSON not found", filePath);
             return false;
         }
 
         var success = await ImportFromJson(context, targetAssetInfo, filePath);
         if (!success)
         {
-            Logger.Error("Failed to import material", match.Name);
+            Log.Error("Failed to import material", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported material", match.Name);
+        Log.Debug("Imported material", match.Name);
         return true;
     }
 
@@ -71,7 +71,7 @@ public static class MaterialImporter
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
             if (baseField == null)
             {
-                Logger.Error("Failed to get base field for material");
+                Log.Error("Failed to get base field for material");
                 return false;
             }
 
@@ -94,8 +94,8 @@ public static class MaterialImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during material import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during material import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }
@@ -115,7 +115,7 @@ public static class MaterialImporter
         {
             if (!lookup.TryGetValue(texEnv.first, out var entry))
             {
-                Logger.Warn($"Material TexEnv key not found in patch, skipping: {texEnv.first}");
+                Log.Warn($"Material TexEnv key not found in patch, skipping: {texEnv.first}");
                 continue;
             }
 
@@ -134,7 +134,7 @@ public static class MaterialImporter
         {
             if (!lookup.TryGetValue(item.first, out var entry))
             {
-                Logger.Warn($"Material Float key not found in patch, skipping: {item.first}");
+                Log.Warn($"Material Float key not found in patch, skipping: {item.first}");
                 continue;
             }
 
@@ -149,7 +149,7 @@ public static class MaterialImporter
         {
             if (!lookup.TryGetValue(item.first, out var entry))
             {
-                Logger.Warn($"Material Int key not found in patch, skipping: {item.first}");
+                Log.Warn($"Material Int key not found in patch, skipping: {item.first}");
                 continue;
             }
 
@@ -164,7 +164,7 @@ public static class MaterialImporter
         {
             if (!lookup.TryGetValue(item.first, out var entry))
             {
-                Logger.Warn($"Material Color key not found in patch, skipping: {item.first}");
+                Log.Warn($"Material Color key not found in patch, skipping: {item.first}");
                 continue;
             }
 

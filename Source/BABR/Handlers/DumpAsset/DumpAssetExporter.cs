@@ -11,7 +11,7 @@ public static class DumpAssetExporter
 
     public static async Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting JSON dumps...");
+        Log.Info("Exporting JSON dumps...");
 
         return await ProcessExports(context);
     }
@@ -28,7 +28,7 @@ public static class DumpAssetExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting asset", ex);
+                Log.Error("Error exporting asset", ex);
             }
 
         return exportedCount;
@@ -38,14 +38,14 @@ public static class DumpAssetExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("Asset not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("Asset not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for asset", match.ModdedId.ToString());
+            Log.Error("Failed to get base field for asset", match.ModdedId.ToString());
             return false;
         }
 
@@ -53,7 +53,7 @@ public static class DumpAssetExporter
 
         await ExportJsonData(baseField, filePath);
 
-        Logger.Debug("Exported", new Dictionary<string, string>
+        Log.Debug("Exported", new Dictionary<string, string>
         {
             ["name"] = match.Name,
             ["type"] = match.Type

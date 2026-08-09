@@ -14,7 +14,7 @@ public static class Texture2DProcessor
         if (textureTemplate != null)
             return textureTemplate;
 
-        Logger.Error("Failed to get template field", assetInfo.PathId.ToString());
+        Log.Error("Failed to get template field", assetInfo.PathId.ToString());
         return null;
     }
 
@@ -32,12 +32,12 @@ public static class Texture2DProcessor
         var imageData = textureTemplate.Children.FirstOrDefault(f => f.Name == "image data");
         if (imageData == null)
         {
-            Logger.Error("No image data found", assetId.ToString());
+            Log.Error("No image data found", assetId.ToString());
             return false;
         }
 
         imageData.ValueType = AssetValueType.ByteArray;
-        Logger.Debug("Image data field set to ByteArray");
+        Log.Debug("Image data field set to ByteArray");
         return true;
     }
 
@@ -49,7 +49,7 @@ public static class Texture2DProcessor
 
         var platformBlobArray = platformBlob.Children[0];
         platformBlobArray.ValueType = AssetValueType.ByteArray;
-        Logger.Debug("Platform blob found and set");
+        Log.Debug("Platform blob found and set");
     }
 
     public static AssetTypeValueField? GetTextureBaseField(AssetsManager assetsManager,
@@ -59,7 +59,7 @@ public static class Texture2DProcessor
         if (baseField != null)
             return baseField;
 
-        Logger.Error("Failed to get base field", assetInfo.PathId.ToString());
+        Log.Error("Failed to get base field", assetInfo.PathId.ToString());
         return null;
     }
 
@@ -69,7 +69,7 @@ public static class Texture2DProcessor
         if (textureFile == null)
             return null;
 
-        Logger.Debug("Texture info", new Dictionary<string, string>
+        Log.Debug("Texture info", new Dictionary<string, string>
         {
             ["format"] = textureFile.m_TextureFormat.ToString(),
             ["dimensions"] = $"{textureFile.m_Width}x{textureFile.m_Height}"
@@ -80,7 +80,7 @@ public static class Texture2DProcessor
     public static bool ValidateTextureDimensions(TextureFile textureFile)
     {
         if (textureFile is not { m_Width: 0, m_Height: 0 }) return true;
-        Logger.Error("Invalid texture dimensions");
+        Log.Error("Invalid texture dimensions");
         return false;
     }
 
@@ -88,14 +88,14 @@ public static class Texture2DProcessor
         string filePath, ImageExportType exportType)
     {
         using var outputStream = File.OpenWrite(filePath);
-        Logger.Debug("Created output stream", filePath);
+        Log.Debug("Created output stream", filePath);
 
         var textureData = GetTextureData(textureFile, assetsFileInstance);
         if (textureData == null)
             return false;
 
         var success = textureFile.DecodeTextureImage(textureData, outputStream, exportType);
-        Logger.Debug("Decode result", success.ToString());
+        Log.Debug("Decode result", success.ToString());
 
         return success;
     }
@@ -105,11 +105,11 @@ public static class Texture2DProcessor
         var textureData = textureFile.FillPictureData(assetsFileInstance);
         if (textureData == null || textureData.Length == 0)
         {
-            Logger.Error("No texture data obtained");
+            Log.Error("No texture data obtained");
             return null;
         }
 
-        Logger.Debug("Got texture data", $"{textureData.Length} bytes");
+        Log.Debug("Got texture data", $"{textureData.Length} bytes");
         return textureData;
     }
 
@@ -118,7 +118,7 @@ public static class Texture2DProcessor
         if (File.Exists(filePath))
             return true;
 
-        Logger.Debug("Import file not found", filePath);
+        Log.Debug("Import file not found", filePath);
         return false;
     }
 
@@ -135,14 +135,14 @@ public static class Texture2DProcessor
     {
         try
         {
-            Logger.Debug("Encoding texture from file", filePath);
+            Log.Debug("Encoding texture from file", filePath);
             textureFile.EncodeTextureImage(filePath);
-            Logger.Debug("Successfully encoded texture");
+            Log.Debug("Successfully encoded texture");
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error("Failed to encode texture", ex);
+            Log.Error("Failed to encode texture", ex);
             return false;
         }
     }
@@ -151,14 +151,14 @@ public static class Texture2DProcessor
     {
         try
         {
-            Logger.Debug("Writing texture data back to asset");
+            Log.Debug("Writing texture data back to asset");
             textureFile.WriteTo(textureBaseField);
-            Logger.Debug("Successfully wrote texture data");
+            Log.Debug("Successfully wrote texture data");
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error("Failed to write texture data", ex);
+            Log.Error("Failed to write texture data", ex);
             return false;
         }
     }
@@ -171,12 +171,12 @@ public static class Texture2DProcessor
             var replacer = new ContentReplacerFromBuffer(modifiedData);
 
             assetInfo.Replacer = replacer;
-            Logger.Debug("Asset replacer set successfully");
+            Log.Debug("Asset replacer set successfully");
             return true;
         }
         catch (Exception ex)
         {
-            Logger.Error("Failed to apply texture changes", ex);
+            Log.Error("Failed to apply texture changes", ex);
             return false;
         }
     }

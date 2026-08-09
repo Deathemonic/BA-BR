@@ -10,7 +10,7 @@ public static class TransformExporter
 {
     public static async Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting Transform assets...");
+        Log.Info("Exporting Transform assets...");
 
         return await ProcessExports(context);
     }
@@ -27,7 +27,7 @@ public static class TransformExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting transform", ex);
+                Log.Error("Error exporting transform", ex);
             }
 
         return exportedCount;
@@ -37,14 +37,14 @@ public static class TransformExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("Transform not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("Transform not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for transform", match.ModdedId.ToString());
+            Log.Error("Failed to get base field for transform", match.ModdedId.ToString());
             return false;
         }
 
@@ -52,7 +52,7 @@ public static class TransformExporter
 
         await ExportTransformData(baseField, filePath);
 
-        Logger.Debug("Exported transform", match.Name);
+        Log.Debug("Exported transform", match.Name);
         return true;
     }
 

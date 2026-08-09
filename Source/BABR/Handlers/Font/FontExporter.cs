@@ -9,7 +9,7 @@ public static class FontExporter
 {
     public static async Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting Font assets...");
+        Log.Info("Exporting Font assets...");
         return await ProcessExports(context);
     }
 
@@ -26,7 +26,7 @@ public static class FontExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting font", ex);
+                Log.Error("Error exporting font", ex);
             }
 
         return exportedCount;
@@ -36,21 +36,21 @@ public static class FontExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("Font not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("Font not found in modded bundle", match.ModdedId.ToString());
             return Task.FromResult(false);
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for font", match.ModdedId.ToString());
+            Log.Error("Failed to get base field for font", match.ModdedId.ToString());
             return Task.FromResult(false);
         }
 
         var fontData = baseField["m_FontData"]["Array"].AsByteArray;
         if (fontData.Length == 0)
         {
-            Logger.Error("Font data is empty", match.ModdedId.ToString());
+            Log.Error("Font data is empty", match.ModdedId.ToString());
             return Task.FromResult(false);
         }
 
@@ -60,7 +60,7 @@ public static class FontExporter
 
         File.WriteAllBytes(filePath, fontData);
 
-        Logger.Debug("Exported font", match.Name);
+        Log.Debug("Exported font", match.Name);
         return Task.FromResult(true);
     }
 }

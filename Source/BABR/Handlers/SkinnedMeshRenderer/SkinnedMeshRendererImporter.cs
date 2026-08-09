@@ -11,7 +11,7 @@ public static class SkinnedMeshRendererImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing SkinnedMeshRenderer assets...");
+        Log.Info("Importing SkinnedMeshRenderer assets...");
         return await ProcessImports(context);
     }
 
@@ -26,7 +26,7 @@ public static class SkinnedMeshRendererImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing SkinnedMeshRenderer", ex);
+                Log.Error("Error importing SkinnedMeshRenderer", ex);
             }
 
         return importedCount;
@@ -36,7 +36,7 @@ public static class SkinnedMeshRendererImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("SkinnedMeshRenderer not found in patch bundle", match.PatchId.ToString());
+            Log.Error("SkinnedMeshRenderer not found in patch bundle", match.PatchId.ToString());
             return false;
         }
 
@@ -45,18 +45,18 @@ public static class SkinnedMeshRendererImporter
 
         if (!File.Exists(filePath))
         {
-            Logger.Error("SkinnedMeshRenderer JSON not found", filePath);
+            Log.Error("SkinnedMeshRenderer JSON not found", filePath);
             return false;
         }
 
         var success = await ImportFromJson(context, targetAssetInfo, filePath);
         if (!success)
         {
-            Logger.Error("Failed to import SkinnedMeshRenderer", match.Name);
+            Log.Error("Failed to import SkinnedMeshRenderer", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported SkinnedMeshRenderer", match.Name);
+        Log.Debug("Imported SkinnedMeshRenderer", match.Name);
         return true;
     }
 
@@ -72,7 +72,7 @@ public static class SkinnedMeshRendererImporter
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
             if (baseField == null)
             {
-                Logger.Error("Failed to get base field for SkinnedMeshRenderer");
+                Log.Error("Failed to get base field for SkinnedMeshRenderer");
                 return false;
             }
 
@@ -108,8 +108,8 @@ public static class SkinnedMeshRendererImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during SkinnedMeshRenderer import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during SkinnedMeshRenderer import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }
@@ -118,7 +118,7 @@ public static class SkinnedMeshRendererImporter
     {
         if (weights.Length != arrayField.Children.Count)
         {
-            Logger.Warn(
+            Log.Warn(
                 $"BlendShapeWeights array size mismatch: JSON has {weights.Length}, asset has {arrayField.Children.Count}");
             return;
         }

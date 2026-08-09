@@ -11,7 +11,7 @@ public static class TransformImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing Transform assets...");
+        Log.Info("Importing Transform assets...");
         return await ProcessImports(context);
     }
 
@@ -27,7 +27,7 @@ public static class TransformImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing transform", ex);
+                Log.Error("Error importing transform", ex);
             }
 
         return importedCount;
@@ -37,7 +37,7 @@ public static class TransformImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Transform not found in patch bundle", match.PatchId.ToString());
+            Log.Error("Transform not found in patch bundle", match.PatchId.ToString());
             return false;
         }
 
@@ -46,7 +46,7 @@ public static class TransformImporter
 
         if (!File.Exists(filePath))
         {
-            Logger.Error("Transform JSON not found", filePath);
+            Log.Error("Transform JSON not found", filePath);
             return false;
         }
 
@@ -54,11 +54,11 @@ public static class TransformImporter
 
         if (!success)
         {
-            Logger.Error("Failed to import transform", match.Name);
+            Log.Error("Failed to import transform", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported transform", match.Name);
+        Log.Debug("Imported transform", match.Name);
         return true;
     }
 
@@ -73,7 +73,7 @@ public static class TransformImporter
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
             if (baseField == null)
             {
-                Logger.Error("Failed to get base field for transform");
+                Log.Error("Failed to get base field for transform");
                 return false;
             }
 
@@ -88,8 +88,8 @@ public static class TransformImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during transform import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during transform import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

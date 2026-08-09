@@ -10,7 +10,7 @@ public static class TextAssetImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing text assets...");
+        Log.Info("Importing text assets...");
         return await ProcessImports(context);
     }
 
@@ -26,7 +26,7 @@ public static class TextAssetImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing text asset", ex);
+                Log.Error("Error importing text asset", ex);
             }
 
         return importedCount;
@@ -36,28 +36,28 @@ public static class TextAssetImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
+            Log.Error("Asset not found in target bundle", match.PatchId.ToString());
             return Task.FromResult(false);
         }
 
         var filePath = FindTextFile(match.Name);
         if (filePath == null)
         {
-            Logger.Error("Text file not found", FileManager.Clean(match.Name));
+            Log.Error("Text file not found", FileManager.Clean(match.Name));
             return Task.FromResult(false);
         }
 
-        Logger.Debug("Processing text asset", match.Name);
+        Log.Debug("Processing text asset", match.Name);
 
         var success = ImportTextAssetFromFile(context, targetAssetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error("Failed to import text asset", match.Name);
+            Log.Error("Failed to import text asset", match.Name);
             return Task.FromResult(false);
         }
 
-        Logger.Debug("Imported text asset", match.Name);
+        Log.Debug("Imported text asset", match.Name);
         return Task.FromResult(true);
     }
 
@@ -80,18 +80,18 @@ public static class TextAssetImporter
     {
         try
         {
-            Logger.Debug("Starting TextAsset import", assetInfo.PathId.ToString());
+            Log.Debug("Starting TextAsset import", assetInfo.PathId.ToString());
 
             if (!File.Exists(filePath))
             {
-                Logger.Error("Import file not found", filePath);
+                Log.Error("Import file not found", filePath);
                 return false;
             }
 
             var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
             if (baseField == null)
             {
-                Logger.Error("Failed to get base field for TextAsset", assetInfo.PathId.ToString());
+                Log.Error("Failed to get base field for TextAsset", assetInfo.PathId.ToString());
                 return false;
             }
 
@@ -101,7 +101,7 @@ public static class TextAssetImporter
             var replacer = new ContentReplacerFromBuffer(baseField.WriteToByteArray());
             assetInfo.Replacer = replacer;
 
-            Logger.Debug("Successfully created replacer for TextAsset", new Dictionary<string, string>
+            Log.Debug("Successfully created replacer for TextAsset", new Dictionary<string, string>
             {
                 ["pathId"] = assetInfo.PathId.ToString(),
                 ["file"] = filePath
@@ -110,8 +110,8 @@ public static class TextAssetImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during TextAsset import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during TextAsset import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

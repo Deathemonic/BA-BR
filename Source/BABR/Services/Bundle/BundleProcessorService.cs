@@ -13,7 +13,7 @@ public static class BundleProcessorService
 
         if (exportOnly && skipExport)
         {
-            Logger.Error("Export-only mode only works with bundle files, not directories or single files");
+            Log.Error("Export-only mode only works with bundle files, not directories or single files");
             return false;
         }
 
@@ -27,7 +27,7 @@ public static class BundleProcessorService
 
         if (matches.Count == 0)
         {
-            Logger.Warn("No matching assets found");
+            Log.Warn("No matching assets found");
             return false;
         }
 
@@ -40,7 +40,7 @@ public static class BundleProcessorService
 
         if (exportOnly)
         {
-            Logger.Info("Export-only mode: skipping import");
+            Log.Info("Export-only mode: skipping import");
             await BundleExportService.PerformExports(config, categorizedAssets);
             return true;
         }
@@ -58,14 +58,14 @@ public static class BundleProcessorService
         switch (alreadySkipExport)
         {
             case true when Directory.Exists(moddedPath):
-                Logger.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
-                Logger.Info("Skipping export, proceeding directly to import...");
+                Log.Info("Using custom Dumps folder", Path.GetFullPath(moddedPath));
+                Log.Info("Skipping export, proceeding directly to import...");
                 FileManager.SetCustomDumpPath(Path.GetFullPath(moddedPath));
                 return (true, null);
             case true when File.Exists(moddedPath) && !IsBundleFile(moddedPath):
             {
-                Logger.Info("Using single file", Path.GetFullPath(moddedPath));
-                Logger.Info("Skipping export, proceeding directly to import...");
+                Log.Info("Using single file", Path.GetFullPath(moddedPath));
+                Log.Info("Skipping export, proceeding directly to import...");
                 var directory = Path.GetDirectoryName(Path.GetFullPath(moddedPath)) ?? Directory.GetCurrentDirectory();
                 FileManager.SetCustomDumpPath(directory);
                 return (true, Path.GetFullPath(moddedPath));
@@ -83,10 +83,10 @@ public static class BundleProcessorService
 
     private static void LogMatchingAssets(List<AssetMatch> matches)
     {
-        Logger.Success($"Found {matches.Count} matching assets");
-        Logger.Info("Matching Assets:");
+        Log.Success($"Found {matches.Count} matching assets");
+        Log.Info("Matching Assets:");
 
         foreach (var match in matches)
-            Logger.Info($"Asset match {match.ModdedId}", match.DisplayName);
+            Log.Info($"Asset match {match.ModdedId}", match.DisplayName);
     }
 }

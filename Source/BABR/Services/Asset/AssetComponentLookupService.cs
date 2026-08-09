@@ -45,7 +45,7 @@ public static class AssetComponentLookupService
             }
             catch (Exception ex)
             {
-                Logger.Trace($"Failed to process GameObject for {componentType}", ex.Message);
+                Log.Trace($"Failed to process GameObject for {componentType}", ex.Message);
             }
 
         return goToComponent;

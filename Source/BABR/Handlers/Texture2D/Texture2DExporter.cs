@@ -10,7 +10,7 @@ public static class Texture2DExporter
 {
     public static Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting Texture2D assets", context.ImageFormat.ToString());
+        Log.Info("Exporting Texture2D assets", context.ImageFormat.ToString());
 
         return Task.FromResult(ProcessExports(context));
     }
@@ -27,7 +27,7 @@ public static class Texture2DExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting texture", ex);
+                Log.Error("Error exporting texture", ex);
             }
 
         return exportedCount;
@@ -37,13 +37,13 @@ public static class Texture2DExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("Texture2D asset not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("Texture2D asset not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = BuildExportFilePath(match.Name, context.ImageFormat);
 
-        Logger.Debug("Attempting to export texture", new Dictionary<string, string>
+        Log.Debug("Attempting to export texture", new Dictionary<string, string>
         {
             ["name"] = match.Name,
             ["typeId"] = match.TypeId.ToString(),
@@ -54,11 +54,11 @@ public static class Texture2DExporter
 
         if (!success)
         {
-            Logger.Error("Failed to export texture", match.Name);
+            Log.Error("Failed to export texture", match.Name);
             return false;
         }
 
-        Logger.Debug("Exported texture", new Dictionary<string, string>
+        Log.Debug("Exported texture", new Dictionary<string, string>
         {
             ["name"] = match.Name,
             ["file"] = Path.GetFileName(filePath)
@@ -78,7 +78,7 @@ public static class Texture2DExporter
     {
         try
         {
-            Logger.Debug("Starting export for asset", assetInfo.PathId.ToString());
+            Log.Debug("Starting export for asset", assetInfo.PathId.ToString());
 
             var textureTemplate =
                 Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
@@ -105,8 +105,8 @@ public static class Texture2DExporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during export", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during export", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

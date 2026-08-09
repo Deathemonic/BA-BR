@@ -10,7 +10,7 @@ public static class MaterialExporter
 {
     public static async Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting Material assets...");
+        Log.Info("Exporting Material assets...");
         return await ProcessExports(context);
     }
 
@@ -25,7 +25,7 @@ public static class MaterialExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting material", ex);
+                Log.Error("Error exporting material", ex);
             }
 
         return exportedCount;
@@ -35,21 +35,21 @@ public static class MaterialExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("Material not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("Material not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for material", match.ModdedId.ToString());
+            Log.Error("Failed to get base field for material", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = FileManager.GetFilePath(FileManager.GetDumpPath(), match.JsonFileName);
 
         await ExportData(baseField, filePath);
-        Logger.Debug("Exported material", match.Name);
+        Log.Debug("Exported material", match.Name);
         return true;
     }
 

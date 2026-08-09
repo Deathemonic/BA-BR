@@ -12,7 +12,7 @@ public static class AudioClipImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing AudioClip assets...");
+        Log.Info("Importing AudioClip assets...");
 
         using var encoder = new Encoder();
         using var decoder = new Decoder();
@@ -23,7 +23,7 @@ public static class AudioClipImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Failed to initialize FMOD", ex);
+            Log.Error("Failed to initialize FMOD", ex);
             return 0;
         }
 
@@ -56,7 +56,7 @@ public static class AudioClipImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing audio clip", ex);
+                Log.Error("Error importing audio clip", ex);
             }
 
         return Task.FromResult(importedCount);
@@ -66,14 +66,14 @@ public static class AudioClipImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
+            Log.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, targetAssetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to get base field for AudioClip", match.PatchId.ToString());
+            Log.Error("Failed to get base field for AudioClip", match.PatchId.ToString());
             return false;
         }
 
@@ -82,22 +82,22 @@ public static class AudioClipImporter
 
         if (!audioFileInfo.HasValue)
         {
-            Logger.Error("Audio file not found", cleanAssetName);
+            Log.Error("Audio file not found", cleanAssetName);
             return false;
         }
 
-        Logger.Debug("Processing audio clip", match.Name);
+        Log.Debug("Processing audio clip", match.Name);
 
         var success = ImportAudioClip(context, targetAssetInfo, baseField, audioFileInfo.Value.FilePath,
             audioFileInfo.Value.Format);
 
         if (!success)
         {
-            Logger.Error("Failed to import audio clip", match.Name);
+            Log.Error("Failed to import audio clip", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported audio clip", match.Name);
+        Log.Debug("Imported audio clip", match.Name);
         return true;
     }
 
@@ -106,17 +106,17 @@ public static class AudioClipImporter
     {
         try
         {
-            Logger.Debug("Starting AudioClip import", assetInfo.PathId.ToString());
+            Log.Debug("Starting AudioClip import", assetInfo.PathId.ToString());
 
             if (!File.Exists(filePath))
             {
-                Logger.Error("Import file not found", filePath);
+                Log.Error("Import file not found", filePath);
                 return false;
             }
 
             var audioName = baseField["m_Name"].AsString;
 
-            Logger.Debug("Encoding to FSB", new Dictionary<string, string>
+            Log.Debug("Encoding to FSB", new Dictionary<string, string>
             {
                 ["path"] = filePath,
                 ["format"] = format.ToString()
@@ -126,12 +126,12 @@ public static class AudioClipImporter
 
             if (fsbData.Length == 0)
             {
-                Logger.Error("Failed to generate FSB data");
+                Log.Error("Failed to generate FSB data");
                 return false;
             }
 
             var audioInfo = context.Decoder!.GetFsbInfo(fsbData);
-            Logger.Debug("Audio info", new Dictionary<string, string>
+            Log.Debug("Audio info", new Dictionary<string, string>
             {
                 ["frequency"] = $"{audioInfo.Frequency}Hz",
                 ["channels"] = audioInfo.Channels.ToString(),
@@ -159,8 +159,8 @@ public static class AudioClipImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during AudioClip import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during AudioClip import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }

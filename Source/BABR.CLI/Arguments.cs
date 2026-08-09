@@ -38,11 +38,11 @@ public static class Arguments
         string modded = "",
         params string[]? patch)
     {
-        Logger.Initialize(verbose);
+        Log.Initialize(verbose);
 
         if (types)
         {
-            Logger.Info("Available asset types:");
+            Log.Info("Available asset types:");
             foreach (var type in TypeMapper.GetAllAssetTypes()) Console.WriteLine($"  {type}");
             return;
         }

@@ -10,7 +10,7 @@ public static class Texture2DImporter
 {
     public static async Task<int> Import(ImportContext context)
     {
-        Logger.Info("Importing texture assets...");
+        Log.Info("Importing texture assets...");
         return await ProcessImports(context);
     }
 
@@ -26,7 +26,7 @@ public static class Texture2DImporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error importing texture", ex);
+                Log.Error("Error importing texture", ex);
             }
 
         return importedCount;
@@ -36,28 +36,28 @@ public static class Texture2DImporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.PatchId, out var targetAssetInfo))
         {
-            Logger.Error("Asset not found in target bundle", match.PatchId.ToString());
+            Log.Error("Asset not found in target bundle", match.PatchId.ToString());
             return false;
         }
 
         var filePath = FindTextureFile(match.Name);
         if (filePath == null)
         {
-            Logger.Error("Texture file not found", FileManager.Clean(match.Name));
+            Log.Error("Texture file not found", FileManager.Clean(match.Name));
             return false;
         }
 
-        Logger.Debug("Processing texture", match.Name);
+        Log.Debug("Processing texture", match.Name);
 
         var success = await ImportTextureFromFile(context, targetAssetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error("Failed to import texture", match.Name);
+            Log.Error("Failed to import texture", match.Name);
             return false;
         }
 
-        Logger.Debug("Imported texture", match.Name);
+        Log.Debug("Imported texture", match.Name);
         return true;
     }
 
@@ -80,7 +80,7 @@ public static class Texture2DImporter
     {
         try
         {
-            Logger.Debug("Starting import for asset", assetInfo.PathId.ToString());
+            Log.Debug("Starting import for asset", assetInfo.PathId.ToString());
 
             var textureTemplate =
                 Texture2DProcessor.GetTextureTemplate(context.AssetsManager, context.AssetsFileInstance, assetInfo);
@@ -102,8 +102,8 @@ public static class Texture2DImporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during import", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during import", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return Task.FromResult(false);
         }
     }

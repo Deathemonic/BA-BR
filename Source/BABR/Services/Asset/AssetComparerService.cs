@@ -75,7 +75,7 @@ public static class AssetComparerService
         }
         catch (Exception ex)
         {
-            Logger.Error("Comparing assets failed", ex);
+            Log.Error("Comparing assets failed", ex);
             return [];
         }
     }
@@ -115,7 +115,7 @@ public static class AssetComparerService
         }
         catch (Exception ex)
         {
-            Logger.Error($"Comparing {typeName} failed", ex);
+            Log.Error($"Comparing {typeName} failed", ex);
             return [];
         }
     }

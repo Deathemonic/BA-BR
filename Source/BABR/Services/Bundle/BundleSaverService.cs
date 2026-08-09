@@ -18,7 +18,7 @@ public static class BundleSaverService
 
             if (bundleFileInstance == null || assetsFileInstance == null)
             {
-                Logger.Error("Could not get bundle or assets file instance for saving");
+                Log.Error("Could not get bundle or assets file instance for saving");
                 return;
             }
 
@@ -32,18 +32,18 @@ public static class BundleSaverService
 
             if (replacerCount == 0)
             {
-                Logger.Warn("No modifications detected in assets file");
+                Log.Warn("No modifications detected in assets file");
                 return;
             }
 
-            Logger.Info("Saving modified assets", replacerCount.ToString());
+            Log.Info("Saving modified assets", replacerCount.ToString());
 
             var dirInfo = bundleFileInstance.file.BlockAndDirInfo.DirectoryInfos.AsValueEnumerable()
                 .FirstOrDefault(d => !d.Name.EndsWith(".resS"));
 
             if (dirInfo == null)
             {
-                Logger.Error("Could not find main directory in bundle");
+                Log.Error("Could not find main directory in bundle");
                 return;
             }
 
@@ -67,7 +67,7 @@ public static class BundleSaverService
                     bundleFileInstance.file.Write(tempUncompressedWriter);
                 }
 
-                Logger.Info("Compressing bundle", compressionType.ToString());
+                Log.Info("Compressing bundle", compressionType.ToString());
 
                 var uncompressedBundle = new AssetBundleFile();
                 uncompressedBundle.Read(new AssetsFileReader(File.OpenRead(tempUncompressedPath)));
@@ -85,7 +85,7 @@ public static class BundleSaverService
                 }
                 catch (Exception ex)
                 {
-                    Logger.Trace("Stack trace", ex.StackTrace ?? "");
+                    Log.Trace("Stack trace", ex.StackTrace ?? "");
                 }
             }
 
@@ -95,14 +95,14 @@ public static class BundleSaverService
 
             if (!skipCrcMatch)
             {
-                Logger.Debug("Matching CRC", $"{Path.GetFileName(outputPath)} → {Path.GetFileName(originalPatchPath)}");
+                Log.Debug("Matching CRC", $"{Path.GetFileName(outputPath)} → {Path.GetFileName(originalPatchPath)}");
                 CrcManipulator.MatchFile(outputPath, originalPatchPath);
-                Logger.Success("CRC matched successfully");
+                Log.Success("CRC matched successfully");
             }
 
-            Logger.Success("Saved modded bundle", outputPath);
+            Log.Success("Saved modded bundle", outputPath);
 
-            Logger.Debug("Applied asset modifications", new Dictionary<string, string>
+            Log.Debug("Applied asset modifications", new Dictionary<string, string>
             {
                 ["count"] = replacerCount.ToString(),
                 ["compression"] = compressionInfo
@@ -110,8 +110,8 @@ public static class BundleSaverService
         }
         catch (Exception ex)
         {
-            Logger.Error("Error saving modded bundle", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Error saving modded bundle", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
         }
     }
 

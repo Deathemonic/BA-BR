@@ -50,14 +50,14 @@ public static class BundleExportService
         var loader = new BundleLoaderService();
         if (!loader.LoadBundle(path))
         {
-            Logger.Error("Failed to load modded bundle for export");
+            Log.Error("Failed to load modded bundle for export");
             return (null, null);
         }
 
         var instance = loader.GetAssetsFileInstance();
         if (instance != null) return (instance, loader.GetAssetsManager());
 
-        Logger.Error("Failed to get assets file instance for export");
+        Log.Error("Failed to get assets file instance for export");
         return (null, null);
     }
 

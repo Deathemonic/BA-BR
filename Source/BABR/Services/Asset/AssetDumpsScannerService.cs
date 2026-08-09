@@ -13,7 +13,7 @@ public static class AssetDumpsScannerService
         var availableMatches =
             allMatches.AsValueEnumerable().Where(match => HasMatchingFile(match, dumpsPath)).ToList();
 
-        Logger.Debug("Filtered matches", new Dictionary<string, string>
+        Log.Debug("Filtered matches", new Dictionary<string, string>
         {
             ["total"] = allMatches.Count.ToString(),
             ["available"] = availableMatches.Count.ToString()
@@ -49,11 +49,11 @@ public static class AssetDumpsScannerService
 
         if (match == null)
         {
-            Logger.Error("No matching asset found for file", Path.GetFileName(filePath));
+            Log.Error("No matching asset found for file", Path.GetFileName(filePath));
             return [];
         }
 
-        Logger.Debug("Matched single file", new Dictionary<string, string>
+        Log.Debug("Matched single file", new Dictionary<string, string>
         {
             ["file"] = Path.GetFileName(filePath),
             ["asset"] = match.Name,

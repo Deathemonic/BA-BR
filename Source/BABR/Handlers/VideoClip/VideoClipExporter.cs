@@ -11,7 +11,7 @@ public static class VideoClipExporter
 {
     public static Task<int> Export(ExportContext context)
     {
-        Logger.Info("Exporting VideoClip assets...");
+        Log.Info("Exporting VideoClip assets...");
         return Task.FromResult(ProcessExports(context));
     }
 
@@ -28,7 +28,7 @@ public static class VideoClipExporter
             }
             catch (Exception ex)
             {
-                Logger.Error("Error exporting video clip", ex);
+                Log.Error("Error exporting video clip", ex);
             }
 
         return exportedCount;
@@ -38,30 +38,30 @@ public static class VideoClipExporter
     {
         if (!context.AssetInfoLookup.TryGetValue(match.ModdedId, out var assetInfo))
         {
-            Logger.Error("VideoClip not found in modded bundle", match.ModdedId.ToString());
+            Log.Error("VideoClip not found in modded bundle", match.ModdedId.ToString());
             return false;
         }
 
         var baseField = context.AssetsManager.GetBaseField(context.AssetsFileInstance, assetInfo);
         if (baseField == null)
         {
-            Logger.Error("Failed to read VideoClip", match.ModdedId.ToString());
+            Log.Error("Failed to read VideoClip", match.ModdedId.ToString());
             return false;
         }
 
         var filePath = BuildExportFilePath(match.Name, "mp4", usedPaths);
 
-        Logger.Debug("Attempting to export video clip", match.Name);
+        Log.Debug("Attempting to export video clip", match.Name);
 
         var success = ExportVideoClip(context, baseField, assetInfo, filePath);
 
         if (!success)
         {
-            Logger.Error("Failed to export video clip", match.Name);
+            Log.Error("Failed to export video clip", match.Name);
             return false;
         }
 
-        Logger.Debug("Exported video clip", new Dictionary<string, string>
+        Log.Debug("Exported video clip", new Dictionary<string, string>
         {
             ["name"] = match.Name,
             ["file"] = Path.GetFileName(filePath)
@@ -81,7 +81,7 @@ public static class VideoClipExporter
     {
         try
         {
-            Logger.Debug("Starting VideoClip export", assetInfo.PathId.ToString());
+            Log.Debug("Starting VideoClip export", assetInfo.PathId.ToString());
 
             var resourceSource = baseField["m_ExternalResources.m_Source"].AsString;
             var resourceOffset = baseField["m_ExternalResources.m_Offset"].AsULong;
@@ -90,18 +90,18 @@ public static class VideoClipExporter
             if (!GetVideoBytes(context.AssetsFileInstance, resourceSource, resourceOffset, resourceSize,
                     out var videoData))
             {
-                Logger.Error("Failed to get video bytes", assetInfo.PathId.ToString());
+                Log.Error("Failed to get video bytes", assetInfo.PathId.ToString());
                 return false;
             }
 
             if (videoData.Length == 0)
             {
-                Logger.Error("Video data is empty", assetInfo.PathId.ToString());
+                Log.Error("Video data is empty", assetInfo.PathId.ToString());
                 return false;
             }
 
             File.WriteAllBytes(filePath, videoData);
-            Logger.Debug("Successfully wrote video file", new Dictionary<string, string>
+            Log.Debug("Successfully wrote video file", new Dictionary<string, string>
             {
                 ["bytes"] = videoData.Length.ToString(),
                 ["path"] = filePath
@@ -110,8 +110,8 @@ public static class VideoClipExporter
         }
         catch (Exception ex)
         {
-            Logger.Error("Exception during VideoClip export", ex);
-            Logger.Trace("Stack trace", ex.StackTrace ?? "");
+            Log.Error("Exception during VideoClip export", ex);
+            Log.Trace("Stack trace", ex.StackTrace ?? "");
             return false;
         }
     }
