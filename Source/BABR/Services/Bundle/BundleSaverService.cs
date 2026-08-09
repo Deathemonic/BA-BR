@@ -94,7 +94,11 @@ public static class BundleSaverService
                 : $"compressed with {compressionType}";
 
             if (!skipCrcMatch)
+            {
+                Logger.Debug("Matching CRC", $"{Path.GetFileName(outputPath)} → {Path.GetFileName(originalPatchPath)}");
                 CrcManipulator.MatchFile(outputPath, originalPatchPath);
+                Logger.Success("CRC matched successfully");
+            }
 
             Logger.Success("Saved modded bundle", outputPath);
 
