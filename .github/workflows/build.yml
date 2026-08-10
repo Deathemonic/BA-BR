@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           curl -L -o fmod.zip "${{ secrets.FMOD }}"
-          unzip -o fmod.zip -d BABR.FMOD/Native/
+          unzip -o fmod.zip -d Source/BABR.FMOD/Native/
 
       - name: Publish
         run: dotnet publish Source/BABR.CLI/BABR.CLI.csproj -c Release -r ${{ matrix.config.rid }} -o ./publish/${{ matrix.config.rid }}
