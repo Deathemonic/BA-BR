@@ -84,7 +84,6 @@ public static class BundleProcessorService
     private static void LogMatchingAssets(List<AssetMatch> matches)
     {
         Log.Success($"Found {matches.Count} matching assets");
-        Log.Info("Matching Assets:");
 
         foreach (var match in matches)
             Log.Info($"Asset match {match.ModdedId}", match.DisplayName);
