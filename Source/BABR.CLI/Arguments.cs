@@ -8,7 +8,7 @@ namespace BABR.CLI;
 public static class Arguments
 {
     /// <summary>
-    ///     Blue Archive - Bundle Updater
+    ///     Blue Archive - Bundle Repacker
     /// </summary>
     /// <param name="include">Asset types to include (e.g., --include texture2d,audioclip).</param>
     /// <param name="exclude">Asset types to exclude (e.g., --exclude gameobject,transform).</param>
