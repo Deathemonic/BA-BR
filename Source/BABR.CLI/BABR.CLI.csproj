@@ -5,7 +5,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <AssemblyName>BABR.CLI</AssemblyName>
         <OutputExeName>babr</OutputExeName>
-        <Version>3.2.0</Version>
+        <Version>3.3.0</Version>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PublishAot>true</PublishAot>
