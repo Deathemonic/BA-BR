@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AssetsTools.NET" Version="3.0.2" />
+        <PackageReference Include="AssetsTools.NET" Version="3.0.5" />
         <PackageReference Include="AssetsTools.NET.Texture" Version="3.0.2" />
         <PackageReference Include="StbImageSharp" Version="2.30.16" />
         <PackageReference Include="StbImageWriteSharp" Version="1.16.7" />
